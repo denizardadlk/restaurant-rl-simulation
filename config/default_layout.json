@@ -1,0 +1,27 @@
+{
+  "grid_size": {
+    "width": 10,
+    "height": 10
+  },
+  "tables": [
+    {"id": "T1", "x": 2, "y": 2, "capacity": 4},
+    {"id": "T2", "x": 2, "y": 5, "capacity": 2},
+    {"id": "T3", "x": 2, "y": 8, "capacity": 4},
+    {"id": "T4", "x": 5, "y": 2, "capacity": 2},
+    {"id": "T5", "x": 5, "y": 5, "capacity": 6}
+  ],
+  "stations": [
+    {"id": "S_OVEN_1", "type": "OVEN", "x": 8, "y": 2, "capacity": 2},
+    {"id": "S_GRILL_1", "type": "GRILL", "x": 8, "y": 4, "capacity": 4},
+    {"id": "S_STOVE_1", "type": "STOVE", "x": 8, "y": 6, "capacity": 3},
+    {"id": "S_PREP_1", "type": "PREP", "x": 8, "y": 8, "capacity": 3}
+  ],
+  "waiters": [
+    {"id": "W1", "x": 5, "y": 8, "speed": 1.0},
+    {"id": "W2", "x": 6, "y": 8, "speed": 1.0}
+  ],
+  "chefs": [
+    {"id": "C1", "x": 9, "y": 3, "capacity": 2, "efficiency": 1.0},
+    {"id": "C2", "x": 9, "y": 7, "capacity": 3, "efficiency": 1.1}
+  ]
+}

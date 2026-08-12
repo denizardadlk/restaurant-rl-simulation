@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Layout Düzenleyici</title>
+    <link rel="stylesheet" href="layout_editor.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container"></div>
+    <div class="app-container">
+        <!-- Sol/Orta Taraf: Harita Alanı -->
+        <div class="map-container">
+            <header class="map-header">
+                <h2>Restoran Haritası</h2>
+                <div class="legend">
+                    <span class="legend-item"><div class="box empty"></div> Boş Alan</span>
+                    <span class="legend-item"><div class="box table"></div> Masa</span>
+                    <span class="legend-item"><div class="box chair"></div> Sandalyeler</span>
+                    <span class="legend-item"><div class="box kitchen"></div> Mutfak Alanı</span>
+                </div>
+            </header>
+            
+            <div class="canvas-wrapper">
+                <canvas id="map-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Kontrol Paneli -->
+        <div class="sidebar">
+            <h1>Layout Düzenleyici</h1>
+            
+            <section class="control-section presets-section">
+                <h3>📋 Hazır Düzen Şablonları</h3>
+                <div class="preset-buttons">
+                    <button id="preset-default" class="btn secondary">Varsayılan</button>
+                    <button id="preset-fine-dining" class="btn secondary">Fine Dining</button>
+                    <button id="preset-compact" class="btn secondary">Küçük Kafe</button>
+                    <button id="preset-fast-food" class="btn secondary">Fast Food</button>
+                </div>
+            </section>
+
+            <section class="control-section analytics-section">
+                <h3>📊 Canlı Verimlilik Analizi</h3>
+                <div class="analytics-card">
+                    <div class="metric">
+                        <span class="metric-label">Ort. Yürüme Mesafesi</span>
+                        <span class="metric-value" id="metric-avg-dist">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Koltuk Yoğunluğu</span>
+                        <span class="metric-value" id="metric-density">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Maks. Yürüme (Darboğaz)</span>
+                        <span class="metric-value" id="metric-max-dist">-</span>
+                    </div>
+                </div>
+                <div class="toggle-control mt-10">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="toggle-paths" checked> Yürüme Yollarını Göster
+                    </label>
+                </div>
+            </section>
+            
+            <section class="control-section">
+                <h3>🛠️ Çizim Modu</h3>
+                <div class="tool-selector">
+                    <button id="mode-table" class="btn tool-btn active">🍽️ Masa Modu</button>
+                    <button id="mode-kitchen" class="btn tool-btn">🍳 Mutfak Modu</button>
+                </div>
+            </section>
+
+            <section class="control-section">
+                <h3>📐 Harita Boyutu</h3>
+                <div class="grid-controls-sidebar">
+                    <div class="grid-inputs">
+                        <label>Genişlik: <input type="number" id="grid-width" value="10" min="5" max="30"></label>
+                        <label>Yükseklik: <input type="number" id="grid-height" value="10" min="5" max="30"></label>
+                    </div>
+                    <button id="btn-update-grid" class="btn primary full-width">Haritayı Güncelle</button>
+                </div>
+            </section>
+            
+            <section class="control-section">
+                <h3>🍽️ Masalar</h3>
+                <div class="table-controls">
+                    <label>Kapasite: 
+                        <select id="table-capacity">
+                            <option value="2">2 Kişilik</option>
+                            <option value="4" selected>4 Kişilik</option>
+                            <option value="6">6 Kişilik</option>
+                            <option value="8">8 Kişilik</option>
+                        </select>
+                    </label>
+                    <label>Yerleşim Yönü:
+                        <select id="table-orientation">
+                            <option value="H" selected>Yatay (Horizontal)</option>
+                            <option value="V">Dikey (Vertical)</option>
+                        </select>
+                    </label>
+                    <p class="help-text">Yerleştirilmiş masayı döndürmek için üstüne <b>Sağ Tıklayın</b> veya klavyeden <b>'R'</b> tuşuna basın.</p>
+                    <button id="btn-clear-tables" class="btn danger full-width">Tüm Masaları Sil</button>
+                </div>
+            </section>
+
+            <section class="control-section">
+                <h3>🍳 Mutfak İstasyonları</h3>
+                <p class="help-text">Mutfak modunda fareyle alan çizebilir, aşağıdan yeni istasyon ve kapasite ekleyebilirsiniz.</p>
+                
+                <div class="station-adder">
+                    <select id="new-station-type">
+                        <option value="OVEN">Fırın (OVEN)</option>
+                        <option value="GRILL">Izgara (GRILL)</option>
+                        <option value="STOVE">Ocak (STOVE)</option>
+                        <option value="PREP">Hazırlık (PREP)</option>
+                    </select>
+                    <input type="number" id="new-station-capacity" value="2" min="1" max="20" title="İstasyon Kapasitesi" placeholder="Kapasite" style="width: 70px; margin-bottom: 0;">
+                    <button id="btn-add-station" class="btn secondary">Ekle</button>
+                </div>
+                
+                <div id="station-list" class="list-container">
+                    <!-- İstasyonlar buraya JS ile eklenecek -->
+                </div>
+            </section>
+
+            <section class="control-section">
+                <h3>👥 Personel</h3>
+                <div class="staff-settings">
+                    <label>Garson Sayısı: <input type="number" id="waiter-count" value="2" min="0" max="10"></label>
+                    <label>Aşçı Sayısı: <input type="number" id="chef-count" value="2" min="0" max="10"></label>
+                </div>
+            </section>
+
+            <section class="control-section actions">
+                <button id="btn-export-json" class="btn primary full-width">JSON İndir</button>
+                <button id="btn-save-server" class="btn success full-width">Projeye Kaydet (config/custom_layout.json)</button>
+                
+                <div class="file-import">
+                    <label for="import-file" class="btn secondary full-width">JSON Yükle</label>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="layout_editor.js"></script>
+</body>
+</html>
