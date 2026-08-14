@@ -126,6 +126,6 @@ class KitchenManager:
                         elif data_len > 2000 and data_len % 1000 == 0:
                             should_train = True
 
-                        if should_train:
+                        if should_train and not getattr(self.engine, 'freeze_ml', False):
                             df = self.engine.collector.get_dataframe()
                             self.engine.predictor.train(df, auto_save=False)

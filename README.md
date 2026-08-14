@@ -111,8 +111,8 @@ Sistem, yapay zeka eğitim süreçlerini görselleştirmeden bağımsız kılmak
    # 2. Deterministik Algoritmalar 100 Gün Benchmark Testi (FIFO, SPT, LPT, MinPatience):
    python run_deterministic_test.py --days 100
    
-   # 3. Pekiştirmeli Öğrenme (RL - MaskablePPO) Eğitimi & Fine-Tuning:
-   python run_rl_training.py
+   # 3. Pekiştirmeli Öğrenme (RL - MaskablePPO) Eğitimi & Fine-Tuning (Çoklu Çekirdek Destekli):
+   python run_rl_training.py --num-envs 4
    
    # 4. Eğitilmiş RL Modelini 100 Gün Test Etme:
    python run_rl_model.py --days 100

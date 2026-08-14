@@ -13,12 +13,13 @@ class RestaurantGymEnv(gym.Env):
     """
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3):
+    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3, freeze_ml: bool = True):
         super(RestaurantGymEnv, self).__init__()
         
         self.config_path = config_path
         self.difficulty_level = difficulty_level
-        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level)
+        self.freeze_ml = freeze_ml
+        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level, freeze_ml=self.freeze_ml)
         self.max_queue_size = 15
         
         self.station_ids = list(self.engine.grid.stations.keys())
@@ -125,7 +126,7 @@ class RestaurantGymEnv(gym.Env):
         dl = self.difficulty_level
         if options and "difficulty_level" in options:
             dl = options["difficulty_level"]
-        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=dl)
+        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=dl, freeze_ml=self.freeze_ml)
         self.difficulty_level = dl
         self.engine.reset()
         

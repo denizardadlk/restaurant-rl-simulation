@@ -101,6 +101,7 @@ def main():
     parser.add_argument("--mode", type=str, choices=["continue", "overwrite", "new"], default=None, help="Eğitim modu")
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--num-envs", type=int, default=4, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı (varsayılan: 4)")
     args = parser.parse_args()
     
     os.makedirs(MODELS_DIR, exist_ok=True)
@@ -120,11 +121,17 @@ def main():
     print(f"Layout       : {layout_entry['filename']} ({layout_path})")
     print(f"Mod          : {mode.upper()}")
     print(f"Eğitim Süresi: {training_days} Gün ({total_timesteps:,} Timestep)")
+    print(f"Paralel Çekirdek (Envs): {args.num_envs}")
     print(f"Hedef Model  : {DEFAULT_MODEL_PATH}")
     print("=" * 75)
     
-    env = RestaurantGymEnv(config_path=layout_path, difficulty_level=args.difficulty)
-    rl_agent = OrderSchedulerRLAgent(env, model_path=DEFAULT_MODEL_PATH)
+    rl_agent = OrderSchedulerRLAgent(
+        config_path=layout_path,
+        num_envs=args.num_envs,
+        difficulty_level=args.difficulty,
+        model_path=DEFAULT_MODEL_PATH,
+        freeze_ml=True
+    )
     
     if mode == "continue" and existing_model:
         print(f"\n[YÜKLENİYOR] Mevcut model yükleniyor: {DEFAULT_MODEL_PATH}...")

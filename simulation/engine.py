@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Any, Optional
 from .grid import RestaurantGrid
 from .pathfinding import Pathfinder
@@ -14,8 +15,9 @@ class SimulationEngine:
     Core orchestrator of the Restaurant Simulation.
     Coordinates customer lifecycles, kitchen operations, and waiter dispatches.
     """
-    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3):
+    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3, freeze_ml: bool = False):
         self.difficulty_level = difficulty_level
+        self.freeze_ml = freeze_ml
         self.tick = 0
         self.grid = RestaurantGrid(config_path)
         self.pathfinder = Pathfinder(self.grid)
@@ -29,6 +31,9 @@ class SimulationEngine:
         # ML Subsystems
         self.collector = EmpiricalDataCollector()
         self.predictor = CookTimePredictor()
+        # Automatically load pre-trained ML cook time model if present
+        if os.path.exists("models/ml_cook_time_model.pkl"):
+            self.predictor.load("models/ml_cook_time_model.pkl")
         
         # Dedicated Sub-Managers
         self.customer_manager = CustomerManager(self)

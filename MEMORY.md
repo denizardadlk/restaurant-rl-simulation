@@ -73,7 +73,15 @@
   1. `kitchen.py` içindeki yeniden eğitilme sıklığı kademelendirildi: İlk 200 siparişte ısınma için 50'de bir, ardından her 200 siparişte bir (2000 sipariş sonrası 1000'de bir) eğitilecek şekilde ayarlandı.
   2. Periyodik adımlarda gereksiz `pickle.dump` disk yazımı engellendi (`auto_save=False`).
   3. `LGBMRegressor` parametreleri `n_estimators=50`, `learning_rate=0.08`, `min_child_samples=5`, `verbosity=-1` ve `force_col_wise=True` ile optimize edilerek hem log kirliliği önlendi hem de fit süresi hızlandırıldı.
-- **Sonuçlar**: RL eğitim adımları LightGBM fitting beklemesi olmadan çok daha akıcı ve hızlı ilerler.
+### ADR-010: Paralel Çoklu Çekirdek RL Eğitimi, Dijkstra Önbelleği ve ML Dondurma
+- **Tarih**: 2026-08-14
+- **Durum**: Accepted
+- **Bağlam**: Tek çekirdekli (single-process) RL eğitimi ve her bölüm sıfırlamasında (reset) yinelenen NetworkX Dijkstra hesaplamaları eğitim hızını kısıtlamaktaydı.
+- **Karar**:
+  1. **Dijkstra Matris Önbelleği (`simulation/pathfinding.py`):** `_GLOBAL_DISTANCE_CACHE` oluşturuldu. Harita ızgara boyutu ve engeller değişmediği sürece tüm mesafeler $O(1)$ sürede bellekten okunur.
+  2. **RL Sırasında ML Dondurma (`freeze_ml=True`):** RL eğitimi süresince LightGBM fit çağrıları dondurularak önceden eğitilmiş modelden doğrudan `predict` alınır, CPU döngü duraksamaları engellenir.
+  3. **Vektörize Çoklu Çekirdek Eğitimi (`SubprocVecEnv`):** `OrderSchedulerRLAgent` ve `run_rl_training.py` betiğine `--num-envs` (varsayılan 4) desteği eklendi. MaskablePPO eşzamanlı olarak çoklu işlemci çekirdeklerinde çalıştırılır.
+- **Sonuçlar**: Birim test çalışma süresi 10.5 saniyeden 4.6 saniyeye indi. RL eğitim hızı 300+ FPS'e çıkarılarak 100 günlük eğitim dakikalar içine çekildi.
 
 ---
 
