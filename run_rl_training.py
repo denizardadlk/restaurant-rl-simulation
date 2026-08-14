@@ -20,6 +20,36 @@ CONFIG_DIR = os.path.join(BASE_DIR, "config")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 DEFAULT_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
 
+def extract_layout_info(path: str) -> dict:
+    """Layout JSON dosyasından masa, istasyon, garson, aşçı detaylarını okur."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        grid_w = data.get("grid_size", {}).get("width", 0)
+        grid_h = data.get("grid_size", {}).get("height", 0)
+        tables = data.get("tables", [])
+        stations = data.get("stations", [])
+        waiters = data.get("waiters", [])
+        chefs = data.get("chefs", [])
+        
+        total_capacity = sum(t.get("capacity", 4) for t in tables)
+        station_types = list(set(s.get("type", "UNKNOWN") for s in stations))
+        
+        return {
+            "grid_size": f"{grid_w}x{grid_h}",
+            "table_count": len(tables),
+            "total_capacity": total_capacity,
+            "station_count": len(stations),
+            "station_types": station_types,
+            "waiter_count": len(waiters),
+            "chef_count": len(chefs)
+        }
+    except Exception:
+        return {
+            "grid_size": "?", "table_count": 0, "total_capacity": 0,
+            "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
+        }
+
 def get_available_layouts():
     layouts = []
     seen = set()
@@ -27,20 +57,20 @@ def get_available_layouts():
         for f in sorted(os.listdir(LAYOUTS_DIR)):
             if f.endswith(".json") and f not in seen:
                 full_p = os.path.join(LAYOUTS_DIR, f)
-                layouts.append({"filename": f, "path": full_p})
+                layouts.append({"filename": f, "path": full_p, "info": extract_layout_info(full_p)})
                 seen.add(f)
     if os.path.exists(CONFIG_DIR):
         for f in sorted(os.listdir(CONFIG_DIR)):
             if f.endswith(".json") and f not in seen:
                 full_p = os.path.join(CONFIG_DIR, f)
-                layouts.append({"filename": f, "path": full_p})
+                layouts.append({"filename": f, "path": full_p, "info": extract_layout_info(full_p)})
                 seen.add(f)
     return layouts
 
-def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli_mode=None):
-    print("\n" + "=" * 75)
-    print("🤖 PEKİŞTİRMELİ ÖĞRENME (RL) AJANI EĞİTİM YÖNETİCİSİ")
-    print("=" * 75)
+def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli_mode=None, cli_envs=None):
+    print("\n" + "=" * 80)
+    print("🤖 PEKİŞTİRMELİ ÖĞRENME (RL - MaskablePPO) AJANI EĞİTİM YÖNETİCİSİ")
+    print("=" * 80)
     
     # 1. Mod Seçimi
     if cli_mode is not None:
@@ -59,7 +89,7 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
     if cli_days is not None:
         training_days = cli_days
     else:
-        print("\n[ADIM 1/2] Kaç gün simülasyon eğitimi yapmak istersiniz?")
+        print("\n[ADIM 1/3] Kaç gün simülasyon eğitimi yapmak istersiniz?")
         print("  [1] 10 Gün  (14.400 timestep - Hızlı Prototipleme)")
         print("  [2] 50 Gün  (72.000 timestep - Standart Eğitim)")
         print("  [3] 100 Gün (144.000 timestep - Derin Yakınsama) [Varsayılan]")
@@ -83,17 +113,44 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
         matched = next((l for l in available if l["filename"] == cli_layout or l["path"] == cli_layout or os.path.basename(cli_layout) == l["filename"]), None)
         selected_layout = matched if matched else available[0]
     else:
-        print("\n[ADIM 2/2] Hangi Restoran Düzeni (Layout) üzerinde eğitilsin?")
+        print("\n[ADIM 2/3] Hangi Restoran Düzeni (Layout) üzerinde eğitilsin?")
         for idx, l in enumerate(available, 1):
-            print(f"  [{idx}] {l['filename']}")
-        l_choice = input(f"Seçiminiz [1-{len(available)}] (Varsayılan: 1): ").strip()
+            inf = l.get("info", {})
+            st_types = ", ".join(inf.get("station_types", [])) if inf.get("station_types") else "Yok"
+            print(f"  [{idx}] {l['filename']:<22} | Boyut: {inf.get('grid_size', '?'):<5} | Masalar: {inf.get('table_count', 0):2d} ({inf.get('total_capacity', 0):2d} kişi) | İstasyon: {inf.get('station_count', 0):2d} ({st_types}) | Garson: {inf.get('waiter_count', 0)} | Aşçı: {inf.get('chef_count', 0)}")
+        l_choice = input(f"\nSeçiminiz [1-{len(available)}] (Varsayılan: 1): ").strip()
         try:
             l_idx = int(l_choice) - 1
             selected_layout = available[l_idx] if 0 <= l_idx < len(available) else available[0]
         except ValueError:
             selected_layout = available[0]
             
-    return mode, training_days, selected_layout
+    # 4. Paralel Çekirdek (CPU Threads) Seçimi
+    if cli_envs is not None:
+        selected_envs = cli_envs
+    else:
+        print("\n[ADIM 3/3] Kaç Paralel CPU Çekirdeği (Environment) Kullanılsın?")
+        print("  [1] 1 Çekirdek (Tek İşlemci)")
+        print("  [2] 2 Çekirdek (Hafif Paralel)")
+        print("  [3] 4 Çekirdek (Önerilen Hızlı Mod - 4x Hız) [Varsayılan]")
+        print("  [4] 8 Çekirdek (Maksimum Performans - 8x Hız)")
+        env_choice = input("Seçiminiz [1/2/3/4 veya özel çekirdek sayısı] (Varsayılan: 3): ").strip()
+        if env_choice == "1":
+            selected_envs = 1
+        elif env_choice == "2":
+            selected_envs = 2
+        elif env_choice == "3" or env_choice == "":
+            selected_envs = 4
+        elif env_choice == "4":
+            selected_envs = 8
+        else:
+            try:
+                selected_envs = int(env_choice)
+                if selected_envs <= 0: selected_envs = 4
+            except ValueError:
+                selected_envs = 4
+            
+    return mode, training_days, selected_layout, selected_envs
 
 def main():
     parser = argparse.ArgumentParser(description="Pekiştirmeli Öğrenme (RL) Sipariş Çizelgeleyici Eğitimi")
@@ -101,33 +158,33 @@ def main():
     parser.add_argument("--mode", type=str, choices=["continue", "overwrite", "new"], default=None, help="Eğitim modu")
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
-    parser.add_argument("--num-envs", type=int, default=4, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı (varsayılan: 4)")
+    parser.add_argument("--num-envs", type=int, default=None, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı (varsayılan: 4)")
     args = parser.parse_args()
     
     os.makedirs(MODELS_DIR, exist_ok=True)
     existing_model = os.path.exists(DEFAULT_MODEL_PATH)
     
-    mode, training_days, layout_entry = interactive_prompt(
-        existing_model, cli_days=args.days, cli_layout=args.layout, cli_mode=args.mode
+    mode, training_days, layout_entry, num_envs = interactive_prompt(
+        existing_model, cli_days=args.days, cli_layout=args.layout, cli_mode=args.mode, cli_envs=args.num_envs
     )
         
     timesteps_per_day = 1440
     total_timesteps = training_days * timesteps_per_day
     layout_path = layout_entry["path"]
     
-    print("\n" + "=" * 75)
+    print("\n" + "=" * 80)
     print("EĞİTİM YAPILANDIRMASI")
-    print("=" * 75)
+    print("=" * 80)
     print(f"Layout       : {layout_entry['filename']} ({layout_path})")
     print(f"Mod          : {mode.upper()}")
     print(f"Eğitim Süresi: {training_days} Gün ({total_timesteps:,} Timestep)")
-    print(f"Paralel Çekirdek (Envs): {args.num_envs}")
+    print(f"Paralel Çekirdek (Envs): {num_envs}")
     print(f"Hedef Model  : {DEFAULT_MODEL_PATH}")
-    print("=" * 75)
+    print("=" * 80)
     
     rl_agent = OrderSchedulerRLAgent(
         config_path=layout_path,
-        num_envs=args.num_envs,
+        num_envs=num_envs,
         difficulty_level=args.difficulty,
         model_path=DEFAULT_MODEL_PATH,
         freeze_ml=True
@@ -146,12 +203,18 @@ def main():
     rl_agent.train(total_timesteps=total_timesteps)
     
     elapsed = time.time() - start_time
-    print("\n" + "=" * 75)
+    print("\n" + "=" * 80)
     print("🎉 EĞİTİM TAMAMLANDI!")
-    print("=" * 75)
+    print("=" * 80)
     print(f"Geçen Süre       : {elapsed:.2f} saniye")
     print(f"Model Kayıt Yolu : {DEFAULT_MODEL_PATH}")
-    print("=" * 75 + "\n")
+    print("=" * 80 + "\n")
+    
+    # Çift tıklamayla açıldığında pencere hemen kapanmasın
+    try:
+        input("Programı kapatmak için Enter tuşuna basın...")
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     main()
