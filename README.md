@@ -103,17 +103,26 @@ Sistem, yapay zeka eğitim süreçlerini görselleştirmeden bağımsız kılmak
    pip install simpy networkx lightgbm xgboost gymnasium stable-baselines3 pygame streamlit matplotlib pandas plotly
    ```
 
-4. **Görselleştirme, Layout Düzenleyici ve Dashboard'u Çalıştırın:**
+4. **Standart Çalıştırma Komutları:**
    ```bash
-   # Pygame 2D Canlı Simülasyon Arayüzü İçin:
-   python gui_pygame.py
+   # 1. Web Tabanlı İnteraktif Layout Düzenleyici (Port 8080 - layouts/ kaydı):
+   python layout_editor.py
    
-   # Web Tabanlı İnteraktif Layout Düzenleyici (Layout Editor - Port 8080):
-   python run_layout_editor.py
-   # Tarayıcıda açın: http://localhost:8080/layout_editor.html
+   # 2. Deterministik Algoritmalar 100 Gün Benchmark Testi (FIFO, SPT, LPT, MinPatience):
+   python run_deterministic_test.py --days 100
    
-   # Streamlit Analitik Dashboard İçin:
-   streamlit run dashboard.py
+   # 3. Pekiştirmeli Öğrenme (RL - MaskablePPO) Eğitimi & Fine-Tuning:
+   python run_rl_training.py
+   
+   # 4. Eğitilmiş RL Modelini 100 Gün Test Etme:
+   python run_rl_model.py --days 100
+   
+   # 5. Canlı 2D Pygame Simülasyon Arayüzü:
+   python run_simulator.py --mode rl
+   
+   # 6. Model Karşılaştırma Grafiği & Tablosu / Web Dashboard:
+   python compare_models.py
+   python compare_models.py --web
    ```
 
 ---
@@ -121,14 +130,14 @@ Sistem, yapay zeka eğitim süreçlerini görselleştirmeden bağımsız kılmak
 ## 🛠️ İnteraktif Layout Düzenleyici (Layout Editor)
 
 Kendi restoran düzeninizi görsel olarak tasarlamak için:
-1. Terminalde `python run_layout_editor.py` çalıştırın.
-2. Tarayıcınızda **http://localhost:8080/layout_editor.html** adresine gidin.
+1. Terminalde `python layout_editor.py` çalıştırın.
+2. Tarayıcınızda otomatik açılan **http://localhost:8080/layout_editor.html** adresine gidin.
 3. Fare ile mutfak alanını sürükleyerek seçin, 2-8 kişilik masalar ekleyin (Sağ tık veya **'R'** tuşu ile masayı yerinde 90° döndürün).
-4. **"Projeye Kaydet"** butonuna basarak düzeninizi `config/custom_layout.json` dosyasına kaydedin.
+4. **"Projeye Kaydet"** butonuna basarak düzeninizi `layouts/custom_layout.json` dosyasına kaydedin.
 
 ### ❓ Sık Karşılaşılan Sorunlar ve Çözümleri (Troubleshooting)
-- **"Sunucuya bağlanılamadı" / Projeye Kaydedilemiyor:** Arka planda `python run_layout_editor.py` betiğinin çalıştığından emin olun (Port 8080).
-- **Sayfada Döndürme ('R' / Sağ tık) Çalışmıyor:** Tarayıcı önbelleğini temzilemek için `Ctrl + F5` ile sayfayı sert yenileyin.
+- **"Sunucuya bağlanılamadı" / Projeye Kaydedilemiyor:** Arka planda `python layout_editor.py` betiğinin çalıştığından emin olun (Port 8080).
+- **Sayfada Döndürme ('R' / Sağ tık) Çalışmıyor:** Tarayıcı önbelleğini temizlemek için `Ctrl + F5` ile sayfayı sert yenileyin.
 
 ---
 

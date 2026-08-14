@@ -48,6 +48,7 @@ const inChefs = document.getElementById('chef-count');
 const btnExport = document.getElementById('btn-export-json');
 const btnSaveServer = document.getElementById('btn-save-server');
 const btnImport = document.getElementById('import-file');
+const inLayoutName = document.getElementById('layout-name');
 
 // Analytics Elements
 const lblAvgDist = document.getElementById('metric-avg-dist');
@@ -189,11 +190,30 @@ function rotateTable(t) {
 }
 
 // Initialize
-function init() {
+async function init() {
     updateCanvasSize();
     reindexTables();
     render();
     setupEventListeners();
+    await fetchActiveLayout();
+}
+
+async function fetchActiveLayout() {
+    try {
+        const response = await fetch('/load_active_layout');
+        if (response.ok) {
+            const resData = await response.json();
+            if (resData.name && inLayoutName) {
+                inLayoutName.value = resData.name;
+            }
+            if (resData.data) {
+                loadFromData(resData.data);
+                showToast(`'${resData.name}' haritası yüklendi`, 'info');
+            }
+        }
+    } catch(e) {
+        console.log("Sunucudan aktif layout alınamadı:", e);
+    }
 }
 
 function updateCanvasSize() {
@@ -816,29 +836,38 @@ function generateLayoutData() {
 
 function exportJSON() {
     const data = generateLayoutData();
+    const layoutName = inLayoutName ? (inLayoutName.value.trim() || 'custom_layout') : 'custom_layout';
+    const filename = `${layoutName}.json`;
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
     const dlAnchorElem = document.createElement('a');
     dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "custom_layout.json");
+    dlAnchorElem.setAttribute("download", filename);
     dlAnchorElem.click();
 }
 
 async function saveToServer() {
     const data = generateLayoutData();
+    const layoutName = inLayoutName ? inLayoutName.value.trim() : 'custom_layout';
+    data.name = layoutName || 'custom_layout';
+    
     try {
         const response = await fetch('/save_layout', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
             body: JSON.stringify(data)
         });
         
         if (response.ok) {
-            showToast("Başarıyla config/custom_layout.json olarak kaydedildi!", "success");
+            const resData = await response.json();
+            if (resData.name && inLayoutName) {
+                inLayoutName.value = resData.name;
+            }
+            showToast(resData.message || `Başarıyla layouts/${resData.filename} olarak kaydedildi!`, "success");
         } else {
-            showToast("Kaydedilemedi. Sunucu çalışıyor mu? (python run_layout_editor.py)", "error");
+            showToast("Kaydedilemedi. Sunucu çalışıyor mu? (py layout_editor.py)", "error");
         }
     } catch(e) {
-        showToast("Sunucuya bağlanılamadı. python run_layout_editor.py çalıştırdığınızdan emin olun.", "error");
+        showToast("Sunucuya bağlanılamadı. py layout_editor.py çalıştırdığınızdan emin olun.", "error");
     }
 }
 
@@ -851,8 +880,8 @@ function loadFromData(data) {
     }
     if (data.kitchen_zone) {
         kitchenZone = data.kitchen_zone;
-        inKzX.value = kitchenZone.x;
-        inKzW.value = kitchenZone.w;
+        if (typeof inKzX !== 'undefined' && inKzX) inKzX.value = kitchenZone.x;
+        if (typeof inKzW !== 'undefined' && inKzW) inKzW.value = kitchenZone.w;
     }
     
     if (data.tables) {
@@ -877,7 +906,12 @@ function loadFromData(data) {
             const {x, y, ...rest} = s; // Strip X/Y as they are auto-generated
             return rest;
         });
-        nextStationId = Math.max(...stations.map(s => parseInt(s.id.split('_').pop())), 0) + 1;
+        const ids = stations.map(s => {
+            const parts = (s.id || '').split('_');
+            const num = parseInt(parts[parts.length - 1]);
+            return isNaN(num) ? 0 : num;
+        });
+        nextStationId = Math.max(...ids, 0) + 1;
     }
     
     if (data.waiters) inWaiters.value = data.waiters.length;

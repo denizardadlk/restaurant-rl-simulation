@@ -1,0 +1,15 @@
+================================================================================
+RL AJANI (MaskablePPO) 2 GÜNLÜK TEST RAPORU
+Tarih: 2026-08-14 11:11:30 | Layout: custom_layout.json
+================================================================================
+
+Toplam Gün Sayısı         : 2
+Toplam Tamamlanan Sipariş : 162
+Toplam Kaybedilen Müşteri : 513
+Günlük Ort. Tamamlanan    : 81.0
+Günlük Ort. Churn         : 256.5
+Ortalama Kuyruk Bekleme   : 24.97 dk
+Ortalama Yemek Soğuma     : 58.05 dk
+Günlük Ortalama Ödül      : -31941.65
+Test Süresi               : 10.36 saniye
+================================================================================

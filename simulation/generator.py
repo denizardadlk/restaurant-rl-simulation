@@ -4,15 +4,27 @@ from typing import List
 from .entities import Order
 
 class OrderGenerator:
-    def __init__(self, lambda_normal: float = 0.05, lambda_peak: float = 0.2):
+    def __init__(self, lambda_normal: float = 0.05, lambda_peak: float = 0.2, difficulty_level: int = 3):
+        self.difficulty_level = difficulty_level
         self.lambda_normal = lambda_normal
-        self.lambda_peak = lambda_peak
-        self.dish_types = [
-            {"type": "Pizza", "theoretical_time": 15.0},
-            {"type": "Burger", "theoretical_time": 10.0},
-            {"type": "Salad", "theoretical_time": 5.0},
-            {"type": "Steak", "theoretical_time": 25.0}
-        ]
+        self.lambda_peak = lambda_peak if difficulty_level >= 2 else lambda_normal
+        
+        if difficulty_level == 1:
+            # Level 1: Simple single-stage dishes
+            self.dish_types = [
+                {"type": "Pizza", "stages": [{"station_type": "OVEN", "time": 14.0}]},
+                {"type": "Burger", "stages": [{"station_type": "STOVE", "time": 10.0}]},
+                {"type": "Salad", "stages": [{"station_type": "PREP", "time": 5.0}]},
+                {"type": "Steak", "stages": [{"station_type": "GRILL", "time": 17.0}]}
+            ]
+        else:
+            # Level 2 & 3: Multi-stage dishes
+            self.dish_types = [
+                {"type": "Pizza", "stages": [{"station_type": "PREP", "time": 4.0}, {"station_type": "OVEN", "time": 10.0}]},
+                {"type": "Burger", "stages": [{"station_type": "PREP", "time": 2.0}, {"station_type": "STOVE", "time": 8.0}]},
+                {"type": "Salad", "stages": [{"station_type": "PREP", "time": 5.0}]},
+                {"type": "Steak", "stages": [{"station_type": "PREP", "time": 2.0}, {"station_type": "GRILL", "time": 15.0}]}
+            ]
 
     def _get_current_lambda(self, current_tick: int) -> float:
         # Assuming 1 tick = 1 minute, a day is 1440 ticks.
@@ -50,12 +62,29 @@ class OrderGenerator:
             # Generate exactly `table.capacity` orders, independently picking random dishes
             for _ in range(table.capacity):
                 dish = random.choice(self.dish_types)
+                total_time = sum(stage["time"] for stage in dish["stages"])
                 order = Order(
                     table_id=table.id,
                     dish_type=dish["type"],
-                    theoretical_time=dish["theoretical_time"]
+                    theoretical_time=total_time,
+                    stages=dish["stages"]
                 )
                 order.timestamps["created_at"] = current_tick
                 new_orders.append(order)
+                
+        # Also randomly generate Takeout Orders if Level 3
+        if self.difficulty_level >= 3 and random.random() < 0.02:
+            dish = random.choice(self.dish_types)
+            total_time = sum(stage["time"] for stage in dish["stages"])
+            takeout_order = Order(
+                table_id=None,
+                dish_type=dish["type"],
+                theoretical_time=total_time,
+                stages=dish["stages"],
+                is_takeout=True,
+                courier_eta=current_tick + random.uniform(15.0, 30.0)
+            )
+            takeout_order.timestamps["created_at"] = current_tick
+            new_orders.append(takeout_order)
             
         return new_orders

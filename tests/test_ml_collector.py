@@ -29,7 +29,7 @@ class TestMLCollector(unittest.TestCase):
         self.assertEqual(df.iloc[0]["station_load_at_start"], 2)
         
     def test_model_training_and_cold_start(self):
-        predictor = CookTimePredictor()
+        predictor = CookTimePredictor(auto_load=False)
         
         # Cold start
         features = {

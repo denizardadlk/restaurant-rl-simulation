@@ -1,133 +1,251 @@
 {
   "grid_size": {
-    "width": 14,
-    "height": 11
+    "width": 16,
+    "height": 16
   },
   "kitchen_zone": {
-    "x": 0,
+    "x": 11,
     "y": 0,
-    "w": 3,
+    "w": 5,
     "h": 11
   },
   "tables": [
     {
       "id": "T1",
-      "x": 4,
-      "y": 1,
-      "w": 2,
-      "h": 1,
-      "capacity": 4
+      "x": 12,
+      "y": 13,
+      "w": 3,
+      "h": 2,
+      "capacity": 8
     },
     {
       "id": "T2",
-      "x": 4,
-      "y": 3,
-      "w": 2,
-      "h": 1,
-      "capacity": 4
+      "x": 8,
+      "y": 13,
+      "w": 3,
+      "h": 2,
+      "capacity": 8
     },
     {
       "id": "T3",
       "x": 4,
-      "y": 5,
-      "w": 2,
-      "h": 1,
-      "capacity": 4
+      "y": 13,
+      "w": 3,
+      "h": 2,
+      "capacity": 8
     },
     {
       "id": "T4",
-      "x": 4,
-      "y": 7,
+      "x": 1,
+      "y": 12,
       "w": 2,
-      "h": 1,
-      "capacity": 4
+      "h": 3,
+      "capacity": 8
     },
     {
       "id": "T5",
-      "x": 4,
-      "y": 9,
+      "x": 8,
+      "y": 10,
       "w": 2,
-      "h": 1,
-      "capacity": 4
+      "h": 2,
+      "capacity": 6
     },
     {
       "id": "T6",
-      "x": 7,
-      "y": 1,
+      "x": 5,
+      "y": 10,
       "w": 2,
       "h": 2,
       "capacity": 6
     },
     {
       "id": "T7",
-      "x": 7,
-      "y": 8,
+      "x": 1,
+      "y": 9,
       "w": 2,
       "h": 2,
       "capacity": 6
     },
     {
       "id": "T8",
-      "x": 7,
-      "y": 4,
-      "w": 2,
-      "h": 3,
-      "capacity": 8
+      "x": 1,
+      "y": 6,
+      "w": 1,
+      "h": 2,
+      "capacity": 4
     },
     {
       "id": "T9",
-      "x": 10,
-      "y": 4,
-      "w": 2,
-      "h": 3,
-      "capacity": 8
+      "x": 3,
+      "y": 6,
+      "w": 1,
+      "h": 2,
+      "capacity": 4
     },
     {
       "id": "T10",
-      "x": 10,
-      "y": 1,
+      "x": 5,
+      "y": 7,
       "w": 1,
       "h": 2,
       "capacity": 4
     },
     {
       "id": "T11",
-      "x": 12,
-      "y": 1,
+      "x": 7,
+      "y": 7,
       "w": 1,
       "h": 2,
       "capacity": 4
     },
     {
       "id": "T12",
-      "x": 10,
-      "y": 8,
+      "x": 9,
+      "y": 7,
       "w": 1,
       "h": 2,
       "capacity": 4
     },
     {
       "id": "T13",
-      "x": 12,
-      "y": 8,
+      "x": 9,
+      "y": 4,
       "w": 1,
       "h": 2,
       "capacity": 4
+    },
+    {
+      "id": "T14",
+      "x": 7,
+      "y": 4,
+      "w": 1,
+      "h": 2,
+      "capacity": 4
+    },
+    {
+      "id": "T15",
+      "x": 5,
+      "y": 4,
+      "w": 1,
+      "h": 2,
+      "capacity": 4
+    },
+    {
+      "id": "T16",
+      "x": 3,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T17",
+      "x": 1,
+      "y": 4,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T18",
+      "x": 8,
+      "y": 2,
+      "w": 2,
+      "h": 1,
+      "capacity": 4
+    },
+    {
+      "id": "T19",
+      "x": 5,
+      "y": 2,
+      "w": 2,
+      "h": 1,
+      "capacity": 4
+    },
+    {
+      "id": "T20",
+      "x": 3,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T21",
+      "x": 1,
+      "y": 2,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T22",
+      "x": 1,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T23",
+      "x": 3,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T24",
+      "x": 5,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T25",
+      "x": 7,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
+    },
+    {
+      "id": "T26",
+      "x": 9,
+      "y": 0,
+      "w": 1,
+      "h": 1,
+      "capacity": 2
     }
   ],
   "stations": [
     {
       "id": "S_OVEN_1",
       "type": "OVEN",
-      "capacity": 2,
-      "x": 0,
+      "capacity": 40,
+      "x": 11,
       "y": 0
     },
     {
       "id": "S_GRILL_1",
       "type": "GRILL",
-      "capacity": 4,
-      "x": 1,
+      "capacity": 40,
+      "x": 12,
+      "y": 0
+    },
+    {
+      "id": "S_STOVE_6",
+      "type": "STOVE",
+      "capacity": 40,
+      "x": 13,
+      "y": 0
+    },
+    {
+      "id": "S_PREP_7",
+      "type": "PREP",
+      "capacity": 40,
+      "x": 14,
       "y": 0
     }
   ],
@@ -143,20 +261,171 @@
       "x": 0,
       "y": 1,
       "speed": 1
+    },
+    {
+      "id": "W3",
+      "x": 0,
+      "y": 2,
+      "speed": 1
+    },
+    {
+      "id": "W4",
+      "x": 0,
+      "y": 3,
+      "speed": 1
+    },
+    {
+      "id": "W5",
+      "x": 0,
+      "y": 4,
+      "speed": 1
+    },
+    {
+      "id": "W6",
+      "x": 0,
+      "y": 5,
+      "speed": 1
+    },
+    {
+      "id": "W7",
+      "x": 0,
+      "y": 6,
+      "speed": 1
+    },
+    {
+      "id": "W8",
+      "x": 0,
+      "y": 7,
+      "speed": 1
+    },
+    {
+      "id": "W9",
+      "x": 0,
+      "y": 8,
+      "speed": 1
+    },
+    {
+      "id": "W10",
+      "x": 0,
+      "y": 9,
+      "speed": 1
+    },
+    {
+      "id": "W11",
+      "x": 0,
+      "y": 10,
+      "speed": 1
+    },
+    {
+      "id": "W12",
+      "x": 0,
+      "y": 11,
+      "speed": 1
     }
   ],
   "chefs": [
     {
       "id": "C1",
-      "x": 0,
+      "x": 11,
       "y": 0,
       "capacity": 2,
       "efficiency": 1
     },
     {
       "id": "C2",
-      "x": 0,
+      "x": 11,
       "y": 2,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C3",
+      "x": 11,
+      "y": 4,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C4",
+      "x": 11,
+      "y": 6,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C5",
+      "x": 11,
+      "y": 8,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C6",
+      "x": 11,
+      "y": 10,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C7",
+      "x": 11,
+      "y": 1,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C8",
+      "x": 11,
+      "y": 3,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C9",
+      "x": 11,
+      "y": 5,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C10",
+      "x": 11,
+      "y": 7,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C11",
+      "x": 11,
+      "y": 9,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C12",
+      "x": 11,
+      "y": 0,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C13",
+      "x": 11,
+      "y": 2,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C14",
+      "x": 11,
+      "y": 4,
+      "capacity": 2,
+      "efficiency": 1
+    },
+    {
+      "id": "C15",
+      "x": 11,
+      "y": 6,
       "capacity": 2,
       "efficiency": 1
     }

@@ -1,0 +1,40 @@
+{
+  "benchmark_metadata": {
+    "test_type": "Reinforcement Learning Agent Test",
+    "model_path": "C:\\kod\\Bitirme Projesi\\models\\ppo_order_scheduler.zip",
+    "days": 2,
+    "difficulty": 3,
+    "layout": "custom_layout.json",
+    "timestamp": "2026-08-14 11:11:30"
+  },
+  "rl_agent": {
+    "name": "RL Agent (MaskablePPO)",
+    "total_days": 2,
+    "elapsed_seconds": 10.36,
+    "total_completed": 162,
+    "total_churned": 513,
+    "mean_daily_completed": 81.0,
+    "mean_daily_churn": 256.5,
+    "mean_queue_wait_time": 24.97,
+    "mean_food_cold_time": 58.05,
+    "mean_reward_per_day": -31941.65,
+    "daily_progression": [
+      {
+        "day": 1,
+        "day_reward": -32905.9,
+        "day_completed": 56,
+        "cumulative_completed": 56,
+        "day_churn": 266,
+        "cumulative_churn": 266
+      },
+      {
+        "day": 2,
+        "day_reward": -30977.4,
+        "day_completed": 106,
+        "cumulative_completed": 162,
+        "day_churn": 247,
+        "cumulative_churn": 513
+      }
+    ]
+  }
+}

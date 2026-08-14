@@ -13,28 +13,26 @@ class RestaurantGymEnv(gym.Env):
     """
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, config_path: str, max_queue_size: int = 5, render_mode: Optional[str] = None):
-        super().__init__()
+    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3):
+        super(RestaurantGymEnv, self).__init__()
+        
         self.config_path = config_path
-        self.engine = SimulationEngine(config_path)
-        self.max_queue_size = max_queue_size
-        self.render_mode = render_mode
+        self.difficulty_level = difficulty_level
+        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level)
+        self.max_queue_size = 15
         
-        # We need to know the number of stations to define action space
-        self.engine.reset()
-        self.num_stations = len(self.engine.grid.stations)
         self.station_ids = list(self.engine.grid.stations.keys())
+        self.num_stations = len(self.station_ids)
         
-        # Action Space: 0 = No-Op.
-        # > 0: Assign Order i to Station j
+        # Action Space: 0 = No-Op, 1 to (max_queue_size * num_stations) = Assign order i to station j
         self.action_space = spaces.Discrete(1 + self.max_queue_size * self.num_stations)
         
         # Observation Space: Flattened 1D vector
-        # 3 features per queued order (wait_time, theoretical_time, table_patience) * max_queue_size
+        # 8 features per queued order (wait_time, theoretical_time, table_patience, remaining_patience, is_takeout, courier_eta_diff, predicted_time, prediction_uncertainty) * max_queue_size
         # 2 features per station (load, capacity) * num_stations
         # 1 feature for global kitchen load
-        # Total = 3 * 5 + 2 * 4 + 1 = 24
-        obs_dim = 3 * self.max_queue_size + 2 * self.num_stations + 1
+        # Total = 8 * 15 + 2 * num_stations + 1
+        obs_dim = 8 * self.max_queue_size + 2 * self.num_stations + 1
         self.observation_space = spaces.Box(low=-1000.0, high=1000.0, shape=(obs_dim,), dtype=np.float32)
 
     def _get_obs(self) -> np.ndarray:
@@ -45,10 +43,34 @@ class RestaurantGymEnv(gym.Env):
             if i < len(self.engine.order_queue):
                 order = self.engine.order_queue[i]
                 wait_time = self.engine.tick - order.timestamps["created_at"]
-                table_patience = self.engine.grid.tables[order.table_id].patience
-                obs.extend([float(wait_time), float(order.theoretical_time), float(table_patience)])
+                if order.is_takeout:
+                    table_patience = 0.0
+                    remaining_patience = 0.0
+                    is_tk = 1.0
+                    courier_diff = order.courier_eta - self.engine.tick if order.courier_eta else 0.0
+                else:
+                    table_patience = self.engine.grid.tables[order.table_id].patience
+                    remaining_patience = table_patience - wait_time
+                    is_tk = 0.0
+                    courier_diff = 0.0
+                    
+                # Fetch fast ML Prediction (use cached or theoretical if not available)
+                stage_time = float(order.stages[order.current_stage_idx]["time"])
+                pred_time = order.predicted_time if order.predicted_time is not None else stage_time
+                pred_uncert = 1.0 if order.predicted_time is None else 0.2
+
+                obs.extend([
+                    float(wait_time),
+                    stage_time,
+                    float(table_patience),
+                    float(remaining_patience),
+                    float(is_tk),
+                    float(courier_diff),
+                    float(pred_time),
+                    float(pred_uncert)
+                ])
             else:
-                obs.extend([0.0, 0.0, 0.0])
+                obs.extend([0.0] * 8)
                 
         # 2. Stations status
         for s_id in self.station_ids:
@@ -69,8 +91,42 @@ class RestaurantGymEnv(gym.Env):
             "churned": self.engine.churned_customers
         }
 
+    def action_masks(self) -> np.ndarray:
+        """
+        Returns a boolean array representing valid actions for MaskablePPO.
+        1 = valid, 0 = invalid.
+        """
+        mask = np.zeros(self.action_space.n, dtype=np.int8)
+        mask[0] = 1 # No-Op is always valid
+        
+        # Check if there is any free chef globally
+        has_free_chef = any(not c.is_full for c in self.engine.grid.chefs.values())
+        
+        if not has_free_chef:
+            return mask
+            
+        queue_len = len(self.engine.order_queue)
+        
+        for i in range(self.max_queue_size):
+            if i < queue_len:
+                order = self.engine.order_queue[i]
+                req_station = order.stages[order.current_stage_idx]["station_type"]
+                for j, s_id in enumerate(self.station_ids):
+                    action_idx = 1 + i * self.num_stations + j
+                    station = self.engine.grid.stations[s_id]
+                    if station.type == req_station and not station.is_full and not station.is_broken:
+                        mask[action_idx] = 1
+        
+        return mask
+
     def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
         super().reset(seed=seed)
+        # Use existing difficulty level unless overridden in options
+        dl = self.difficulty_level
+        if options and "difficulty_level" in options:
+            dl = options["difficulty_level"]
+        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=dl)
+        self.difficulty_level = dl
         self.engine.reset()
         
         # Fast forward simulation until there is at least one order in the queue
@@ -129,23 +185,29 @@ class RestaurantGymEnv(gym.Env):
         
         # Bonus for completed orders
         if completed_after > completed_before:
-            # Let's say +10 per completed order
-            reward += (completed_after - completed_before) * 10.0
+            # Increased base bonus, implicitly encouraging JIT sync to avoid cold food
+            reward += (completed_after - completed_before) * 20.0
             
         # Heavy penalty for churn
         if churned_after > churned_before:
-            reward -= (churned_after - churned_before) * 50.0
+            reward -= (churned_after - churned_before) * 100.0
             
         # Penalty for queue waiting time (small penalty per tick per waiting order)
         reward -= len(self.engine.order_queue) * 0.1
         
-        # Penalty for cold food on the counter (READY but not DELIVERING)
-        cold_food_count = 0
-        for t in self.engine.grid.tables.values():
-            for o in t.current_orders:
-                if o.status == "READY":
-                    cold_food_count += 1
+        # Penalty for cold food on the counter (READY but not DELIVERING) -> Group Sync Penalty
+        cold_food_count = sum(
+            1 for t in self.engine.grid.tables.values() if t.customers > 0
+            for o in t.current_orders if o.status == "READY" and not t.is_fully_ready_for_service
+        )
         reward -= cold_food_count * 0.5
+        
+        # Penalty for courier waiting
+        courier_wait_count = 0
+        for o in self.engine.order_queue:
+            if o.is_takeout and o.courier_eta and self.engine.tick > o.courier_eta:
+                courier_wait_count += 1
+        reward -= courier_wait_count * 1.0
         
         # Invalid action penalty (tried to assign but couldn't)
         if action > 0 and not sim_actions:
@@ -159,42 +221,10 @@ class RestaurantGymEnv(gym.Env):
     def _apply_manual_actions(self, actions: list):
         for act in actions:
             if act["type"] == "ASSIGN":
-                # Find the order in queue
                 order = next((o for o in self.engine.order_queue if o.order_id == act["order_id"]), None)
                 if order:
-                    station = self.engine.grid.stations[act["station_id"]]
-                    chef = self.engine.grid.chefs[act["chef_id"]]
-                    
-                    order.status = "PREPARING"
-                    order.assigned_station_id = station.id
-                    order.assigned_chef_id = chef.id
-                    order.timestamps["kitchen_start"] = self.engine.tick
-                    
-                    # ML Snapshot (Zero Leakage)
-                    order.station_load_at_start = len(station.active_orders)
-                    order.kitchen_load_at_start = sum(len(s.active_orders) for s in self.engine.grid.stations.values())
-                    order.chef_efficiency_at_start = chef.efficiency
-                    order.day_tick_at_start = self.engine.tick
-                    
-                    # Ask ML for prediction
-                    features = {
-                        "theoretical_time": order.theoretical_time,
-                        "dish_type": order.dish_type,
-                        "station_type": station.type,
-                        "station_load_at_start": order.station_load_at_start,
-                        "kitchen_load_at_start": order.kitchen_load_at_start,
-                        "chef_efficiency_at_start": order.chef_efficiency_at_start,
-                        "day_tick_at_start": order.day_tick_at_start
-                    }
-                    order.predicted_time = self.engine.predictor.predict(features, len(self.engine.completed_orders))
-                    
-                    import random
-                    mean_time = (order.theoretical_time / chef.efficiency) * (1 + 0.15 * order.station_load_at_start)
-                    std_dev = mean_time * 0.1 # 10% standard deviation noise
-                    order.actual_target_time = max(1.0, random.gauss(mean_time, std_dev))
-                    
-                    station.active_orders.append(order)
-                    chef.active_orders.append(order)
-                    chef.status = "COOKING"
-                    
-                    self.engine.order_queue.remove(order)
+                    station = self.engine.grid.stations.get(act["station_id"])
+                    chef = self.engine.grid.chefs.get(act["chef_id"])
+                    if station and chef:
+                        self.engine.assign_order(order, station, chef)
+

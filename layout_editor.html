@@ -133,8 +133,14 @@
             </section>
 
             <section class="control-section actions">
+                <h3>💾 Kaydet & Yükle</h3>
+                <div class="layout-name-setting" style="margin-bottom: 12px;">
+                    <label style="font-weight: bold; margin-bottom: 4px; display: block;">Layout İsmi:
+                        <input type="text" id="layout-name" value="custom_layout" placeholder="Örn: vip_duzeni" style="width: 100%; padding: 8px; margin-top: 4px; background: rgba(0,0,0,0.4); border: 1px solid var(--primary); color: white; border-radius: 4px;">
+                    </label>
+                </div>
+                <button id="btn-save-server" class="btn success full-width">Projeye Kaydet (layouts/*.json)</button>
                 <button id="btn-export-json" class="btn primary full-width">JSON İndir</button>
-                <button id="btn-save-server" class="btn success full-width">Projeye Kaydet (config/custom_layout.json)</button>
                 
                 <div class="file-import">
                     <label for="import-file" class="btn secondary full-width">JSON Yükle</label>

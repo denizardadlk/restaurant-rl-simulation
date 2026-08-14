@@ -18,12 +18,20 @@ st.sidebar.header("Kontroller")
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 available_layouts = []
-if os.path.exists(os.path.join(base_dir, "config", "custom_layout.json")):
-    available_layouts.append("custom_layout.json")
-available_layouts.append("default_layout.json")
+for folder in ["layouts", "config"]:
+    f_dir = os.path.join(base_dir, folder)
+    if os.path.exists(f_dir):
+        for f in os.listdir(f_dir):
+            if f.endswith(".json") and f not in available_layouts:
+                available_layouts.append(f)
+
+if not available_layouts:
+    available_layouts = ["custom_layout.json", "default_layout.json"]
 
 selected_layout = st.sidebar.selectbox("Layout Seçimi", available_layouts)
-layout_path = os.path.join(base_dir, "config", selected_layout)
+layout_path = os.path.join(base_dir, "layouts", selected_layout)
+if not os.path.exists(layout_path):
+    layout_path = os.path.join(base_dir, "config", selected_layout)
 
 # Session State for engine
 if 'engine' not in st.session_state or st.session_state.get('current_layout') != selected_layout:

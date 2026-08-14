@@ -7,9 +7,15 @@ class RestaurantGrid:
     def __init__(self, config_path: str):
         if not os.path.exists(config_path) and not os.path.isabs(config_path):
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            alt_path = os.path.join(base_dir, config_path)
-            if os.path.exists(alt_path):
-                config_path = alt_path
+            for folder in ["layouts", "config"]:
+                alt_path = os.path.join(base_dir, folder, os.path.basename(config_path))
+                if os.path.exists(alt_path):
+                    config_path = alt_path
+                    break
+                alt_path2 = os.path.join(base_dir, config_path)
+                if os.path.exists(alt_path2):
+                    config_path = alt_path2
+                    break
         self.config_path = config_path
         self.width = 0
         self.height = 0

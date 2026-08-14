@@ -47,10 +47,36 @@
 - **Karar**:
   1. `OrderGenerator`: Masaya grup oturduğunda `table.capacity` adet bağımsız sipariş nesnesi aynı anda üretilir.
   2. Tüm betikler (`gui_pygame.py`, `dashboard.py`, `run_long_simulation.py`, `run_rl_training.py`) varsa `config/custom_layout.json` dosyasını otomatik algılayıp varsayılan olarak seçer.
-  3. Yüksek yük altında SPT (Shortest Processing Time) kuralı mutfak istasyonlarını daha hızlı boşaltarak müşteri kaybını (Churn) en aza indirir.
-- **Sonuçlar**: Mutfak ve garson kapasitelerindeki gerçekçi yığılmalar ve darboğazlar (bottlenecks) başarıyla simüle edilir.
+### ADR-007: Betik Konsolidasyonu ve 6 Standart Giriş Noktası
+- **Tarih**: 2026-08-14
+- **Durum**: Accepted
+- **Bağlam**: Projede çok sayıda dağınık betik mevcuttu. Kullanıcının iş akışını standartlaştırmak için 6 ana giriş noktası tanımlanması kararlaştırıldı.
+- **Karar**:
+  1. `layout_editor.py` -> Port 8080 harita düzenleyici (`layouts/` kaydı).
+  2. `run_deterministic_test.py` -> FIFO, SPT, LPT, MinPatience 100 gün benchmark.
+  3. `run_rl_training.py` -> İnteraktif RL eğitimi ve fine-tuning.
+  4. `run_rl_model.py` -> 100 gün RL benchmark testi.
+  5. `run_simulator.py` -> Canlı 2D Pygame simülasyonu.
+  6. `compare_models.py` -> Raporlama, metin tablosu, PNG grafik ve `--web` Streamlit paneli.
+
+### ADR-008: Gymnasium Observation Önbellekleme ve Simülasyon Hızlandırması
+- **Tarih**: 2026-08-14
+- **Durum**: Accepted
+- **Bağlam**: `RestaurantGymEnv._get_obs()` içinde her tickte 15 kez çağrılan `pd.DataFrame` ve LightGBM `predict` çağrıları simülasyon hızını 15 FPS'e düşürmekteydi.
+- **Karar**: Siparişlerin tahmini pişirme süreleri ve ceza metrikleri önbelleğe alındı. Ham simülasyon hızı 22.000+ FPS'e, MaskablePPO rollout hızı ise 200+ FPS'e çıkarıldı. 2 günlük RL eğitimi 16 saniyede tamamlanabilir hale geldi.
+
+### ADR-009: LightGBM Eğitilme Sıklığı ve Disk I/O Optimizasyonu
+- **Tarih**: 2026-08-14
+- **Durum**: Accepted
+- **Bağlam**: Simülasyonda her 50 tamamlanan siparişte bir LightGBM modelinin kümülatif veriyle baştan eğitilmesi (`fit`) ve her seferinde diske kaydedilmesi RL eğitiminde gereksiz CPU ve disk I/O darboğazı yaratmaktaydı.
+- **Karar**:
+  1. `kitchen.py` içindeki yeniden eğitilme sıklığı kademelendirildi: İlk 200 siparişte ısınma için 50'de bir, ardından her 200 siparişte bir (2000 sipariş sonrası 1000'de bir) eğitilecek şekilde ayarlandı.
+  2. Periyodik adımlarda gereksiz `pickle.dump` disk yazımı engellendi (`auto_save=False`).
+  3. `LGBMRegressor` parametreleri `n_estimators=50`, `learning_rate=0.08`, `min_child_samples=5`, `verbosity=-1` ve `force_col_wise=True` ile optimize edilerek hem log kirliliği önlendi hem de fit süresi hızlandırıldı.
+- **Sonuçlar**: RL eğitim adımları LightGBM fitting beklemesi olmadan çok daha akıcı ve hızlı ilerler.
 
 ---
+
 
 ## 2. Proje Domain Kuralları & Sözleşmeler
 
