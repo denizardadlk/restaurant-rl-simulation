@@ -1,15 +1,32 @@
-================================================================================
-RL AJANI (MaskablePPO) 2 GÜNLÜK TEST RAPORU
-Tarih: 2026-08-14 11:11:30 | Layout: custom_layout.json
-================================================================================
+==========================================================================================
+PEKİŞTİRMELİ ÖĞRENME (RL - MaskablePPO) BENCHMARK TEST RAPORU
+==========================================================================================
 
-Toplam Gün Sayısı         : 2
-Toplam Tamamlanan Sipariş : 162
-Toplam Kaybedilen Müşteri : 513
-Günlük Ort. Tamamlanan    : 81.0
-Günlük Ort. Churn         : 256.5
-Ortalama Kuyruk Bekleme   : 24.97 dk
-Ortalama Yemek Soğuma     : 58.05 dk
-Günlük Ortalama Ödül      : -31941.65
-Test Süresi               : 10.36 saniye
-================================================================================
+Test Tarihi        : 2026-08-14 15:52:25
+Simülasyon Süresi  : 2 Gün (2,880 Simülasyon Adımı / Tick)
+Kullanılan Model   : C:\kod\Bitirme Projesi\models\ppo_order_scheduler.zip
+Zorluk Seviyesi    : Seviye 3
+
+------------------------------------------------------------------------------------------
+RESTORAN DÜZENİ (LAYOUT) DETAYLARI
+------------------------------------------------------------------------------------------
+Layout Dosyası     : default_layout.json
+Dosya Yolu         : C:\kod\Bitirme Projesi\config\default_layout.json
+Izgara Boyutu      : 10x10
+Masa Sayısı        : 5 Masa
+Toplam Kapasite    : 18 Müşteri / Sandalye
+İstasyon Sayısı    : 4 İstasyon (STOVE, OVEN, GRILL, PREP)
+Personel Kadrosu   : 2 Garson, 2 Aşçı
+
+==========================================================================================
+RL AJANI BAŞARIM METRİKLERİ VE SONUÇLAR
+==========================================================================================
+Toplam Tamamlanan Sipariş : 62
+Toplam Kaybedilen Müşteri : 210
+Günlük Ort. Tamamlanan    : 31.0 sipariş/gün
+Günlük Ort. Churn (Kayıp) : 105.0 müşteri/gün
+Ortalama Kuyruk Bekleme   : 53.31 dakika
+Ortalama Yemek Soğuma     : 91.13 dakika
+Günlük Ortalama Ödül      : -13446.5
+Test Çalışma Süresi       : 7.28 saniye
+==========================================================================================

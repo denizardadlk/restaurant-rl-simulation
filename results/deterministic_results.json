@@ -1,357 +1,133 @@
 {
   "benchmark_metadata": {
     "test_type": "Deterministic Baselines Benchmark (Daily Shifts)",
-    "days": 10,
-    "total_simulation_ticks": 14400,
+    "days": 2,
+    "total_simulation_ticks": 2880,
     "difficulty": 3,
-    "layout_filename": "Büyük_restoran.json",
-    "layout_path": "C:\\kod\\Bitirme Projesi\\layouts\\Büyük_restoran.json",
+    "layout_filename": "default_layout.json",
+    "layout_path": "C:\\kod\\Bitirme Projesi\\config\\default_layout.json",
     "layout_details": {
-      "grid_size": "16x16",
-      "table_count": 26,
-      "total_capacity": 108,
+      "grid_size": "10x10",
+      "table_count": 5,
+      "total_capacity": 18,
       "station_count": 4,
       "station_types": [
-        "OVEN",
         "GRILL",
+        "OVEN",
         "PREP",
         "STOVE"
       ],
-      "waiter_count": 12,
-      "chef_count": 15
+      "waiter_count": 2,
+      "chef_count": 2
     },
-    "timestamp": "2026-08-14 12:56:08"
+    "timestamp": "2026-08-14 15:51:40"
   },
   "schedulers": {
     "FIFO (First-In-First-Out)": {
       "name": "FIFO (First-In-First-Out)",
-      "total_days": 10,
-      "elapsed_seconds": 46.05,
-      "total_completed": 3160,
-      "total_churned": 1047,
-      "mean_daily_completed": 316.0,
-      "mean_daily_churn": 104.7,
-      "mean_queue_wait_time": 14.44,
-      "mean_food_cold_time": 47.2,
+      "total_days": 2,
+      "elapsed_seconds": 5.45,
+      "total_completed": 259,
+      "total_churned": 80,
+      "mean_daily_completed": 129.5,
+      "mean_daily_churn": 40.0,
+      "mean_queue_wait_time": 5.63,
+      "mean_food_cold_time": 53.05,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 342,
-          "cumulative_completed": 342,
-          "day_churn": 106,
-          "cumulative_churn": 106
+          "day_completed": 110,
+          "cumulative_completed": 110,
+          "day_churn": 48,
+          "cumulative_churn": 48
         },
         {
           "day": 2,
-          "day_completed": 336,
-          "cumulative_completed": 678,
-          "day_churn": 48,
-          "cumulative_churn": 154
-        },
-        {
-          "day": 3,
-          "day_completed": 254,
-          "cumulative_completed": 932,
-          "day_churn": 174,
-          "cumulative_churn": 328
-        },
-        {
-          "day": 4,
-          "day_completed": 305,
-          "cumulative_completed": 1237,
-          "day_churn": 148,
-          "cumulative_churn": 476
-        },
-        {
-          "day": 5,
-          "day_completed": 327,
-          "cumulative_completed": 1564,
-          "day_churn": 126,
-          "cumulative_churn": 602
-        },
-        {
-          "day": 6,
-          "day_completed": 247,
-          "cumulative_completed": 1811,
-          "day_churn": 172,
-          "cumulative_churn": 774
-        },
-        {
-          "day": 7,
-          "day_completed": 305,
-          "cumulative_completed": 2116,
-          "day_churn": 92,
-          "cumulative_churn": 866
-        },
-        {
-          "day": 8,
-          "day_completed": 361,
-          "cumulative_completed": 2477,
-          "day_churn": 25,
-          "cumulative_churn": 891
-        },
-        {
-          "day": 9,
-          "day_completed": 338,
-          "cumulative_completed": 2815,
-          "day_churn": 102,
-          "cumulative_churn": 993
-        },
-        {
-          "day": 10,
-          "day_completed": 345,
-          "cumulative_completed": 3160,
-          "day_churn": 54,
-          "cumulative_churn": 1047
+          "day_completed": 149,
+          "cumulative_completed": 259,
+          "day_churn": 32,
+          "cumulative_churn": 80
         }
       ]
     },
     "SPT (Shortest Processing Time)": {
       "name": "SPT (Shortest Processing Time)",
-      "total_days": 10,
-      "elapsed_seconds": 43.8,
-      "total_completed": 3186,
-      "total_churned": 838,
-      "mean_daily_completed": 318.6,
-      "mean_daily_churn": 83.8,
-      "mean_queue_wait_time": 9.57,
-      "mean_food_cold_time": 54.46,
+      "total_days": 2,
+      "elapsed_seconds": 5.38,
+      "total_completed": 295,
+      "total_churned": 52,
+      "mean_daily_completed": 147.5,
+      "mean_daily_churn": 26.0,
+      "mean_queue_wait_time": 5.31,
+      "mean_food_cold_time": 53.95,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 327,
-          "cumulative_completed": 327,
-          "day_churn": 16,
-          "cumulative_churn": 16
+          "day_completed": 148,
+          "cumulative_completed": 148,
+          "day_churn": 26,
+          "cumulative_churn": 26
         },
         {
           "day": 2,
-          "day_completed": 349,
-          "cumulative_completed": 676,
-          "day_churn": 102,
-          "cumulative_churn": 118
-        },
-        {
-          "day": 3,
-          "day_completed": 368,
-          "cumulative_completed": 1044,
-          "day_churn": 72,
-          "cumulative_churn": 190
-        },
-        {
-          "day": 4,
-          "day_completed": 424,
-          "cumulative_completed": 1468,
-          "day_churn": 8,
-          "cumulative_churn": 198
-        },
-        {
-          "day": 5,
-          "day_completed": 318,
-          "cumulative_completed": 1786,
-          "day_churn": 62,
-          "cumulative_churn": 260
-        },
-        {
-          "day": 6,
-          "day_completed": 230,
-          "cumulative_completed": 2016,
-          "day_churn": 177,
-          "cumulative_churn": 437
-        },
-        {
-          "day": 7,
-          "day_completed": 247,
-          "cumulative_completed": 2263,
-          "day_churn": 125,
-          "cumulative_churn": 562
-        },
-        {
-          "day": 8,
-          "day_completed": 285,
-          "cumulative_completed": 2548,
-          "day_churn": 60,
-          "cumulative_churn": 622
-        },
-        {
-          "day": 9,
-          "day_completed": 348,
-          "cumulative_completed": 2896,
-          "day_churn": 144,
-          "cumulative_churn": 766
-        },
-        {
-          "day": 10,
-          "day_completed": 290,
-          "cumulative_completed": 3186,
-          "day_churn": 72,
-          "cumulative_churn": 838
+          "day_completed": 147,
+          "cumulative_completed": 295,
+          "day_churn": 26,
+          "cumulative_churn": 52
         }
       ]
     },
     "LPT (Longest Processing Time)": {
       "name": "LPT (Longest Processing Time)",
-      "total_days": 10,
-      "elapsed_seconds": 49.71,
-      "total_completed": 3220,
-      "total_churned": 990,
-      "mean_daily_completed": 322.0,
-      "mean_daily_churn": 99.0,
-      "mean_queue_wait_time": 10.36,
-      "mean_food_cold_time": 47.99,
+      "total_days": 2,
+      "elapsed_seconds": 4.78,
+      "total_completed": 173,
+      "total_churned": 116,
+      "mean_daily_completed": 86.5,
+      "mean_daily_churn": 58.0,
+      "mean_queue_wait_time": 5.95,
+      "mean_food_cold_time": 49.32,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 342,
-          "cumulative_completed": 342,
-          "day_churn": 124,
-          "cumulative_churn": 124
+          "day_completed": 136,
+          "cumulative_completed": 136,
+          "day_churn": 26,
+          "cumulative_churn": 26
         },
         {
           "day": 2,
-          "day_completed": 339,
-          "cumulative_completed": 681,
-          "day_churn": 24,
-          "cumulative_churn": 148
-        },
-        {
-          "day": 3,
-          "day_completed": 327,
-          "cumulative_completed": 1008,
-          "day_churn": 176,
-          "cumulative_churn": 324
-        },
-        {
-          "day": 4,
-          "day_completed": 291,
-          "cumulative_completed": 1299,
-          "day_churn": 165,
-          "cumulative_churn": 489
-        },
-        {
-          "day": 5,
-          "day_completed": 178,
-          "cumulative_completed": 1477,
-          "day_churn": 232,
-          "cumulative_churn": 721
-        },
-        {
-          "day": 6,
-          "day_completed": 334,
-          "cumulative_completed": 1811,
-          "day_churn": 46,
-          "cumulative_churn": 767
-        },
-        {
-          "day": 7,
-          "day_completed": 243,
-          "cumulative_completed": 2054,
-          "day_churn": 161,
-          "cumulative_churn": 928
-        },
-        {
-          "day": 8,
-          "day_completed": 385,
-          "cumulative_completed": 2439,
-          "day_churn": 16,
-          "cumulative_churn": 944
-        },
-        {
-          "day": 9,
-          "day_completed": 382,
-          "cumulative_completed": 2821,
-          "day_churn": 46,
-          "cumulative_churn": 990
-        },
-        {
-          "day": 10,
-          "day_completed": 399,
-          "cumulative_completed": 3220,
-          "day_churn": 0,
-          "cumulative_churn": 990
+          "day_completed": 37,
+          "cumulative_completed": 173,
+          "day_churn": 90,
+          "cumulative_churn": 116
         }
       ]
     },
     "MinPatience (En Düşük Sabır)": {
       "name": "MinPatience (En Düşük Sabır)",
-      "total_days": 10,
-      "elapsed_seconds": 59.91,
-      "total_completed": 3316,
-      "total_churned": 869,
-      "mean_daily_completed": 331.6,
-      "mean_daily_churn": 86.9,
-      "mean_queue_wait_time": 11.99,
-      "mean_food_cold_time": 45.85,
+      "total_days": 2,
+      "elapsed_seconds": 4.68,
+      "total_completed": 161,
+      "total_churned": 108,
+      "mean_daily_completed": 80.5,
+      "mean_daily_churn": 54.0,
+      "mean_queue_wait_time": 5.65,
+      "mean_food_cold_time": 53.04,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 369,
-          "cumulative_completed": 369,
-          "day_churn": 107,
-          "cumulative_churn": 107
+          "day_completed": 56,
+          "cumulative_completed": 56,
+          "day_churn": 72,
+          "cumulative_churn": 72
         },
         {
           "day": 2,
-          "day_completed": 326,
-          "cumulative_completed": 695,
-          "day_churn": 83,
-          "cumulative_churn": 190
-        },
-        {
-          "day": 3,
-          "day_completed": 368,
-          "cumulative_completed": 1063,
-          "day_churn": 98,
-          "cumulative_churn": 288
-        },
-        {
-          "day": 4,
-          "day_completed": 368,
-          "cumulative_completed": 1431,
-          "day_churn": 105,
-          "cumulative_churn": 393
-        },
-        {
-          "day": 5,
-          "day_completed": 337,
-          "cumulative_completed": 1768,
-          "day_churn": 78,
-          "cumulative_churn": 471
-        },
-        {
-          "day": 6,
-          "day_completed": 260,
-          "cumulative_completed": 2028,
-          "day_churn": 129,
-          "cumulative_churn": 600
-        },
-        {
-          "day": 7,
-          "day_completed": 315,
-          "cumulative_completed": 2343,
-          "day_churn": 44,
-          "cumulative_churn": 644
-        },
-        {
-          "day": 8,
-          "day_completed": 372,
-          "cumulative_completed": 2715,
-          "day_churn": 43,
-          "cumulative_churn": 687
-        },
-        {
-          "day": 9,
-          "day_completed": 304,
-          "cumulative_completed": 3019,
-          "day_churn": 93,
-          "cumulative_churn": 780
-        },
-        {
-          "day": 10,
-          "day_completed": 297,
-          "cumulative_completed": 3316,
-          "day_churn": 89,
-          "cumulative_churn": 869
+          "day_completed": 105,
+          "cumulative_completed": 161,
+          "day_churn": 36,
+          "cumulative_churn": 108
         }
       ]
     }

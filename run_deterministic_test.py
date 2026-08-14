@@ -75,17 +75,17 @@ def extract_layout_info(path: str) -> dict:
             "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
         }
 
-def prompt_user_choices(cli_days=None, cli_layout=None):
-    """Kullanıcıdan gün (10, 50, 100) ve layout seçimlerini alır."""
-    print("\n" + "=" * 75)
+def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
+    """Kullanıcıdan gün (10, 50, 100), layout ve çekirdek seçimlerini alır."""
+    print("\n" + "=" * 80)
     print("📊 DETERMINİSTİK RESTORAN ALGORİTMALARI BENCHMARK SİSTEMİ")
-    print("=" * 75)
+    print("=" * 80)
     
     # 1. GÜN SEÇİMİ
     if cli_days is not None:
         selected_days = cli_days
     else:
-        print("\n[ADIM 1/2] Kaç günlük test simülasyonu çalıştırmak istersiniz?")
+        print("\n[ADIM 1/3] Kaç günlük test simülasyonu çalıştırmak istersiniz?")
         print("  [1] 10 Gün  (14.400 simülasyon adımı - Hızlı Doğrulama)")
         print("  [2] 50 Gün  (72.000 simülasyon adımı - Kapsamlı Test)")
         print("  [3] 100 Gün (144.000 simülasyon adımı - Tam Benchmark) [Varsayılan]")
@@ -119,7 +119,7 @@ def prompt_user_choices(cli_days=None, cli_layout=None):
             print(f"[UYARI] '{cli_layout}' bulunamadı, varsayılan layout seçiliyor.")
             selected_layout = available[0]
     else:
-        print("\n[ADIM 2/2] Hangi Restoran Düzeni (Layout) üzerinde simüle edilsin?")
+        print("\n[ADIM 2/3] Hangi Restoran Düzeni (Layout) üzerinde simüle edilsin?")
         for idx, l in enumerate(available, 1):
             inf = l["info"]
             st_types = ", ".join(inf["station_types"]) if inf["station_types"] else "Yok"
@@ -135,13 +135,38 @@ def prompt_user_choices(cli_days=None, cli_layout=None):
         except ValueError:
             selected_layout = available[0]
             
-    return selected_days, selected_layout
+    # 3. PARALEL ÇEKİRDEK SEÇİMİ
+    if cli_workers is not None:
+        selected_workers = cli_workers
+    else:
+        print("\n[ADIM 3/3] Kaç Paralel CPU Çekirdeği Kullanılsın?")
+        print("  [1] 1 Çekirdek (Tekli İşlemci - Sıralı Test)")
+        print("  [2] 2 Çekirdek (2 Algoritma Eşzamanlı)")
+        print("  [3] 4 Çekirdek (4 Algoritma Tam Paralel - 4x Hızlı) [Varsayılan]")
+        print("  [4] 8 Çekirdek (Maksimum Hız)")
+        w_choice = input("Seçiminiz [1/2/3/4 veya özel sayı] (Varsayılan: 3): ").strip()
+        if w_choice == "1":
+            selected_workers = 1
+        elif w_choice == "2":
+            selected_workers = 2
+        elif w_choice == "3" or w_choice == "":
+            selected_workers = 4
+        elif w_choice == "4":
+            selected_workers = 8
+        else:
+            try:
+                selected_workers = int(w_choice)
+                if selected_workers <= 0: selected_workers = 4
+            except ValueError:
+                selected_workers = 4
+            
+    return selected_days, selected_layout, selected_workers
 
 def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, total_days: int = 100, difficulty: int = 3):
     ticks_per_day = 1440
     total_ticks = total_days * ticks_per_day
     
-    print(f"\n[{scheduler_name}] {total_days} Günlük Vardiya Testi Başlatılıyor ({total_ticks} adım)...")
+    print(f"\n[{scheduler_name}] {total_days} Günlük Vardiya Testi Başlatılıyor ({total_ticks} adım)...", flush=True)
     start_time = time.time()
     
     daily_logs = []
@@ -152,7 +177,7 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
     
     # Her günü bağımsız bir restoran iş günü (1440 ticklik vardiya) olarak koştur
     for day in range(1, total_days + 1):
-        engine = SimulationEngine(config_path=config_path, difficulty_level=difficulty)
+        engine = SimulationEngine(config_path=config_path, difficulty_level=difficulty, freeze_ml=True)
         engine.reset()
         np.random.seed(1000 + day) # Tutarlı ve tekrarlanabilir rastgelelik
         scheduler = scheduler_cls(engine)
@@ -192,8 +217,8 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
             "cumulative_churn": total_churned
         })
         
-        if day % 10 == 0 or day == total_days or day == 1:
-            print(f"  -> Gün {day:3d}/{total_days} | Günlük Tamamlanan: {day_completed:3d} (Kümülatif: {total_completed:5d}) | Günlük Churn: {day_churn:3d} (Toplam: {total_churned:5d})")
+        if day % 20 == 0 or day == total_days or day == 1:
+            print(f"  [{scheduler_name[:12]}] Gün {day:3d}/{total_days} | Günlük Tamamlanan: {day_completed:3d} | Churn: {day_churn:3d} (Toplam: {total_churned:5d})", flush=True)
             
     elapsed = time.time() - start_time
     
@@ -213,32 +238,39 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
         "daily_progression": daily_logs
     }
 
+def _scheduler_worker_task(args):
+    s_cls, s_name, config_path, total_days, difficulty = args
+    return run_single_scheduler(s_cls, s_name, config_path, total_days, difficulty)
+
 def main():
+    import multiprocessing
     parser = argparse.ArgumentParser(description="Deterministik Restoran Çizelgeleme Algoritmaları Benchmark Test Aracı")
     parser.add_argument("--days", type=int, default=None, help="Test edilecek gün sayısı (10, 50, 100)")
     parser.add_argument("--layout", type=str, default=None, help="Özel layout dosya adı veya yolu")
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--workers", type=int, default=None, help="Paralel çalışacak CPU çekirdeği sayısı")
     args = parser.parse_args()
     
     os.makedirs(RESULTS_DIR, exist_ok=True)
     
     # 1. Seçimleri al
-    total_days, layout_entry = prompt_user_choices(args.days, args.layout)
+    total_days, layout_entry, num_workers = prompt_user_choices(args.days, args.layout, args.workers)
     layout_path = layout_entry["path"]
     layout_info = layout_entry["info"]
     
-    print("\n" + "=" * 75)
+    print("\n" + "=" * 80)
     print("TEST YAPILANDIRMASI (GÜNLÜK VARDİYA MİMARİSİ)")
-    print("=" * 75)
+    print("=" * 80)
     print(f"Layout Dosyası  : {layout_entry['filename']} ({layout_path})")
     print(f"Izgara Boyutu   : {layout_info['grid_size']}")
     print(f"Masa Durumu     : {layout_info['table_count']} Masa ({layout_info['total_capacity']} Sandalye Kapasitesi)")
     print(f"İstasyonlar     : {layout_info['station_count']} İstasyon ({', '.join(layout_info['station_types'])})")
     print(f"Personel        : {layout_info['waiter_count']} Garson | {layout_info['chef_count']} Aşçı")
     print(f"Test Süresi     : {total_days} Gün ({total_days * 1440:,} Simülasyon Adımı)")
+    print(f"Paralel Çekirdek: {num_workers} Worker")
     print(f"Zorluk Seviyesi : Seviye {args.difficulty}")
     print("Test Algoritması: FIFO, SPT, LPT, MinPatience")
-    print("=" * 75)
+    print("=" * 80)
     
     schedulers = [
         (FIFOScheduler, "FIFO (First-In-First-Out)"),
@@ -261,9 +293,17 @@ def main():
         "schedulers": {}
     }
     
-    for s_cls, s_name in schedulers:
-        res = run_single_scheduler(s_cls, s_name, layout_path, total_days=total_days, difficulty=args.difficulty)
-        results["schedulers"][s_name] = res
+    if num_workers > 1:
+        print(f"\n[PARALEL BAŞLATILDI] {len(schedulers)} algoritma {min(num_workers, len(schedulers))} CPU çekirdeğinde eşzamanlı koşturuluyor...", flush=True)
+        worker_args = [(s_cls, s_name, layout_path, total_days, args.difficulty) for s_cls, s_name in schedulers]
+        with multiprocessing.Pool(processes=min(num_workers, len(schedulers))) as pool:
+            res_list = pool.map(_scheduler_worker_task, worker_args)
+            for res in res_list:
+                results["schedulers"][res["name"]] = res
+    else:
+        for s_cls, s_name in schedulers:
+            res = run_single_scheduler(s_cls, s_name, layout_path, total_days=total_days, difficulty=args.difficulty)
+            results["schedulers"][s_name] = res
         
     # 1. JSON Kaydı
     json_path = os.path.join(RESULTS_DIR, "deterministic_results.json")
@@ -313,6 +353,11 @@ def main():
         
     print(f"\n[KAYIT] JSON sonuçları kaydedildi : {json_path}")
     print(f"[KAYIT] Detaylı rapor kaydedildi : {txt_path}\n")
+    
+    try:
+        input("Programı kapatmak için Enter tuşuna basın...")
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     main()

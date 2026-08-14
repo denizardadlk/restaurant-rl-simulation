@@ -1,39 +1,55 @@
 {
   "benchmark_metadata": {
-    "test_type": "Reinforcement Learning Agent Test",
+    "test_type": "Reinforcement Learning Agent Benchmark",
     "model_path": "C:\\kod\\Bitirme Projesi\\models\\ppo_order_scheduler.zip",
     "days": 2,
+    "total_simulation_ticks": 2880,
     "difficulty": 3,
-    "layout": "custom_layout.json",
-    "timestamp": "2026-08-14 11:11:30"
+    "layout_filename": "default_layout.json",
+    "layout_path": "C:\\kod\\Bitirme Projesi\\config\\default_layout.json",
+    "layout_details": {
+      "grid_size": "10x10",
+      "table_count": 5,
+      "total_capacity": 18,
+      "station_count": 4,
+      "station_types": [
+        "STOVE",
+        "OVEN",
+        "GRILL",
+        "PREP"
+      ],
+      "waiter_count": 2,
+      "chef_count": 2
+    },
+    "timestamp": "2026-08-14 15:52:25"
   },
   "rl_agent": {
     "name": "RL Agent (MaskablePPO)",
     "total_days": 2,
-    "elapsed_seconds": 10.36,
-    "total_completed": 162,
-    "total_churned": 513,
-    "mean_daily_completed": 81.0,
-    "mean_daily_churn": 256.5,
-    "mean_queue_wait_time": 24.97,
-    "mean_food_cold_time": 58.05,
-    "mean_reward_per_day": -31941.65,
+    "elapsed_seconds": 7.28,
+    "total_completed": 62,
+    "total_churned": 210,
+    "mean_daily_completed": 31.0,
+    "mean_daily_churn": 105.0,
+    "mean_queue_wait_time": 53.31,
+    "mean_food_cold_time": 91.13,
+    "mean_reward_per_day": -13446.5,
     "daily_progression": [
       {
         "day": 1,
-        "day_reward": -32905.9,
-        "day_completed": 56,
-        "cumulative_completed": 56,
-        "day_churn": 266,
-        "cumulative_churn": 266
+        "day_reward": -13511.1,
+        "day_completed": 31,
+        "cumulative_completed": 31,
+        "day_churn": 104,
+        "cumulative_churn": 104
       },
       {
         "day": 2,
-        "day_reward": -30977.4,
-        "day_completed": 106,
-        "cumulative_completed": 162,
-        "day_churn": 247,
-        "cumulative_churn": 513
+        "day_reward": -13381.9,
+        "day_completed": 31,
+        "cumulative_completed": 62,
+        "day_churn": 106,
+        "cumulative_churn": 210
       }
     ]
   }

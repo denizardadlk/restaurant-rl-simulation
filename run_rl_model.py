@@ -71,21 +71,20 @@ def extract_layout_info(path: str) -> dict:
         }
     except Exception:
         return {
-            "grid_size": "N/A", "table_count": 0, "total_capacity": 0,
             "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
         }
 
-def prompt_user_choices(cli_days=None, cli_layout=None):
-    """Kullanıcıdan gün (10, 50, 100) ve layout seçimlerini alır."""
-    print("\n" + "=" * 75)
+def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
+    """Kullanıcıdan gün (10, 50, 100), layout ve çekirdek seçimlerini alır."""
+    print("\n" + "=" * 80)
     print("🤖 PEKİŞTİRMELİ ÖĞRENME (RL) AJANI BENCHMARK SİSTEMİ")
-    print("=" * 75)
+    print("=" * 80)
     
     # 1. GÜN SEÇİMİ
     if cli_days is not None:
         selected_days = cli_days
     else:
-        print("\n[ADIM 1/2] Kaç günlük test simülasyonu çalıştırmak istersiniz?")
+        print("\n[ADIM 1/3] Kaç günlük test simülasyonu çalıştırmak istersiniz?")
         print("  [1] 10 Gün  (14.400 simülasyon adımı - Hızlı Doğrulama)")
         print("  [2] 50 Gün  (72.000 simülasyon adımı - Kapsamlı Test)")
         print("  [3] 100 Gün (144.000 simülasyon adımı - Tam Benchmark) [Varsayılan]")
@@ -119,7 +118,7 @@ def prompt_user_choices(cli_days=None, cli_layout=None):
             print(f"[UYARI] '{cli_layout}' bulunamadı, varsayılan layout seçiliyor.")
             selected_layout = available[0]
     else:
-        print("\n[ADIM 2/2] Hangi Restoran Düzeni (Layout) üzerinde simüle edilsin?")
+        print("\n[ADIM 2/3] Hangi Restoran Düzeni (Layout) üzerinde test edilsin?")
         for idx, l in enumerate(available, 1):
             inf = l["info"]
             st_types = ", ".join(inf["station_types"]) if inf["station_types"] else "Yok"
@@ -135,20 +134,88 @@ def prompt_user_choices(cli_days=None, cli_layout=None):
         except ValueError:
             selected_layout = available[0]
             
-    return selected_days, selected_layout
+    # 3. PARALEL ÇEKİRDEK SEÇİMİ
+    if cli_workers is not None:
+        selected_workers = cli_workers
+    else:
+        print("\n[ADIM 3/3] Kaç Paralel CPU Çekirdeği Kullanılsın?")
+        print("  [1] 1 Çekirdek (Tekli İşlemci - Sıralı Test)")
+        print("  [2] 2 Çekirdek (2x Hızlı)")
+        print("  [3] 4 Çekirdek (Önerilen Hızlı Mod - 4x Hız) [Varsayılan]")
+        print("  [4] 8 Çekirdek (Maksimum Performans - 8x Hız)")
+        w_choice = input("Seçiminiz [1/2/3/4 veya özel sayı] (Varsayılan: 3): ").strip()
+        if w_choice == "1":
+            selected_workers = 1
+        elif w_choice == "2":
+            selected_workers = 2
+        elif w_choice == "3" or w_choice == "":
+            selected_workers = 4
+        elif w_choice == "4":
+            selected_workers = 8
+        else:
+            try:
+                selected_workers = int(w_choice)
+                if selected_workers <= 0: selected_workers = 4
+            except ValueError:
+                selected_workers = 4
+            
+    return selected_days, selected_layout, selected_workers
+
+def _eval_rl_days_chunk(args_tuple):
+    day_numbers, layout_path, difficulty, model_path = args_tuple
+    from simulation.gym_env import RestaurantGymEnv
+    from sb3_contrib import MaskablePPO
+    from sb3_contrib.common.wrappers import ActionMasker
+    
+    def mask_fn(env):
+        return env.action_masks()
+        
+    env = RestaurantGymEnv(config_path=layout_path, difficulty_level=difficulty, freeze_ml=True)
+    wrapped_env = ActionMasker(env, mask_fn)
+    model = MaskablePPO.load(model_path, env=wrapped_env)
+    
+    results = []
+    for day in day_numbers:
+        obs, info = wrapped_env.reset(seed=1000 + day)
+        done = False
+        day_reward = 0.0
+        
+        while not done:
+            action_masks = wrapped_env.action_masks()
+            action, _ = model.predict(obs, action_masks=action_masks, deterministic=True)
+            obs, reward, terminated, truncated, info = wrapped_env.step(action)
+            day_reward += reward
+            done = terminated or truncated
+            
+        completed = env.engine.completed_orders
+        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed if o.timestamps.get("kitchen_start") and o.timestamps.get("created_at")]
+        day_cold = [max(0.0, o.timestamps["delivered_at"] - o.timestamps["kitchen_finish"] - 5.0) for o in completed if o.timestamps.get("delivered_at") and o.timestamps.get("kitchen_finish")]
+        
+        results.append({
+            "day": day,
+            "day_reward": day_reward,
+            "daily_completed": len(env.engine.completed_orders),
+            "daily_churn": env.engine.churned_customers,
+            "day_wait": day_wait,
+            "day_cold": day_cold
+        })
+        
+    return results
 
 def main():
+    import multiprocessing
     parser = argparse.ArgumentParser(description="Eğitilmiş RL Modelini Benchmark Testinde Koşturma")
     parser.add_argument("--days", type=int, default=None, help="Test edilecek gün sayısı (10, 50, 100)")
     parser.add_argument("--model", type=str, default=DEFAULT_MODEL_PATH, help="Model zip dosyası yolu")
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--workers", type=int, default=None, help="Paralel çalışacak CPU çekirdeği sayısı")
     args = parser.parse_args()
     
     os.makedirs(RESULTS_DIR, exist_ok=True)
     
     # 1. Kullanıcı Seçimlerini Al
-    total_days, layout_entry = prompt_user_choices(args.days, args.layout)
+    total_days, layout_entry, num_workers = prompt_user_choices(args.days, args.layout, args.workers)
     layout_path = layout_entry["path"]
     layout_info = layout_entry["info"]
     
@@ -157,9 +224,9 @@ def main():
         print("Lütfen önce modeli eğitmek için 'python run_rl_training.py' komutunu çalıştırın.")
         sys.exit(1)
         
-    print("\n" + "=" * 75)
+    print("\n" + "=" * 80)
     print("TEST YAPILANDIRMASI")
-    print("=" * 75)
+    print("=" * 80)
     print(f"Model Dosyası   : {args.model}")
     print(f"Layout Dosyası  : {layout_entry['filename']} ({layout_path})")
     print(f"Izgara Boyutu   : {layout_info['grid_size']}")
@@ -167,68 +234,63 @@ def main():
     print(f"İstasyonlar     : {layout_info['station_count']} İstasyon ({', '.join(layout_info['station_types'])})")
     print(f"Personel        : {layout_info['waiter_count']} Garson | {layout_info['chef_count']} Aşçı")
     print(f"Test Süresi     : {total_days} Gün ({total_days * 1440:,} Simülasyon Adımı)")
+    print(f"Paralel Çekirdek: {num_workers} Worker")
     print(f"Zorluk Seviyesi : Seviye {args.difficulty}")
-    print("=" * 75)
+    print("=" * 80)
     
-    env = RestaurantGymEnv(config_path=layout_path, difficulty_level=args.difficulty)
-    rl_agent = OrderSchedulerRLAgent(env, model_path=args.model)
-    
-    if not rl_agent.load():
-        print(f"\n[HATA] Model yüklenemedi veya bu layout boyutuyla uyumsuz: {args.model}")
-        print("Lütfen 'python run_rl_training.py' çalıştırarak modeli bu layout için eğitin.")
-        sys.exit(1)
-        
-    print(f"\n[TEST BAŞLATILDI] RL Ajanı {total_days} gün boyunca test ediliyor...")
     start_time = time.time()
+    
+    all_day_results = []
+    
+    if num_workers > 1:
+        print(f"\n[PARALEL BAŞLATILDI] {total_days} günlük simülasyon {num_workers} CPU çekirdeğine bölünerek koşturuluyor...", flush=True)
+        # Günleri eşit parçalara böl
+        days_array = list(range(1, total_days + 1))
+        chunks = [days_array[i::num_workers] for i in range(num_workers) if days_array[i::num_workers]]
+        worker_args = [(chunk, layout_path, args.difficulty, args.model) for chunk in chunks]
+        
+        with multiprocessing.Pool(processes=len(chunks)) as pool:
+            chunk_results = pool.map(_eval_rl_days_chunk, worker_args)
+            for res_list in chunk_results:
+                all_day_results.extend(res_list)
+    else:
+        print(f"\n[TEST BAŞLATILDI] RL Ajanı {total_days} gün boyunca sıralı test ediliyor...", flush=True)
+        all_day_results = _eval_rl_days_chunk((list(range(1, total_days + 1)), layout_path, args.difficulty, args.model))
+        
+    # Gün sırasına göre sırala
+    all_day_results.sort(key=lambda x: x["day"])
     
     daily_logs = []
     total_rewards = 0.0
     prev_completed_count = 0
     prev_churn_count = 0
-    
     all_wait_times = []
     all_cold_times = []
     
-    for day in range(1, total_days + 1):
-        obs, info = env.reset(seed=1000 + day)
-        done = False
-        day_reward = 0.0
+    for res in all_day_results:
+        day = res["day"]
+        day_reward = res["day_reward"]
+        daily_completed = res["daily_completed"]
+        daily_churn = res["daily_churn"]
         
-        while not done:
-            action_masks = env.action_masks()
-            action, _ = rl_agent.model.predict(obs, action_masks=action_masks, deterministic=True)
-            obs, reward, terminated, truncated, info = env.step(action)
-            day_reward += reward
-            done = terminated or truncated
-            
         total_rewards += day_reward
-        current_completed = len(env.engine.completed_orders)
-        current_churn = env.engine.churned_customers
+        prev_completed_count += daily_completed
+        prev_churn_count += daily_churn
         
-        daily_completed = current_completed
-        daily_churn = current_churn
-        
-        # Collect daily wait and cold times
-        completed = env.engine.completed_orders
-        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed if o.timestamps.get("kitchen_start") and o.timestamps.get("created_at")]
-        day_cold = [max(0.0, o.timestamps["delivered_at"] - o.timestamps["kitchen_finish"] - 5.0) for o in completed if o.timestamps.get("delivered_at") and o.timestamps.get("kitchen_finish")]
-        all_wait_times.extend(day_wait)
-        all_cold_times.extend(day_cold)
+        all_wait_times.extend(res["day_wait"])
+        all_cold_times.extend(res["day_cold"])
         
         daily_logs.append({
             "day": day,
             "day_reward": round(day_reward, 2),
             "day_completed": daily_completed,
-            "cumulative_completed": (prev_completed_count + daily_completed),
+            "cumulative_completed": prev_completed_count,
             "day_churn": daily_churn,
-            "cumulative_churn": (prev_churn_count + daily_churn)
+            "cumulative_churn": prev_churn_count
         })
         
-        prev_completed_count += daily_completed
-        prev_churn_count += daily_churn
-        
-        if day % 10 == 0 or day == total_days or day == 1:
-            print(f"  -> Gün {day:3d}/{total_days} | Günlük Tamamlanan: {daily_completed:3d} (Toplam: {prev_completed_count:5d}) | Churn: {prev_churn_count:4d} | Ödül: {day_reward:.1f}")
+        if day % 20 == 0 or day == total_days or day == 1:
+            print(f"  [RL-PPO] Gün {day:3d}/{total_days} | Günlük Tamamlanan: {daily_completed:3d} | Churn: {daily_churn:3d} (Toplam: {prev_churn_count:4d}) | Ödül: {day_reward:.1f}", flush=True)
             
     elapsed = time.time() - start_time
     
@@ -310,6 +372,11 @@ def main():
     print("=" * 90)
     print(f"\n[KAYIT] JSON sonuçları kaydedildi : {json_path}")
     print(f"[KAYIT] Detaylı rapor kaydedildi : {txt_path}\n")
+    
+    try:
+        input("Programı kapatmak için Enter tuşuna basın...")
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     main()
