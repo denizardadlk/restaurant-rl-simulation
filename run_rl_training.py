@@ -67,7 +67,7 @@ def get_available_layouts():
                 seen.add(f)
     return layouts
 
-def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli_mode=None, cli_envs=None):
+def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli_mode=None, cli_envs=None, cli_debug=None):
     print("\n" + "=" * 80)
     print("🤖 PEKİŞTİRMELİ ÖĞRENME (RL - MaskablePPO) AJANI EĞİTİM YÖNETİCİSİ")
     print("=" * 80)
@@ -89,7 +89,7 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
     if cli_days is not None:
         training_days = cli_days
     else:
-        print("\n[ADIM 1/3] Kaç gün simülasyon eğitimi yapmak istersiniz?")
+        print("\n[ADIM 1/4] Kaç gün simülasyon eğitimi yapmak istersiniz?")
         print("  [1] 10 Gün  (14.400 timestep - Hızlı Prototipleme)")
         print("  [2] 50 Gün  (72.000 timestep - Standart Eğitim)")
         print("  [3] 100 Gün (144.000 timestep - Derin Yakınsama) [Varsayılan]")
@@ -113,7 +113,7 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
         matched = next((l for l in available if l["filename"] == cli_layout or l["path"] == cli_layout or os.path.basename(cli_layout) == l["filename"]), None)
         selected_layout = matched if matched else available[0]
     else:
-        print("\n[ADIM 2/3] Hangi Restoran Düzeni (Layout) üzerinde eğitilsin?")
+        print("\n[ADIM 2/4] Hangi Restoran Düzeni (Layout) üzerinde eğitilsin?")
         for idx, l in enumerate(available, 1):
             inf = l.get("info", {})
             st_types = ", ".join(inf.get("station_types", [])) if inf.get("station_types") else "Yok"
@@ -129,7 +129,7 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
     if cli_envs is not None:
         selected_envs = cli_envs
     else:
-        print("\n[ADIM 3/3] Kaç Paralel CPU Çekirdeği (Environment) Kullanılsın?")
+        print("\n[ADIM 3/4] Kaç Paralel CPU Çekirdeği (Environment) Kullanılsın?")
         print("  [1] 1 Çekirdek (Tek İşlemci)")
         print("  [2] 2 Çekirdek (Hafif Paralel)")
         print("  [3] 4 Çekirdek (Önerilen Hızlı Mod - 4x Hız) [Varsayılan]")
@@ -149,8 +149,18 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
                 if selected_envs <= 0: selected_envs = 4
             except ValueError:
                 selected_envs = 4
+                
+    # 5. Detaylı Hata Ayıklama (Debug) Modu Seçimi
+    if cli_debug is not None:
+        selected_debug = cli_debug
+    else:
+        print("\n[ADIM 4/4] Detaylı Hata Ayıklama (Debug) Modu Aktif Edilsin mi?")
+        print("  [1] Hayır - Standart Hızlı Eğitim [Varsayılan]")
+        print("  [2] Evet  - Detaylı İnceleme (results/training_debug.md kaydı oluşturur)")
+        dbg_choice = input("Seçiminiz [1/2] (Varsayılan: 1): ").strip()
+        selected_debug = (dbg_choice == "2")
             
-    return mode, training_days, selected_layout, selected_envs
+    return mode, training_days, selected_layout, selected_envs, selected_debug
 
 def main():
     parser = argparse.ArgumentParser(description="Pekiştirmeli Öğrenme (RL) Sipariş Çizelgeleyici Eğitimi")
@@ -159,13 +169,14 @@ def main():
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
     parser.add_argument("--num-envs", type=int, default=None, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı (varsayılan: 4)")
+    parser.add_argument("--debug", action="store_true", default=None, help="Detaylı hata ayıklama modunu aktif eder ve results/training_debug.md oluşturur")
     args = parser.parse_args()
     
     os.makedirs(MODELS_DIR, exist_ok=True)
     existing_model = os.path.exists(DEFAULT_MODEL_PATH)
     
-    mode, training_days, layout_entry, num_envs = interactive_prompt(
-        existing_model, cli_days=args.days, cli_layout=args.layout, cli_mode=args.mode, cli_envs=args.num_envs
+    mode, training_days, layout_entry, num_envs, debug_mode = interactive_prompt(
+        existing_model, cli_days=args.days, cli_layout=args.layout, cli_mode=args.mode, cli_envs=args.num_envs, cli_debug=args.debug
     )
         
     timesteps_per_day = 1440
@@ -178,7 +189,8 @@ def main():
     print(f"Layout       : {layout_entry['filename']} ({layout_path})")
     print(f"Mod          : {mode.upper()}")
     print(f"Eğitim Süresi: {training_days} Gün ({total_timesteps:,} Timestep)")
-    print(f"Paralel Çekirdek (Envs): {num_envs}")
+    print(f"Paralel Çekirdek (Envs): {1 if debug_mode else num_envs}")
+    print(f"Debug Modu   : {'AKTİF (training_debug.md üretilecek)' if debug_mode else 'DEVRE DIŞI'}")
     print(f"Hedef Model  : {DEFAULT_MODEL_PATH}")
     print("=" * 80)
     
@@ -187,7 +199,8 @@ def main():
         num_envs=num_envs,
         difficulty_level=args.difficulty,
         model_path=DEFAULT_MODEL_PATH,
-        freeze_ml=True
+        freeze_ml=True,
+        debug_mode=debug_mode
     )
     
     if mode == "continue" and existing_model:
@@ -208,6 +221,8 @@ def main():
     print("=" * 80)
     print(f"Geçen Süre       : {elapsed:.2f} saniye")
     print(f"Model Kayıt Yolu : {DEFAULT_MODEL_PATH}")
+    if debug_mode:
+        print(f"Debug Raporu     : results/training_debug.md")
     print("=" * 80 + "\n")
     
     # Çift tıklamayla açıldığında pencere hemen kapanmasın

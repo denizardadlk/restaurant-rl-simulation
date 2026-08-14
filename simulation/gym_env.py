@@ -13,12 +13,13 @@ class RestaurantGymEnv(gym.Env):
     """
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3, freeze_ml: bool = True):
+    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3, freeze_ml: bool = True, debug_mode: bool = False):
         super(RestaurantGymEnv, self).__init__()
         
         self.config_path = config_path
         self.difficulty_level = difficulty_level
         self.freeze_ml = freeze_ml
+        self.debug_mode = debug_mode
         self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level, freeze_ml=self.freeze_ml)
         self.max_queue_size = 15
         
@@ -29,12 +30,29 @@ class RestaurantGymEnv(gym.Env):
         self.action_space = spaces.Discrete(1 + self.max_queue_size * self.num_stations)
         
         # Observation Space: Flattened 1D vector
-        # 8 features per queued order (wait_time, theoretical_time, table_patience, remaining_patience, is_takeout, courier_eta_diff, predicted_time, prediction_uncertainty) * max_queue_size
-        # 2 features per station (load, capacity) * num_stations
-        # 1 feature for global kitchen load
-        # Total = 8 * 15 + 2 * num_stations + 1
         obs_dim = 8 * self.max_queue_size + 2 * self.num_stations + 1
         self.observation_space = spaces.Box(low=-1000.0, high=1000.0, shape=(obs_dim,), dtype=np.float32)
+        
+        # Debug Stats Collector
+        self.debug_stats = {
+            "total_steps": 0,
+            "actions_noop": 0,
+            "actions_valid_assign": 0,
+            "actions_invalid_assign": 0,
+            "station_busy_ticks": {s_id: 0 for s_id in self.station_ids},
+            "station_full_ticks": {s_id: 0 for s_id in self.station_ids},
+            "station_broken_ticks": {s_id: 0 for s_id in self.station_ids},
+            "reward_breakdown": {
+                "completed_bonus": 0.0,
+                "churn_penalty": 0.0,
+                "queue_wait_penalty": 0.0,
+                "cold_food_penalty": 0.0,
+                "courier_wait_penalty": 0.0,
+                "subtick_assign_bonus": 0.0
+            },
+            "churn_events": [],
+            "bottlenecks": []
+        }
 
     def _get_obs(self) -> np.ndarray:
         obs = []
@@ -44,6 +62,24 @@ class RestaurantGymEnv(gym.Env):
             if i < len(self.engine.order_queue):
                 order = self.engine.order_queue[i]
                 wait_time = self.engine.tick - order.timestamps["created_at"]
+                
+                # Fetch live ML prediction & uncertainty
+                pred_time = getattr(order, 'predicted_time', None)
+                if pred_time is None:
+                    curr_stage = order.stages[order.current_stage_idx]
+                    feat = {
+                        "theoretical_time": curr_stage["time"],
+                        "dish_type": order.dish_type,
+                        "station_type": curr_stage["station_type"],
+                        "station_load_at_start": 0,
+                        "kitchen_load_at_start": sum(len(s.active_orders) for s in self.engine.grid.stations.values()),
+                        "chef_efficiency_at_start": 1.0,
+                        "day_tick_at_start": self.engine.tick
+                    }
+                    pred_time, pred_uncertainty = self.engine.predictor.predict_with_uncertainty(feat, len(self.engine.completed_orders))
+                else:
+                    pred_uncertainty = 1.5
+                    
                 if order.is_takeout:
                     table_patience = 0.0
                     remaining_patience = 0.0
@@ -55,23 +91,18 @@ class RestaurantGymEnv(gym.Env):
                     is_tk = 0.0
                     courier_diff = 0.0
                     
-                # Fetch fast ML Prediction (use cached or theoretical if not available)
-                stage_time = float(order.stages[order.current_stage_idx]["time"])
-                pred_time = order.predicted_time if order.predicted_time is not None else stage_time
-                pred_uncert = 1.0 if order.predicted_time is None else 0.2
-
                 obs.extend([
                     float(wait_time),
-                    stage_time,
+                    float(order.stages[order.current_stage_idx]["time"]),
                     float(table_patience),
                     float(remaining_patience),
                     float(is_tk),
                     float(courier_diff),
                     float(pred_time),
-                    float(pred_uncert)
+                    float(pred_uncertainty)
                 ])
             else:
-                obs.extend([0.0] * 8)
+                obs.extend([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
                 
         # 2. Stations status
         for s_id in self.station_ids:
@@ -102,7 +133,6 @@ class RestaurantGymEnv(gym.Env):
         
         # Check if there is any free chef globally
         has_free_chef = any(not c.is_full for c in self.engine.grid.chefs.values())
-        
         if not has_free_chef:
             return mask
             
@@ -115,14 +145,13 @@ class RestaurantGymEnv(gym.Env):
                 for j, s_id in enumerate(self.station_ids):
                     action_idx = 1 + i * self.num_stations + j
                     station = self.engine.grid.stations[s_id]
-                    if station.type == req_station and not station.is_full and not station.is_broken:
+                    if station.type == req_station and not station.is_full and not getattr(station, 'is_broken', False):
                         mask[action_idx] = 1
         
         return mask
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
         super().reset(seed=seed)
-        # Use existing difficulty level unless overridden in options
         dl = self.difficulty_level
         if options and "difficulty_level" in options:
             dl = options["difficulty_level"]
@@ -131,15 +160,19 @@ class RestaurantGymEnv(gym.Env):
         self.engine.reset()
         
         # Fast forward simulation until there is at least one order in the queue
-        # so the agent actually has something to do
         while len(self.engine.order_queue) == 0 and self.engine.tick < 1440:
             self.engine.step(actions=[])
             
         return self._get_obs(), self._get_info()
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
-        # Map action to simulation commands
-        sim_actions = []
+        if self.debug_mode:
+            self.debug_stats["total_steps"] += 1
+            
+        assigned_order = False
+        subtick_reward = 0.0
+        
+        # 1. Process Discrete Assignment Action
         if action > 0:
             order_idx = (action - 1) // self.num_stations
             station_idx = (action - 1) % self.num_stations
@@ -148,71 +181,106 @@ class RestaurantGymEnv(gym.Env):
                 order = self.engine.order_queue[order_idx]
                 station_id = self.station_ids[station_idx]
                 station = self.engine.grid.stations[station_id]
+                req_station_type = order.stages[order.current_stage_idx]["station_type"]
                 
-                # Check if station is full
-                if not station.is_full:
-                    # Find a free chef
+                # Check station validity & capacity
+                if station.type == req_station_type and not station.is_full and not getattr(station, 'is_broken', False):
                     free_chef = next((c for c in self.engine.grid.chefs.values() if not c.is_full), None)
                     if free_chef:
-                        sim_actions.append({
-                            "type": "ASSIGN",
-                            "order_id": order.order_id,
-                            "station_id": station_id,
-                            "chef_id": free_chef.id
-                        })
+                        self.engine.assign_order(order, station, chef=free_chef)
+                        assigned_order = True
+                        subtick_reward += 1.0 # Small immediate incentive for valid throughput assignment
+                        if self.debug_mode:
+                            self.debug_stats["actions_valid_assign"] += 1
+                            self.debug_stats["reward_breakdown"]["subtick_assign_bonus"] += 1.0
+            
+            if not assigned_order and self.debug_mode:
+                self.debug_stats["actions_invalid_assign"] += 1
+        else:
+            if self.debug_mode:
+                self.debug_stats["actions_noop"] += 1
 
-        # Capture state BEFORE step to calculate reward diff
+        # 2. Check if further assignments are possible on the SAME tick (Sub-tick multi-assignment)
+        has_free_chef = any(not c.is_full for c in self.engine.grid.chefs.values())
+        has_queue = len(self.engine.order_queue) > 0
+        mask = self.action_masks()
+        can_assign_more = assigned_order and has_free_chef and has_queue and np.any(mask[1:] > 0)
+        
+        if can_assign_more:
+            # Continue on the same tick! Give the agent another chance to fill remaining chefs/stations
+            terminated = self.engine.tick >= 1440
+            truncated = False
+            return self._get_obs(), float(subtick_reward), terminated, truncated, self._get_info()
+
+        # 3. Advance the Simulation Clock by 1 Tick (No-Op or no more valid assignments possible)
         completed_before = len(self.engine.completed_orders)
         churned_before = self.engine.churned_customers
-
-        # Apply action & advance tick
-        # Note: If sim_actions is empty, it acts as a No-Op, and engine will progress cooking/waiters
-        # BUT we must handle the manual assignment since engine._simple_fifo_scheduler is bypassed if actions != None
-        if sim_actions:
-            self._apply_manual_actions(sim_actions)
-            
-        # Step the engine (we pass empty list to bypass FIFO, but progress time)
-        self.engine.step(actions=[]) 
         
-        # Fast forward if queue is empty
+        self.engine.step(actions=[])
+        
+        # Fast-forward if queue is completely empty
         while len(self.engine.order_queue) == 0 and self.engine.tick < 1440:
             self.engine.step(actions=[])
 
-        # Calculate Reward
+        # 4. Calculate Tick End Rewards
         completed_after = len(self.engine.completed_orders)
         churned_after = self.engine.churned_customers
         
-        reward = 0.0
+        reward = subtick_reward
         
-        # Bonus for completed orders
+        # Completed orders bonus
         if completed_after > completed_before:
-            # Increased base bonus, implicitly encouraging JIT sync to avoid cold food
-            reward += (completed_after - completed_before) * 20.0
+            bonus = (completed_after - completed_before) * 20.0
+            reward += bonus
+            if self.debug_mode:
+                self.debug_stats["reward_breakdown"]["completed_bonus"] += bonus
             
         # Heavy penalty for churn
         if churned_after > churned_before:
-            reward -= (churned_after - churned_before) * 100.0
+            penalty = (churned_after - churned_before) * 100.0
+            reward -= penalty
+            if self.debug_mode:
+                self.debug_stats["reward_breakdown"]["churn_penalty"] += penalty
+                self.debug_stats["churn_events"].append({
+                    "tick": self.engine.tick,
+                    "churned_count": (churned_after - churned_before)
+                })
             
-        # Penalty for queue waiting time (small penalty per tick per waiting order)
-        reward -= len(self.engine.order_queue) * 0.1
+        # Queue waiting penalty
+        wait_penalty = len(self.engine.order_queue) * 0.1
+        reward -= wait_penalty
+        if self.debug_mode:
+            self.debug_stats["reward_breakdown"]["queue_wait_penalty"] += wait_penalty
         
-        # Penalty for cold food on the counter (READY but not DELIVERING) -> Group Sync Penalty
+        # Cold food on counter penalty
         cold_food_count = sum(
             1 for t in self.engine.grid.tables.values() if t.customers > 0
             for o in t.current_orders if o.status == "READY" and not t.is_fully_ready_for_service
         )
-        reward -= cold_food_count * 0.5
+        cold_penalty = cold_food_count * 0.5
+        reward -= cold_penalty
+        if self.debug_mode:
+            self.debug_stats["reward_breakdown"]["cold_food_penalty"] += cold_penalty
         
-        # Penalty for courier waiting
-        courier_wait_count = 0
-        for o in self.engine.order_queue:
-            if o.is_takeout and o.courier_eta and self.engine.tick > o.courier_eta:
-                courier_wait_count += 1
-        reward -= courier_wait_count * 1.0
-        
-        # Invalid action penalty (tried to assign but couldn't)
-        if action > 0 and not sim_actions:
-            reward -= 1.0 # minor penalty for invalid assignment choice
+        # Courier waiting penalty
+        courier_wait_count = sum(
+            1 for o in self.engine.order_queue
+            if o.is_takeout and o.courier_eta and self.engine.tick > o.courier_eta
+        )
+        courier_penalty = courier_wait_count * 1.0
+        reward -= courier_penalty
+        if self.debug_mode:
+            self.debug_stats["reward_breakdown"]["courier_wait_penalty"] += courier_penalty
+
+        # Track station stats in debug mode
+        if self.debug_mode:
+            for s_id, s in self.engine.grid.stations.items():
+                if len(s.active_orders) > 0:
+                    self.debug_stats["station_busy_ticks"][s_id] += 1
+                if s.is_full:
+                    self.debug_stats["station_full_ticks"][s_id] += 1
+                if getattr(s, "is_broken", False):
+                    self.debug_stats["station_broken_ticks"][s_id] += 1
 
         terminated = self.engine.tick >= 1440
         truncated = False
@@ -228,4 +296,3 @@ class RestaurantGymEnv(gym.Env):
                     chef = self.engine.grid.chefs.get(act["chef_id"])
                     if station and chef:
                         self.engine.assign_order(order, station, chef)
-
