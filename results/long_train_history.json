@@ -1,0 +1,20 @@
+[
+  {
+    "epoch": 1,
+    "cumulative_train_days": 50,
+    "train_elapsed_sec": 45.2,
+    "eval_metrics": {
+      "eval_days": 10,
+      "total_completed": 3100,
+      "total_churned": 450,
+      "mean_daily_completed": 310.0,
+      "mean_daily_churn": 45.0,
+      "mean_queue_wait_time": 8.5,
+      "mean_food_cold_time": 42.1,
+      "mean_reward_per_day": 2500.0,
+      "eval_score": 2500.0
+    },
+    "is_best": true,
+    "status_label": "🏆 YENİ EN İYİ (Skor: +2500.00)"
+  }
+]

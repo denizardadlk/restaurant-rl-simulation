@@ -114,13 +114,16 @@ Sistem, yapay zeka eğitim süreçlerini görselleştirmeden bağımsız kılmak
    # 3. Pekiştirmeli Öğrenme (RL - MaskablePPO) Eğitimi & Fine-Tuning (Çoklu Çekirdek Destekli):
    python run_rl_training.py --num-envs 4
    
-   # 4. Eğitilmiş RL Modelini 100 Gün Test Etme:
+   # 4. Uzun Süreli RL Eğitimi & Early Stopping (50 Gün Train -> 10 Gün Test -> En İyiyi Bul):
+   python run_long_training.py --num-envs 8
+   
+   # 5. Eğitilmiş RL Modelini 100 Gün Test Etme:
    python run_rl_model.py --days 100
    
-   # 5. Canlı 2D Pygame Simülasyon Arayüzü:
+   # 6. Canlı 2D Pygame Simülasyon Arayüzü:
    python run_simulator.py --mode rl
    
-   # 6. Model Karşılaştırma Grafiği & Tablosu / Web Dashboard:
+   # 7. Model Karşılaştırma Grafiği & Tablosu / Web Dashboard:
    python compare_models.py
    python compare_models.py --web
    ```
