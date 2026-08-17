@@ -43,7 +43,7 @@ class CustomerManager:
         # 2. Takeout Patience (Courier wait time)
         for order in list(self.engine.order_queue):
             if order.is_takeout and order.courier_eta is not None:
-                if tick > order.courier_eta + 30.0:  # Courier leaves after waiting 30 mins
+                if tick > order.courier_eta + 45.0:  # Courier leaves after waiting 45 mins (1.5x)
                     self.engine.churned_customers += 1
                     if order in self.engine.order_queue:
                         self.engine.order_queue.remove(order)

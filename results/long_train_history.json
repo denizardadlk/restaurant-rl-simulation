@@ -2,73 +2,19 @@
   {
     "epoch": 1,
     "cumulative_train_days": 50,
-    "train_elapsed_sec": 580.0,
+    "train_elapsed_sec": 45.2,
     "eval_metrics": {
       "eval_days": 10,
-      "total_completed": 3389,
-      "total_churned": 940,
-      "mean_daily_completed": 338.9,
-      "mean_daily_churn": 94.0,
-      "mean_queue_wait_time": 4.53,
-      "mean_food_cold_time": 52.23,
-      "mean_reward_per_day": -2440.29,
-      "eval_score": -2440.29
+      "total_completed": 3100,
+      "total_churned": 450,
+      "mean_daily_completed": 310.0,
+      "mean_daily_churn": 45.0,
+      "mean_queue_wait_time": 8.5,
+      "mean_food_cold_time": 42.1,
+      "mean_reward_per_day": 2500.0,
+      "eval_score": 2500.0
     },
     "is_best": true,
-    "status_label": "🏆 YENİ EN İYİ (Skor: -2440.29)"
-  },
-  {
-    "epoch": 2,
-    "cumulative_train_days": 100,
-    "train_elapsed_sec": 578.51,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3202,
-      "total_churned": 1004,
-      "mean_daily_completed": 320.2,
-      "mean_daily_churn": 100.4,
-      "mean_queue_wait_time": 7.43,
-      "mean_food_cold_time": 51.41,
-      "mean_reward_per_day": -3979.56,
-      "eval_score": -3979.56
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 1/3)"
-  },
-  {
-    "epoch": 3,
-    "cumulative_train_days": 150,
-    "train_elapsed_sec": 589.66,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3236,
-      "total_churned": 1034,
-      "mean_daily_completed": 323.6,
-      "mean_daily_churn": 103.4,
-      "mean_queue_wait_time": 4.25,
-      "mean_food_cold_time": 50.82,
-      "mean_reward_per_day": -3665.3,
-      "eval_score": -3665.3
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 2/3)"
-  },
-  {
-    "epoch": 4,
-    "cumulative_train_days": 200,
-    "train_elapsed_sec": 569.78,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3039,
-      "total_churned": 1018,
-      "mean_daily_completed": 303.9,
-      "mean_daily_churn": 101.8,
-      "mean_queue_wait_time": 4.24,
-      "mean_food_cold_time": 48.8,
-      "mean_reward_per_day": -3857.45,
-      "eval_score": -3857.45
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 3/3)"
+    "status_label": "🏆 YENİ EN İYİ (Skor: +2500.00)"
   }
 ]

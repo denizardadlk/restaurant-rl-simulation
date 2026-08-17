@@ -297,14 +297,21 @@ def main():
     mean_wait = float(np.mean(all_wait_times)) if all_wait_times else 0.0
     mean_cold = float(np.mean(all_cold_times)) if all_cold_times else 0.0
     
+    total_demand = prev_completed_count + prev_churn_count
+    success_rate = round((prev_completed_count / max(1, total_demand)) * 100, 1)
+    hot_count = sum(1 for c in all_cold_times if c <= 0.001)
+    hot_delivery_ratio = round((hot_count / max(1, len(all_cold_times))) * 100, 1)
+    
     summary = {
         "name": "RL Agent (MaskablePPO)",
         "total_days": total_days,
         "elapsed_seconds": round(elapsed, 2),
         "total_completed": prev_completed_count,
         "total_churned": prev_churn_count,
-        "mean_daily_completed": round(prev_completed_count / max(1, total_days), 2),
-        "mean_daily_churn": round(prev_churn_count / max(1, total_days), 2),
+        "mean_daily_completed": round(prev_completed_count / max(1, total_days), 1),
+        "mean_daily_churn": round(prev_churn_count / max(1, total_days), 1),
+        "success_rate": success_rate,
+        "hot_delivery_ratio": hot_delivery_ratio,
         "mean_queue_wait_time": round(mean_wait, 2),
         "mean_food_cold_time": round(mean_cold, 2),
         "mean_reward_per_day": round(total_rewards / max(1, total_days), 2),

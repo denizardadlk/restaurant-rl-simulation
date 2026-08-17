@@ -91,7 +91,7 @@ class SimulationEngine:
                 if table.status == "EMPTY":
                     table.status = "WAITING_FOOD"
                     table.customers = table.capacity
-                    table.patience = 20.0
+                    table.patience = 30.0
                     table.current_orders = []
                 table.current_orders.append(order)
 

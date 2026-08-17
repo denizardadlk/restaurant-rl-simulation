@@ -44,7 +44,7 @@ class Table:
     h: int = 1
     orient: str = "H"
     customers: int = 0
-    patience: float = 20.0  # 0 to 20
+    patience: float = 30.0  # 0 to 30.0 (1.5x base patience)
     status: str = "EMPTY"  # EMPTY, WAITING_FOOD, EATING
     eating_time_remaining: float = 0.0
     current_orders: List[Order] = field(default_factory=list)

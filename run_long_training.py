@@ -75,7 +75,7 @@ def get_available_layouts():
     return layouts
 
 def evaluate_model_10_days(model_path: str, layout_path: str, difficulty: int = 3, eval_days: int = 10) -> dict:
-    """Modeli 10 günlük bağımsız simülasyonda test eder ve metrikleri hesaplar."""
+    """Modeli 10 günlük bağımsız simülasyonda test eder ve gelişmiş metrikleri hesaplar."""
     from sb3_contrib import MaskablePPO
     from sb3_contrib.common.wrappers import ActionMasker
     
@@ -120,7 +120,17 @@ def evaluate_model_10_days(model_path: str, layout_path: str, difficulty: int = 
     mean_daily_churn = round(total_churned / max(1, eval_days), 2)
     mean_reward = round(total_rewards / max(1, eval_days), 2)
     
-    # Kapsamlı değerlendirme skoru (Ödül temelli)
+    # Gelişmiş Metrikler
+    total_demand = total_completed + total_churned
+    success_rate = round((total_completed / max(1, total_demand)) * 100, 1)
+    hot_count = sum(1 for c in all_cold_times if c <= 0.001)
+    hot_delivery_ratio = round((hot_count / max(1, len(all_cold_times))) * 100, 1)
+    
+    chef_count = len(env.engine.grid.chefs)
+    table_count = len(env.engine.grid.tables)
+    chef_productivity = round(mean_daily_completed / max(1, chef_count), 1)
+    table_turnover = round((mean_daily_completed / max(1, table_count)), 1)
+    
     eval_score = mean_reward
     
     return {
@@ -129,6 +139,10 @@ def evaluate_model_10_days(model_path: str, layout_path: str, difficulty: int = 
         "total_churned": total_churned,
         "mean_daily_completed": mean_daily_completed,
         "mean_daily_churn": mean_daily_churn,
+        "success_rate": success_rate,
+        "hot_delivery_ratio": hot_delivery_ratio,
+        "chef_productivity": chef_productivity,
+        "table_turnover": table_turnover,
         "mean_queue_wait_time": round(mean_wait, 2),
         "mean_food_cold_time": round(mean_cold, 2),
         "mean_reward_per_day": mean_reward,
@@ -142,12 +156,12 @@ def update_summary_report(history: list, layout_filename: str, layout_path: str,
     lines = [
         "# 🚀 Uzun Süreli RL Eğitimi (Long Train) Canlı İlerleme Raporu\n",
         f"**Tarih:** {time.strftime('%Y-%m-%d %H:%M:%S')} | **Harita:** `{layout_filename}` | **Zorluk:** Seviye {difficulty}\n",
-        f"**Döngü Yapısı:** 50 Gün Eğitim (72.000 Adım) $\\to$ 10 Gün Test (14.400 Adım) $\\to$ Early Stopping (Patience: 3)\n",
+        f"**Döngü Yapısı:** 50 Gün Eğitim (72.000 Adım) $\\to$ 10 Gün Test (14.400 Adım) $\\to$ Early Stopping (Patience: 5)\n",
         f"**En İyi Model:** 🏆 **Döngü {best_epoch}** (Skor / Günlük Ödül: `{best_score:+.2f}`)\n",
         "---\n",
         "## 📊 İterasyon Geçmişi ve Doğrulama Tablosu\n",
-        "| Döngü | Kümülatif Gün | Eğitim Süresi | Günlük Tamamlanan | Günlük Churn | Ort. Bekleme | Ort. Soğuma | Günlük Ödül (Skor) | Durum / Patience |",
-        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
+        "| Döngü | Kümülatif Gün | Eğitim Süresi | Günlük Sipariş | % Başarı | % Sıcak Teslim | Aşçı Verim | Ort. Bekleme | Ort. Soğuma | Skor (Ödül) | Durum / Patience |",
+        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
     ]
     
     for entry in history:
@@ -155,13 +169,15 @@ def update_summary_report(history: list, layout_filename: str, layout_path: str,
         cum_days = entry["cumulative_train_days"]
         el_time = f"{entry['train_elapsed_sec']:.1f}sn"
         m_comp = f"{entry['eval_metrics']['mean_daily_completed']} sip/gün"
-        m_churn = f"{entry['eval_metrics']['mean_daily_churn']} kişi/gün"
+        m_succ = f"%{entry['eval_metrics'].get('success_rate', 0.0)}"
+        m_hot = f"%{entry['eval_metrics'].get('hot_delivery_ratio', 0.0)}"
+        m_prod = f"{entry['eval_metrics'].get('chef_productivity', 0.0)} sip/aşçı"
         m_wait = f"{entry['eval_metrics']['mean_queue_wait_time']} dk"
         m_cold = f"{entry['eval_metrics']['mean_food_cold_time']} dk"
         m_score = f"{entry['eval_metrics']['eval_score']:+.2f}"
         status = entry["status_label"]
         
-        lines.append(f"| **Döngü {ep}** | {cum_days} Gün | {el_time} | {m_comp} | {m_churn} | {m_wait} | {m_cold} | `{m_score}` | {status} |")
+        lines.append(f"| **Döngü {ep}** | {cum_days} Gün | {el_time} | {m_comp} | {m_succ} | {m_hot} | {m_prod} | {m_wait} | {m_cold} | `{m_score}` | {status} |")
         
     lines.extend([
         "\n---\n",
@@ -181,7 +197,7 @@ def prompt_user_choices(existing_model: bool, cli_layout=None, cli_mode=None, cl
     print("\n" + "=" * 80)
     print("🔥 UZUN SÜRELİ RL EĞİTİM YÖNETİCİSİ (LONG TRAIN & EARLY STOPPING)")
     print("=" * 80)
-    print("📌 Strateji: 50 Gün Train (72k Adım) -> 10 Gün Test -> En İyiyi Kaydet -> 3 Kötüleşmede Dur")
+    print("📌 Strateji: 50 Gün Train (72k Adım) -> 10 Gün Test -> En İyiyi Kaydet -> 5 Kötüleşmede Dur")
     print("-" * 80)
     
     # 1. Mod Seçimi
@@ -274,7 +290,7 @@ def main():
     parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
     parser.add_argument("--num-envs", type=int, default=None, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı")
     parser.add_argument("--max-epochs", type=int, default=None, help="Maksimum 50 günlük döngü sayısı")
-    parser.add_argument("--patience", type=int, default=3, help="Gelişme olmadan durdurulacak maksimum döngü sayısı (varsayılan: 3)")
+    parser.add_argument("--patience", type=int, default=5, help="Gelişme olmadan durdurulacak maksimum döngü sayısı (varsayılan: 5)")
     args = parser.parse_args()
     
     os.makedirs(MODELS_DIR, exist_ok=True)
@@ -292,11 +308,14 @@ def main():
     timesteps_per_epoch = train_days_per_epoch * 1440 # 72,000 timesteps
     patience_limit = args.patience
     
+    # Fine-tune mode uses gentler learning rate
+    lr_init = 1e-4 if mode == "continue" else 3e-4
+    
     print("\n" + "=" * 80)
     print("🚀 LONG TRAIN YAPILANDIRMASI")
     print("=" * 80)
     print(f"Layout Dosyası        : {layout_entry['filename']} ({layout_path})")
-    print(f"Başlangıç Modu        : {mode.upper()}")
+    print(f"Başlangıç Modu        : {mode.upper()} (Öğrenme Oranı: {lr_init:.1e} -> 1.0e-05)")
     print(f"Döngü Başına Eğitim   : {train_days_per_epoch} Gün ({timesteps_per_epoch:,} Timestep)")
     print(f"Döngü Başına Doğrulama: {eval_days} Gün (14,400 Tick)")
     print(f"Paralel Çekirdek (CPU): {num_envs}")
@@ -312,7 +331,9 @@ def main():
         num_envs=num_envs,
         difficulty_level=args.difficulty,
         model_path=DEFAULT_MODEL_PATH,
-        freeze_ml=True
+        freeze_ml=True,
+        learning_rate=lr_init,
+        ent_coef=0.01
     )
     
     # Model yükleme
@@ -343,7 +364,7 @@ def main():
         ep_start_time = time.time()
         
         # 1. TRAIN: 50 Gün (72.000 timestep)
-        rl_agent.train(total_timesteps=timesteps_per_epoch)
+        rl_agent.train(total_timesteps=timesteps_per_epoch, lr_initial=lr_init, lr_final=1e-5)
         ep_elapsed = time.time() - ep_start_time
         total_cumulative_days += train_days_per_epoch
         
@@ -361,7 +382,9 @@ def main():
         print("-" * 80)
         print(f"📊 10 GÜNLÜK DOĞRULAMA SONUCU (Döngü {epoch}):")
         print(f"  * Günlük Ort. Tamamlanan : {eval_metrics['mean_daily_completed']} sipariş/gün (Toplam: {eval_metrics['total_completed']})")
-        print(f"  * Günlük Ort. Churn      : {eval_metrics['mean_daily_churn']} müşteri/gün (Toplam: {eval_metrics['total_churned']})")
+        print(f"  * Hizmet Başarı Oranı    : %{eval_metrics['success_rate']} (Churn: {eval_metrics['mean_daily_churn']} kişi/gün)")
+        print(f"  * Sıcak Teslimat Oranı   : %{eval_metrics['hot_delivery_ratio']} (Tezgahta soğumayan)")
+        print(f"  * Aşçı Başına Verim      : {eval_metrics['chef_productivity']} sipariş/aşçı/gün")
         print(f"  * Ort. Kuyruk Bekleme    : {eval_metrics['mean_queue_wait_time']:.2f} dk")
         print(f"  * Ort. Yemek Soğuma      : {eval_metrics['mean_food_cold_time']:.2f} dk")
         print(f"  * Günlük Ortalama Ödül   : {eval_metrics['mean_reward_per_day']:+.2f}")

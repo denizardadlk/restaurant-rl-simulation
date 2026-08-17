@@ -34,14 +34,25 @@ def make_vectorized_env(config_path: str = "config/default_layout.json", difficu
     env_fns = [_make_single_env(config_path, difficulty_level, freeze_ml) for _ in range(num_envs)]
     return SubprocVecEnv(env_fns)
 
+def linear_schedule(initial_value: float = 3e-4, final_value: float = 1e-5):
+    """
+    Kademeli azalan (linear decay) öğrenme oranı fonksiyonu.
+    progress_remaining: 1.0 (başlangıç) -> 0.0 (bitiş)
+    """
+    def schedule(progress_remaining: float) -> float:
+        return final_value + progress_remaining * (initial_value - final_value)
+    return schedule
+
 class OrderSchedulerRLAgent:
-    def __init__(self, env = None, config_path: str = "config/default_layout.json", num_envs: int = 4, difficulty_level: int = 3, model_path: str = "models/ppo_order_scheduler.zip", freeze_ml: bool = True, debug_mode: bool = False):
+    def __init__(self, env = None, config_path: str = "config/default_layout.json", num_envs: int = 4, difficulty_level: int = 3, model_path: str = "models/ppo_order_scheduler.zip", freeze_ml: bool = True, debug_mode: bool = False, learning_rate: float = 3e-4, ent_coef: float = 0.01):
         self.config_path = config_path
         self.difficulty_level = difficulty_level
         self.num_envs = num_envs
         self.freeze_ml = freeze_ml
         self.model_path = model_path
         self.debug_mode = debug_mode
+        self.learning_rate = learning_rate
+        self.ent_coef = ent_coef
         
         if env is not None:
             if ActionMasker is not None and not isinstance(env, (ActionMasker, SubprocVecEnv, DummyVecEnv)):
@@ -60,17 +71,31 @@ class OrderSchedulerRLAgent:
         self.model = None
         os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
 
-    def train(self, total_timesteps: int = 10000):
+    def train(self, total_timesteps: int = 10000, lr_initial: float = None, lr_final: float = 1e-5):
         if MaskablePPO is None:
             print("sb3-contrib is not installed. Cannot train RL Agent.", flush=True)
             return
             
-        print(f"Training MaskablePPO Agent for {total_timesteps:,} timesteps across {1 if self.debug_mode else self.num_envs} envs...", flush=True)
+        init_lr = lr_initial if lr_initial is not None else self.learning_rate
+        lr_fn = linear_schedule(init_lr, lr_final)
+        
+        print(f"Training MaskablePPO Agent for {total_timesteps:,} timesteps across {1 if self.debug_mode else self.num_envs} envs (LR: {init_lr:.1e} -> {lr_final:.1e}, EntCoef: {self.ent_coef})...", flush=True)
         if self.model is None:
-            self.model = MaskablePPO("MlpPolicy", self.env, verbose=1, n_steps=512, batch_size=128)
+            self.model = MaskablePPO(
+                "MlpPolicy",
+                self.env,
+                verbose=1,
+                n_steps=512,
+                batch_size=128,
+                learning_rate=lr_fn,
+                ent_coef=self.ent_coef,
+                gamma=0.99,
+                gae_lambda=0.95
+            )
             self.model.learn(total_timesteps=total_timesteps)
         else:
             self.model.set_env(self.env)
+            self.model.lr_schedule = lr_fn
             self.model.learn(total_timesteps=total_timesteps, reset_num_timesteps=False)
             
         self.model.save(self.model_path)

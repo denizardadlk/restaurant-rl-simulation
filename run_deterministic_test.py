@@ -224,6 +224,13 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
     
     mean_wait = float(np.mean(all_wait_times)) if all_wait_times else 0.0
     mean_cold = float(np.mean(all_cold_times)) if all_cold_times else 0.0
+    mean_daily_completed = round(total_completed / max(1, total_days), 1)
+    mean_daily_churn = round(total_churned / max(1, total_days), 1)
+    
+    total_demand = total_completed + total_churned
+    success_rate = round((total_completed / max(1, total_demand)) * 100, 1)
+    hot_count = sum(1 for c in all_cold_times if c <= 0.001)
+    hot_delivery_ratio = round((hot_count / max(1, len(all_cold_times))) * 100, 1)
     
     return {
         "name": scheduler_name,
@@ -231,8 +238,10 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
         "elapsed_seconds": round(elapsed, 2),
         "total_completed": total_completed,
         "total_churned": total_churned,
-        "mean_daily_completed": round(total_completed / max(1, total_days), 2),
-        "mean_daily_churn": round(total_churned / max(1, total_days), 2),
+        "mean_daily_completed": mean_daily_completed,
+        "mean_daily_churn": mean_daily_churn,
+        "success_rate": success_rate,
+        "hot_delivery_ratio": hot_delivery_ratio,
         "mean_queue_wait_time": round(mean_wait, 2),
         "mean_food_cold_time": round(mean_cold, 2),
         "daily_progression": daily_logs
@@ -330,26 +339,30 @@ def main():
         f.write(f"İstasyon Sayısı    : {layout_info['station_count']} İstasyon ({', '.join(layout_info['station_types'])})\n")
         f.write(f"Personel Kadrosu   : {layout_info['waiter_count']} Garson, {layout_info['chef_count']} Aşçı\n\n")
         
-        f.write("=" * 90 + "\n")
+        f.write("=" * 105 + "\n")
         f.write("ALGORİTMA KARŞILAŞTIRMA VE BAŞARIM SONUÇLARI\n")
-        f.write("=" * 90 + "\n")
-        header = f"{'Algoritma':<32} | {'Tamamlanan':<12} | {'Churn (Kayıp)':<14} | {'Ort. Bekleme':<14} | {'Soğuma':<10}\n"
+        f.write("=" * 105 + "\n")
+        header = f"{'Algoritma':<28} | {'Günlük Sipariş':<16} | {'% Başarı':<10} | {'% Sıcak Teslim':<16} | {'Ort. Bekleme':<14} | {'Soğuma':<10}\n"
         f.write(header)
-        f.write("-" * 90 + "\n")
+        f.write("-" * 105 + "\n")
         
-        print("\n" + "=" * 90)
-        print("GENEL SONUÇ TABLOSU")
-        print("=" * 90)
+        print("\n" + "=" * 105)
+        print("GENEL SONUÇ TABLOSU (GÜNLÜK VARDİYA NORMALİZE EDİLMİŞ)")
+        print("=" * 105)
         print(header, end="")
-        print("-" * 90)
+        print("-" * 105)
         
         for name, data in results["schedulers"].items():
-            line = f"{name:<32} | {data['total_completed']:<12d} | {data['total_churned']:<14d} | {data['mean_queue_wait_time']:<12.2f}dk | {data['mean_food_cold_time']:<8.2f}dk\n"
+            short_name = name.split("(")[0].strip() if "(" in name else name
+            m_comp = f"{data['mean_daily_completed']} sip/gün"
+            s_rate = f"%{data.get('success_rate', 0.0)}"
+            h_rate = f"%{data.get('hot_delivery_ratio', 0.0)}"
+            line = f"{short_name:<28} | {m_comp:<16} | {s_rate:<10} | {h_rate:<16} | {data['mean_queue_wait_time']:<12.2f}dk | {data['mean_food_cold_time']:<8.2f}dk\n"
             f.write(line)
             print(line, end="")
             
-        f.write("=" * 90 + "\n")
-        print("=" * 90)
+        f.write("=" * 105 + "\n")
+        print("=" * 105)
         
     print(f"\n[KAYIT] JSON sonuçları kaydedildi : {json_path}")
     print(f"[KAYIT] Detaylı rapor kaydedildi : {txt_path}\n")
