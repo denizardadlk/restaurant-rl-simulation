@@ -131,10 +131,13 @@ def main():
             while time_accumulator >= tick_interval:
                 # Step the selected scheduler
                 if args.mode == "rl" and rl_agent and env:
-                    action_masks = env.action_masks()
-                    action, _ = rl_agent.model.predict(env._get_obs(), action_masks=action_masks, deterministic=True)
-                    env.step(action)
-                    # Sync engine reference
+                    tick_start = env.engine.tick
+                    while env.engine.tick == tick_start and env.engine.tick < 1440:
+                        action_masks = env.action_masks()
+                        action, _ = rl_agent.model.predict(env._get_obs(), action_masks=action_masks, deterministic=True)
+                        obs, reward, term, trunc, info = env.step(action)
+                        if action == 0 or term or trunc:
+                            break
                     engine = env.engine
                 else:
                     if scheduler:

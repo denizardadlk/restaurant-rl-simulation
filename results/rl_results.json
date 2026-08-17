@@ -2,54 +2,118 @@
   "benchmark_metadata": {
     "test_type": "Reinforcement Learning Agent Benchmark",
     "model_path": "C:\\kod\\Bitirme Projesi\\models\\ppo_order_scheduler.zip",
-    "days": 2,
-    "total_simulation_ticks": 2880,
+    "days": 10,
+    "total_simulation_ticks": 14400,
     "difficulty": 3,
-    "layout_filename": "default_layout.json",
-    "layout_path": "C:\\kod\\Bitirme Projesi\\config\\default_layout.json",
+    "layout_filename": "Büyük_restoran.json",
+    "layout_path": "C:\\kod\\Bitirme Projesi\\layouts\\Büyük_restoran.json",
     "layout_details": {
-      "grid_size": "10x10",
-      "table_count": 5,
-      "total_capacity": 18,
+      "grid_size": "16x16",
+      "table_count": 26,
+      "total_capacity": 108,
       "station_count": 4,
       "station_types": [
         "STOVE",
+        "PREP",
         "OVEN",
-        "GRILL",
-        "PREP"
+        "GRILL"
       ],
-      "waiter_count": 2,
-      "chef_count": 2
+      "waiter_count": 12,
+      "chef_count": 15
     },
-    "timestamp": "2026-08-14 15:52:25"
+    "timestamp": "2026-08-17 08:03:56"
   },
   "rl_agent": {
     "name": "RL Agent (MaskablePPO)",
-    "total_days": 2,
-    "elapsed_seconds": 7.28,
-    "total_completed": 62,
-    "total_churned": 210,
-    "mean_daily_completed": 31.0,
-    "mean_daily_churn": 105.0,
-    "mean_queue_wait_time": 53.31,
-    "mean_food_cold_time": 91.13,
-    "mean_reward_per_day": -13446.5,
+    "total_days": 10,
+    "elapsed_seconds": 64.29,
+    "total_completed": 2951,
+    "total_churned": 1214,
+    "mean_daily_completed": 295.1,
+    "mean_daily_churn": 121.4,
+    "mean_queue_wait_time": 4.59,
+    "mean_food_cold_time": 51.71,
+    "mean_reward_per_day": -6055.1,
     "daily_progression": [
       {
         "day": 1,
-        "day_reward": -13511.1,
-        "day_completed": 31,
-        "cumulative_completed": 31,
-        "day_churn": 104,
-        "cumulative_churn": 104
+        "day_reward": -5628.3,
+        "day_completed": 344,
+        "cumulative_completed": 344,
+        "day_churn": 128,
+        "cumulative_churn": 128
       },
       {
         "day": 2,
-        "day_reward": -13381.9,
-        "day_completed": 31,
-        "cumulative_completed": 62,
-        "day_churn": 106,
-        "cumulative_churn": 210
+        "day_reward": -8558.5,
+        "day_completed": 305,
+        "cumulative_completed": 649,
+        "day_churn": 148,
+        "cumulative_churn": 276
+      },
+      {
+        "day": 3,
+        "day_reward": -12257.5,
+        "day_completed": 263,
+        "cumulative_completed": 912,
+        "day_churn": 176,
+        "cumulative_churn": 452
+      },
+      {
+        "day": 4,
+        "day_reward": 187.9,
+        "day_completed": 283,
+        "cumulative_completed": 1195,
+        "day_churn": 56,
+        "cumulative_churn": 508
+      },
+      {
+        "day": 5,
+        "day_reward": -4624.2,
+        "day_completed": 314,
+        "cumulative_completed": 1509,
+        "day_churn": 112,
+        "cumulative_churn": 620
+      },
+      {
+        "day": 6,
+        "day_reward": -11947.0,
+        "day_completed": 223,
+        "cumulative_completed": 1732,
+        "day_churn": 164,
+        "cumulative_churn": 784
+      },
+      {
+        "day": 7,
+        "day_reward": -6886.9,
+        "day_completed": 304,
+        "cumulative_completed": 2036,
+        "day_churn": 132,
+        "cumulative_churn": 916
+      },
+      {
+        "day": 8,
+        "day_reward": 1062.4,
+        "day_completed": 333,
+        "cumulative_completed": 2369,
+        "day_churn": 58,
+        "cumulative_churn": 974
+      },
+      {
+        "day": 9,
+        "day_reward": -5061.8,
+        "day_completed": 288,
+        "cumulative_completed": 2657,
+        "day_churn": 110,
+        "cumulative_churn": 1084
+      },
+      {
+        "day": 10,
+        "day_reward": -6837.1,
+        "day_completed": 294,
+        "cumulative_completed": 2951,
+        "day_churn": 130,
+        "cumulative_churn": 1214
       }
     ]
   }
