@@ -2,9 +2,9 @@
 PEKİŞTİRMELİ ÖĞRENME (RL - MaskablePPO) BENCHMARK TEST RAPORU
 ==========================================================================================
 
-Test Tarihi        : 2026-08-17 08:03:56
+Test Tarihi        : 2026-08-18 08:39:19
 Simülasyon Süresi  : 10 Gün (14,400 Simülasyon Adımı / Tick)
-Kullanılan Model   : C:\kod\Bitirme Projesi\models\ppo_order_scheduler.zip
+Kullanılan Model   : models/ppo_order_scheduler_best.zip
 Zorluk Seviyesi    : Seviye 3
 
 ------------------------------------------------------------------------------------------
@@ -15,18 +15,18 @@ Dosya Yolu         : C:\kod\Bitirme Projesi\layouts\Büyük_restoran.json
 Izgara Boyutu      : 16x16
 Masa Sayısı        : 26 Masa
 Toplam Kapasite    : 108 Müşteri / Sandalye
-İstasyon Sayısı    : 4 İstasyon (STOVE, PREP, OVEN, GRILL)
+İstasyon Sayısı    : 4 İstasyon (OVEN, PREP, GRILL, STOVE)
 Personel Kadrosu   : 12 Garson, 15 Aşçı
 
 ==========================================================================================
 RL AJANI BAŞARIM METRİKLERİ VE SONUÇLAR
 ==========================================================================================
-Toplam Tamamlanan Sipariş : 2,951
-Toplam Kaybedilen Müşteri : 1,214
-Günlük Ort. Tamamlanan    : 295.1 sipariş/gün
-Günlük Ort. Churn (Kayıp) : 121.4 müşteri/gün
-Ortalama Kuyruk Bekleme   : 4.59 dakika
-Ortalama Yemek Soğuma     : 51.71 dakika
-Günlük Ortalama Ödül      : -6055.1
-Test Çalışma Süresi       : 64.29 saniye
+Toplam Tamamlanan Sipariş : 3,497
+Toplam Kaybedilen Müşteri : 296
+Günlük Ort. Tamamlanan    : 349.7 sipariş/gün
+Günlük Ort. Churn (Kayıp) : 29.6 müşteri/gün
+Ortalama Kuyruk Bekleme   : 3.81 dakika
+Ortalama Yemek Soğuma     : 57.74 dakika
+Günlük Ortalama Ödül      : 4327.55
+Test Çalışma Süresi       : 63.47 saniye
 ==========================================================================================

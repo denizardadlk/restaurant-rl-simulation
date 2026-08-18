@@ -20,7 +20,8 @@ RESULTS_DIR = os.path.join(BASE_DIR, "results")
 LAYOUTS_DIR = os.path.join(BASE_DIR, "layouts")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
-DEFAULT_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
+BEST_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler_best.zip")
+DEFAULT_MODEL_PATH = BEST_MODEL_PATH if os.path.exists(BEST_MODEL_PATH) else os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
 
 def get_available_layouts():
     """Tüm mevcut layout dosyalarını bulur ve temel bilgilerini çıkarır."""

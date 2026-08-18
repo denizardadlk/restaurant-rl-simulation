@@ -17,7 +17,8 @@ from simulation.scheduler_baselines import FIFOScheduler, SPTScheduler, LPTSched
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LAYOUTS_DIR = os.path.join(BASE_DIR, "layouts")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
-DEFAULT_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
+BEST_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler_best.zip")
+DEFAULT_MODEL_PATH = BEST_MODEL_PATH if os.path.exists(BEST_MODEL_PATH) else os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
 
 # Colors
 BG_COLOR = (30, 30, 40)

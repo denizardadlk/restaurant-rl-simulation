@@ -2,8 +2,8 @@
 DETERMİNİSTİK ALGORİTMALAR BENCHMARK TEST RAPORU (GÜNLÜK VARDİYA)
 ==========================================================================================
 
-Test Tarihi        : 2026-08-14 15:53:33
-Simülasyon Süresi  : 50 Gün (72,000 Simülasyon Adımı / Tick)
+Test Tarihi        : 2026-08-17 09:32:29
+Simülasyon Süresi  : 100 Gün (144,000 Simülasyon Adımı / Tick)
 Zorluk Seviyesi    : Seviye 3
 
 ------------------------------------------------------------------------------------------
@@ -14,16 +14,16 @@ Dosya Yolu         : C:\kod\Bitirme Projesi\layouts\Büyük_restoran.json
 Izgara Boyutu      : 16x16
 Masa Sayısı        : 26 Masa
 Toplam Kapasite    : 108 Müşteri / Sandalye
-İstasyon Sayısı    : 4 İstasyon (OVEN, STOVE, GRILL, PREP)
+İstasyon Sayısı    : 4 İstasyon (STOVE, PREP, GRILL, OVEN)
 Personel Kadrosu   : 12 Garson, 15 Aşçı
 
-==========================================================================================
+=========================================================================================================
 ALGORİTMA KARŞILAŞTIRMA VE BAŞARIM SONUÇLARI
-==========================================================================================
-Algoritma                        | Tamamlanan   | Churn (Kayıp)  | Ort. Bekleme   | Soğuma    
-------------------------------------------------------------------------------------------
-FIFO (First-In-First-Out)        | 15626        | 4792           | 13.04       dk | 48.69   dk
-SPT (Shortest Processing Time)   | 14934        | 5050           | 10.10       dk | 53.59   dk
-LPT (Longest Processing Time)    | 14031        | 5931           | 11.43       dk | 49.06   dk
-MinPatience (En Düşük Sabır)     | 16191        | 5029           | 11.69       dk | 47.94   dk
-==========================================================================================
+=========================================================================================================
+Algoritma                    | Günlük Sipariş   | % Başarı   | % Sıcak Teslim   | Ort. Bekleme   | Soğuma    
+---------------------------------------------------------------------------------------------------------
+FIFO                         | 360.3 sip/gün    | %93.0      | %1.8             | 14.32       dk | 53.91   dk
+SPT                          | 351.3 sip/gün    | %93.0      | %1.2             | 11.90       dk | 63.60   dk
+LPT                          | 352.6 sip/gün    | %93.2      | %1.2             | 12.96       dk | 58.68   dk
+MinPatience                  | 360.5 sip/gün    | %91.8      | %1.8             | 12.52       dk | 51.88   dk
+=========================================================================================================

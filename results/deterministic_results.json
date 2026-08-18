@@ -1,8 +1,8 @@
 {
   "benchmark_metadata": {
     "test_type": "Deterministic Baselines Benchmark (Daily Shifts)",
-    "days": 50,
-    "total_simulation_ticks": 72000,
+    "days": 100,
+    "total_simulation_ticks": 144000,
     "difficulty": 3,
     "layout_filename": "Büyük_restoran.json",
     "layout_path": "C:\\kod\\Bitirme Projesi\\layouts\\Büyük_restoran.json",
@@ -12,1466 +12,2874 @@
       "total_capacity": 108,
       "station_count": 4,
       "station_types": [
-        "OVEN",
         "STOVE",
+        "PREP",
         "GRILL",
-        "PREP"
+        "OVEN"
       ],
       "waiter_count": 12,
       "chef_count": 15
     },
-    "timestamp": "2026-08-14 15:53:33"
+    "timestamp": "2026-08-17 09:32:29"
   },
   "schedulers": {
     "FIFO (First-In-First-Out)": {
       "name": "FIFO (First-In-First-Out)",
-      "total_days": 50,
-      "elapsed_seconds": 231.58,
-      "total_completed": 15626,
-      "total_churned": 4792,
-      "mean_daily_completed": 312.52,
-      "mean_daily_churn": 95.84,
-      "mean_queue_wait_time": 13.04,
-      "mean_food_cold_time": 48.69,
+      "total_days": 100,
+      "elapsed_seconds": 578.31,
+      "total_completed": 36034,
+      "total_churned": 2718,
+      "mean_daily_completed": 360.3,
+      "mean_daily_churn": 27.2,
+      "success_rate": 93.0,
+      "hot_delivery_ratio": 1.8,
+      "mean_queue_wait_time": 14.32,
+      "mean_food_cold_time": 53.91,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 298,
-          "cumulative_completed": 298,
-          "day_churn": 96,
-          "cumulative_churn": 96
-        },
-        {
-          "day": 2,
-          "day_completed": 315,
-          "cumulative_completed": 613,
-          "day_churn": 58,
-          "cumulative_churn": 154
-        },
-        {
-          "day": 3,
-          "day_completed": 289,
-          "cumulative_completed": 902,
-          "day_churn": 168,
-          "cumulative_churn": 322
-        },
-        {
-          "day": 4,
-          "day_completed": 224,
-          "cumulative_completed": 1126,
-          "day_churn": 122,
-          "cumulative_churn": 444
-        },
-        {
-          "day": 5,
-          "day_completed": 382,
-          "cumulative_completed": 1508,
-          "day_churn": 56,
-          "cumulative_churn": 500
-        },
-        {
-          "day": 6,
-          "day_completed": 313,
-          "cumulative_completed": 1821,
-          "day_churn": 60,
-          "cumulative_churn": 560
-        },
-        {
-          "day": 7,
-          "day_completed": 413,
-          "cumulative_completed": 2234,
-          "day_churn": 53,
-          "cumulative_churn": 613
-        },
-        {
-          "day": 8,
-          "day_completed": 267,
-          "cumulative_completed": 2501,
-          "day_churn": 138,
-          "cumulative_churn": 751
-        },
-        {
-          "day": 9,
-          "day_completed": 303,
-          "cumulative_completed": 2804,
-          "day_churn": 182,
-          "cumulative_churn": 933
-        },
-        {
-          "day": 10,
-          "day_completed": 311,
-          "cumulative_completed": 3115,
-          "day_churn": 88,
-          "cumulative_churn": 1021
-        },
-        {
-          "day": 11,
-          "day_completed": 352,
-          "cumulative_completed": 3467,
-          "day_churn": 88,
-          "cumulative_churn": 1109
-        },
-        {
-          "day": 12,
-          "day_completed": 326,
-          "cumulative_completed": 3793,
-          "day_churn": 72,
-          "cumulative_churn": 1181
-        },
-        {
-          "day": 13,
-          "day_completed": 250,
-          "cumulative_completed": 4043,
-          "day_churn": 132,
-          "cumulative_churn": 1313
-        },
-        {
-          "day": 14,
-          "day_completed": 329,
-          "cumulative_completed": 4372,
-          "day_churn": 80,
-          "cumulative_churn": 1393
-        },
-        {
-          "day": 15,
-          "day_completed": 292,
-          "cumulative_completed": 4664,
-          "day_churn": 52,
-          "cumulative_churn": 1445
-        },
-        {
-          "day": 16,
-          "day_completed": 312,
-          "cumulative_completed": 4976,
-          "day_churn": 90,
-          "cumulative_churn": 1535
-        },
-        {
-          "day": 17,
-          "day_completed": 303,
-          "cumulative_completed": 5279,
-          "day_churn": 86,
-          "cumulative_churn": 1621
-        },
-        {
-          "day": 18,
-          "day_completed": 292,
-          "cumulative_completed": 5571,
-          "day_churn": 82,
-          "cumulative_churn": 1703
-        },
-        {
-          "day": 19,
-          "day_completed": 380,
-          "cumulative_completed": 5951,
-          "day_churn": 58,
-          "cumulative_churn": 1761
-        },
-        {
-          "day": 20,
-          "day_completed": 292,
-          "cumulative_completed": 6243,
-          "day_churn": 144,
-          "cumulative_churn": 1905
-        },
-        {
-          "day": 21,
-          "day_completed": 278,
-          "cumulative_completed": 6521,
-          "day_churn": 118,
-          "cumulative_churn": 2023
-        },
-        {
-          "day": 22,
-          "day_completed": 319,
-          "cumulative_completed": 6840,
-          "day_churn": 20,
-          "cumulative_churn": 2043
-        },
-        {
-          "day": 23,
-          "day_completed": 267,
-          "cumulative_completed": 7107,
-          "day_churn": 86,
-          "cumulative_churn": 2129
-        },
-        {
-          "day": 24,
-          "day_completed": 256,
-          "cumulative_completed": 7363,
-          "day_churn": 96,
-          "cumulative_churn": 2225
-        },
-        {
-          "day": 25,
-          "day_completed": 355,
-          "cumulative_completed": 7718,
-          "day_churn": 51,
-          "cumulative_churn": 2276
-        },
-        {
-          "day": 26,
-          "day_completed": 322,
-          "cumulative_completed": 8040,
-          "day_churn": 146,
-          "cumulative_churn": 2422
-        },
-        {
-          "day": 27,
-          "day_completed": 356,
-          "cumulative_completed": 8396,
-          "day_churn": 66,
-          "cumulative_churn": 2488
-        },
-        {
-          "day": 28,
-          "day_completed": 299,
-          "cumulative_completed": 8695,
-          "day_churn": 122,
-          "cumulative_churn": 2610
-        },
-        {
-          "day": 29,
-          "day_completed": 281,
-          "cumulative_completed": 8976,
-          "day_churn": 148,
-          "cumulative_churn": 2758
-        },
-        {
-          "day": 30,
-          "day_completed": 324,
-          "cumulative_completed": 9300,
-          "day_churn": 146,
-          "cumulative_churn": 2904
-        },
-        {
-          "day": 31,
-          "day_completed": 331,
-          "cumulative_completed": 9631,
-          "day_churn": 126,
-          "cumulative_churn": 3030
-        },
-        {
-          "day": 32,
-          "day_completed": 340,
-          "cumulative_completed": 9971,
-          "day_churn": 108,
-          "cumulative_churn": 3138
-        },
-        {
-          "day": 33,
-          "day_completed": 288,
-          "cumulative_completed": 10259,
-          "day_churn": 130,
-          "cumulative_churn": 3268
-        },
-        {
-          "day": 34,
-          "day_completed": 333,
-          "cumulative_completed": 10592,
-          "day_churn": 11,
-          "cumulative_churn": 3279
-        },
-        {
-          "day": 35,
-          "day_completed": 348,
-          "cumulative_completed": 10940,
-          "day_churn": 126,
-          "cumulative_churn": 3405
-        },
-        {
-          "day": 36,
-          "day_completed": 348,
-          "cumulative_completed": 11288,
-          "day_churn": 102,
-          "cumulative_churn": 3507
-        },
-        {
-          "day": 37,
-          "day_completed": 308,
-          "cumulative_completed": 11596,
-          "day_churn": 57,
-          "cumulative_churn": 3564
-        },
-        {
-          "day": 38,
-          "day_completed": 293,
-          "cumulative_completed": 11889,
-          "day_churn": 126,
-          "cumulative_churn": 3690
-        },
-        {
-          "day": 39,
-          "day_completed": 373,
-          "cumulative_completed": 12262,
-          "day_churn": 47,
-          "cumulative_churn": 3737
-        },
-        {
-          "day": 40,
-          "day_completed": 381,
-          "cumulative_completed": 12643,
-          "day_churn": 84,
-          "cumulative_churn": 3821
-        },
-        {
-          "day": 41,
-          "day_completed": 321,
-          "cumulative_completed": 12964,
-          "day_churn": 110,
-          "cumulative_churn": 3931
-        },
-        {
-          "day": 42,
-          "day_completed": 274,
-          "cumulative_completed": 13238,
-          "day_churn": 106,
-          "cumulative_churn": 4037
-        },
-        {
-          "day": 43,
-          "day_completed": 277,
-          "cumulative_completed": 13515,
-          "day_churn": 109,
-          "cumulative_churn": 4146
-        },
-        {
-          "day": 44,
-          "day_completed": 362,
-          "cumulative_completed": 13877,
-          "day_churn": 64,
-          "cumulative_churn": 4210
-        },
-        {
-          "day": 45,
-          "day_completed": 274,
-          "cumulative_completed": 14151,
-          "day_churn": 82,
-          "cumulative_churn": 4292
-        },
-        {
-          "day": 46,
-          "day_completed": 324,
-          "cumulative_completed": 14475,
-          "day_churn": 128,
-          "cumulative_churn": 4420
-        },
-        {
-          "day": 47,
-          "day_completed": 273,
-          "cumulative_completed": 14748,
-          "day_churn": 114,
-          "cumulative_churn": 4534
-        },
-        {
-          "day": 48,
-          "day_completed": 284,
-          "cumulative_completed": 15032,
-          "day_churn": 44,
-          "cumulative_churn": 4578
-        },
-        {
-          "day": 49,
-          "day_completed": 281,
-          "cumulative_completed": 15313,
-          "day_churn": 107,
-          "cumulative_churn": 4685
-        },
-        {
-          "day": 50,
-          "day_completed": 313,
-          "cumulative_completed": 15626,
-          "day_churn": 107,
-          "cumulative_churn": 4792
-        }
-      ]
-    },
-    "SPT (Shortest Processing Time)": {
-      "name": "SPT (Shortest Processing Time)",
-      "total_days": 50,
-      "elapsed_seconds": 230.99,
-      "total_completed": 14934,
-      "total_churned": 5050,
-      "mean_daily_completed": 298.68,
-      "mean_daily_churn": 101.0,
-      "mean_queue_wait_time": 10.1,
-      "mean_food_cold_time": 53.59,
-      "daily_progression": [
-        {
-          "day": 1,
-          "day_completed": 336,
-          "cumulative_completed": 336,
+          "day_completed": 357,
+          "cumulative_completed": 357,
           "day_churn": 48,
           "cumulative_churn": 48
         },
         {
           "day": 2,
-          "day_completed": 354,
-          "cumulative_completed": 690,
-          "day_churn": 32,
-          "cumulative_churn": 80
+          "day_completed": 429,
+          "cumulative_completed": 786,
+          "day_churn": 24,
+          "cumulative_churn": 72
         },
         {
           "day": 3,
-          "day_completed": 361,
-          "cumulative_completed": 1051,
-          "day_churn": 33,
-          "cumulative_churn": 113
+          "day_completed": 302,
+          "cumulative_completed": 1088,
+          "day_churn": 46,
+          "cumulative_churn": 118
         },
         {
           "day": 4,
-          "day_completed": 233,
-          "cumulative_completed": 1284,
-          "day_churn": 205,
-          "cumulative_churn": 318
+          "day_completed": 400,
+          "cumulative_completed": 1488,
+          "day_churn": 12,
+          "cumulative_churn": 130
         },
         {
           "day": 5,
-          "day_completed": 384,
-          "cumulative_completed": 1668,
-          "day_churn": 64,
-          "cumulative_churn": 382
+          "day_completed": 365,
+          "cumulative_completed": 1853,
+          "day_churn": 4,
+          "cumulative_churn": 134
         },
         {
           "day": 6,
-          "day_completed": 237,
-          "cumulative_completed": 1905,
-          "day_churn": 132,
-          "cumulative_churn": 514
+          "day_completed": 360,
+          "cumulative_completed": 2213,
+          "day_churn": 2,
+          "cumulative_churn": 136
         },
         {
           "day": 7,
-          "day_completed": 379,
-          "cumulative_completed": 2284,
-          "day_churn": 32,
-          "cumulative_churn": 546
+          "day_completed": 394,
+          "cumulative_completed": 2607,
+          "day_churn": 46,
+          "cumulative_churn": 182
         },
         {
           "day": 8,
-          "day_completed": 277,
-          "cumulative_completed": 2561,
-          "day_churn": 85,
-          "cumulative_churn": 631
+          "day_completed": 354,
+          "cumulative_completed": 2961,
+          "day_churn": 22,
+          "cumulative_churn": 204
         },
         {
           "day": 9,
-          "day_completed": 273,
-          "cumulative_completed": 2834,
-          "day_churn": 156,
-          "cumulative_churn": 787
+          "day_completed": 349,
+          "cumulative_completed": 3310,
+          "day_churn": 12,
+          "cumulative_churn": 216
         },
         {
           "day": 10,
-          "day_completed": 276,
-          "cumulative_completed": 3110,
-          "day_churn": 134,
-          "cumulative_churn": 921
+          "day_completed": 401,
+          "cumulative_completed": 3711,
+          "day_churn": 0,
+          "cumulative_churn": 216
         },
         {
           "day": 11,
-          "day_completed": 377,
-          "cumulative_completed": 3487,
-          "day_churn": 148,
-          "cumulative_churn": 1069
+          "day_completed": 378,
+          "cumulative_completed": 4089,
+          "day_churn": 18,
+          "cumulative_churn": 234
         },
         {
           "day": 12,
-          "day_completed": 279,
-          "cumulative_completed": 3766,
-          "day_churn": 180,
-          "cumulative_churn": 1249
+          "day_completed": 337,
+          "cumulative_completed": 4426,
+          "day_churn": 64,
+          "cumulative_churn": 298
         },
         {
           "day": 13,
-          "day_completed": 347,
-          "cumulative_completed": 4113,
-          "day_churn": 47,
-          "cumulative_churn": 1296
+          "day_completed": 417,
+          "cumulative_completed": 4843,
+          "day_churn": 0,
+          "cumulative_churn": 298
         },
         {
           "day": 14,
-          "day_completed": 357,
-          "cumulative_completed": 4470,
-          "day_churn": 34,
-          "cumulative_churn": 1330
+          "day_completed": 372,
+          "cumulative_completed": 5215,
+          "day_churn": 42,
+          "cumulative_churn": 340
         },
         {
           "day": 15,
-          "day_completed": 227,
-          "cumulative_completed": 4697,
-          "day_churn": 205,
-          "cumulative_churn": 1535
+          "day_completed": 398,
+          "cumulative_completed": 5613,
+          "day_churn": 16,
+          "cumulative_churn": 356
         },
         {
           "day": 16,
-          "day_completed": 352,
-          "cumulative_completed": 5049,
+          "day_completed": 377,
+          "cumulative_completed": 5990,
           "day_churn": 54,
-          "cumulative_churn": 1589
+          "cumulative_churn": 410
         },
         {
           "day": 17,
-          "day_completed": 282,
-          "cumulative_completed": 5331,
-          "day_churn": 106,
-          "cumulative_churn": 1695
+          "day_completed": 360,
+          "cumulative_completed": 6350,
+          "day_churn": 32,
+          "cumulative_churn": 442
         },
         {
           "day": 18,
-          "day_completed": 278,
-          "cumulative_completed": 5609,
-          "day_churn": 52,
-          "cumulative_churn": 1747
+          "day_completed": 366,
+          "cumulative_completed": 6716,
+          "day_churn": 42,
+          "cumulative_churn": 484
         },
         {
           "day": 19,
-          "day_completed": 144,
-          "cumulative_completed": 5753,
-          "day_churn": 178,
-          "cumulative_churn": 1925
+          "day_completed": 370,
+          "cumulative_completed": 7086,
+          "day_churn": 31,
+          "cumulative_churn": 515
         },
         {
           "day": 20,
-          "day_completed": 274,
-          "cumulative_completed": 6027,
-          "day_churn": 25,
-          "cumulative_churn": 1950
+          "day_completed": 331,
+          "cumulative_completed": 7417,
+          "day_churn": 20,
+          "cumulative_churn": 535
         },
         {
           "day": 21,
-          "day_completed": 191,
-          "cumulative_completed": 6218,
-          "day_churn": 168,
-          "cumulative_churn": 2118
+          "day_completed": 395,
+          "cumulative_completed": 7812,
+          "day_churn": 0,
+          "cumulative_churn": 535
         },
         {
           "day": 22,
-          "day_completed": 309,
-          "cumulative_completed": 6527,
-          "day_churn": 42,
-          "cumulative_churn": 2160
+          "day_completed": 331,
+          "cumulative_completed": 8143,
+          "day_churn": 64,
+          "cumulative_churn": 599
         },
         {
           "day": 23,
-          "day_completed": 303,
-          "cumulative_completed": 6830,
-          "day_churn": 48,
-          "cumulative_churn": 2208
+          "day_completed": 296,
+          "cumulative_completed": 8439,
+          "day_churn": 86,
+          "cumulative_churn": 685
         },
         {
           "day": 24,
-          "day_completed": 232,
-          "cumulative_completed": 7062,
-          "day_churn": 188,
-          "cumulative_churn": 2396
+          "day_completed": 362,
+          "cumulative_completed": 8801,
+          "day_churn": 7,
+          "cumulative_churn": 692
         },
         {
           "day": 25,
-          "day_completed": 358,
-          "cumulative_completed": 7420,
-          "day_churn": 24,
-          "cumulative_churn": 2420
+          "day_completed": 425,
+          "cumulative_completed": 9226,
+          "day_churn": 0,
+          "cumulative_churn": 692
         },
         {
           "day": 26,
-          "day_completed": 238,
-          "cumulative_completed": 7658,
-          "day_churn": 194,
-          "cumulative_churn": 2614
+          "day_completed": 341,
+          "cumulative_completed": 9567,
+          "day_churn": 46,
+          "cumulative_churn": 738
         },
         {
           "day": 27,
-          "day_completed": 346,
-          "cumulative_completed": 8004,
-          "day_churn": 21,
-          "cumulative_churn": 2635
+          "day_completed": 383,
+          "cumulative_completed": 9950,
+          "day_churn": 0,
+          "cumulative_churn": 738
         },
         {
           "day": 28,
-          "day_completed": 334,
-          "cumulative_completed": 8338,
-          "day_churn": 39,
-          "cumulative_churn": 2674
+          "day_completed": 359,
+          "cumulative_completed": 10309,
+          "day_churn": 1,
+          "cumulative_churn": 739
         },
         {
           "day": 29,
-          "day_completed": 264,
-          "cumulative_completed": 8602,
-          "day_churn": 143,
-          "cumulative_churn": 2817
+          "day_completed": 374,
+          "cumulative_completed": 10683,
+          "day_churn": 32,
+          "cumulative_churn": 771
         },
         {
           "day": 30,
-          "day_completed": 258,
-          "cumulative_completed": 8860,
-          "day_churn": 144,
-          "cumulative_churn": 2961
+          "day_completed": 366,
+          "cumulative_completed": 11049,
+          "day_churn": 52,
+          "cumulative_churn": 823
         },
         {
           "day": 31,
-          "day_completed": 344,
-          "cumulative_completed": 9204,
-          "day_churn": 128,
-          "cumulative_churn": 3089
+          "day_completed": 343,
+          "cumulative_completed": 11392,
+          "day_churn": 80,
+          "cumulative_churn": 903
         },
         {
           "day": 32,
-          "day_completed": 390,
-          "cumulative_completed": 9594,
-          "day_churn": 0,
-          "cumulative_churn": 3089
+          "day_completed": 228,
+          "cumulative_completed": 11620,
+          "day_churn": 62,
+          "cumulative_churn": 965
         },
         {
           "day": 33,
-          "day_completed": 203,
-          "cumulative_completed": 9797,
-          "day_churn": 172,
-          "cumulative_churn": 3261
+          "day_completed": 396,
+          "cumulative_completed": 12016,
+          "day_churn": 0,
+          "cumulative_churn": 965
         },
         {
           "day": 34,
-          "day_completed": 252,
-          "cumulative_completed": 10049,
-          "day_churn": 126,
-          "cumulative_churn": 3387
+          "day_completed": 291,
+          "cumulative_completed": 12307,
+          "day_churn": 54,
+          "cumulative_churn": 1019
         },
         {
           "day": 35,
-          "day_completed": 237,
-          "cumulative_completed": 10286,
-          "day_churn": 198,
-          "cumulative_churn": 3585
+          "day_completed": 385,
+          "cumulative_completed": 12692,
+          "day_churn": 39,
+          "cumulative_churn": 1058
         },
         {
           "day": 36,
-          "day_completed": 251,
-          "cumulative_completed": 10537,
-          "day_churn": 156,
-          "cumulative_churn": 3741
+          "day_completed": 361,
+          "cumulative_completed": 13053,
+          "day_churn": 68,
+          "cumulative_churn": 1126
         },
         {
           "day": 37,
-          "day_completed": 371,
-          "cumulative_completed": 10908,
-          "day_churn": 46,
-          "cumulative_churn": 3787
+          "day_completed": 400,
+          "cumulative_completed": 13453,
+          "day_churn": 36,
+          "cumulative_churn": 1162
         },
         {
           "day": 38,
-          "day_completed": 327,
-          "cumulative_completed": 11235,
-          "day_churn": 161,
-          "cumulative_churn": 3948
+          "day_completed": 350,
+          "cumulative_completed": 13803,
+          "day_churn": 0,
+          "cumulative_churn": 1162
         },
         {
           "day": 39,
-          "day_completed": 375,
-          "cumulative_completed": 11610,
-          "day_churn": 6,
-          "cumulative_churn": 3954
+          "day_completed": 279,
+          "cumulative_completed": 14082,
+          "day_churn": 58,
+          "cumulative_churn": 1220
         },
         {
           "day": 40,
-          "day_completed": 229,
-          "cumulative_completed": 11839,
-          "day_churn": 170,
-          "cumulative_churn": 4124
+          "day_completed": 367,
+          "cumulative_completed": 14449,
+          "day_churn": 0,
+          "cumulative_churn": 1220
         },
         {
           "day": 41,
-          "day_completed": 225,
-          "cumulative_completed": 12064,
-          "day_churn": 182,
-          "cumulative_churn": 4306
+          "day_completed": 425,
+          "cumulative_completed": 14874,
+          "day_churn": 0,
+          "cumulative_churn": 1220
         },
         {
           "day": 42,
-          "day_completed": 242,
-          "cumulative_completed": 12306,
-          "day_churn": 155,
-          "cumulative_churn": 4461
+          "day_completed": 356,
+          "cumulative_completed": 15230,
+          "day_churn": 1,
+          "cumulative_churn": 1221
         },
         {
           "day": 43,
-          "day_completed": 328,
-          "cumulative_completed": 12634,
-          "day_churn": 67,
-          "cumulative_churn": 4528
+          "day_completed": 272,
+          "cumulative_completed": 15502,
+          "day_churn": 40,
+          "cumulative_churn": 1261
         },
         {
           "day": 44,
-          "day_completed": 378,
-          "cumulative_completed": 13012,
-          "day_churn": 2,
-          "cumulative_churn": 4530
+          "day_completed": 341,
+          "cumulative_completed": 15843,
+          "day_churn": 48,
+          "cumulative_churn": 1309
         },
         {
           "day": 45,
-          "day_completed": 328,
-          "cumulative_completed": 13340,
-          "day_churn": 122,
-          "cumulative_churn": 4652
+          "day_completed": 352,
+          "cumulative_completed": 16195,
+          "day_churn": 0,
+          "cumulative_churn": 1309
         },
         {
           "day": 46,
-          "day_completed": 274,
-          "cumulative_completed": 13614,
-          "day_churn": 58,
-          "cumulative_churn": 4710
+          "day_completed": 324,
+          "cumulative_completed": 16519,
+          "day_churn": 0,
+          "cumulative_churn": 1309
         },
         {
           "day": 47,
-          "day_completed": 398,
-          "cumulative_completed": 14012,
-          "day_churn": 22,
-          "cumulative_churn": 4732
+          "day_completed": 341,
+          "cumulative_completed": 16860,
+          "day_churn": 0,
+          "cumulative_churn": 1309
         },
         {
           "day": 48,
-          "day_completed": 287,
-          "cumulative_completed": 14299,
-          "day_churn": 160,
-          "cumulative_churn": 4892
+          "day_completed": 364,
+          "cumulative_completed": 17224,
+          "day_churn": 6,
+          "cumulative_churn": 1315
+        },
+        {
+          "day": 49,
+          "day_completed": 390,
+          "cumulative_completed": 17614,
+          "day_churn": 22,
+          "cumulative_churn": 1337
+        },
+        {
+          "day": 50,
+          "day_completed": 395,
+          "cumulative_completed": 18009,
+          "day_churn": 50,
+          "cumulative_churn": 1387
+        },
+        {
+          "day": 51,
+          "day_completed": 350,
+          "cumulative_completed": 18359,
+          "day_churn": 58,
+          "cumulative_churn": 1445
+        },
+        {
+          "day": 52,
+          "day_completed": 296,
+          "cumulative_completed": 18655,
+          "day_churn": 0,
+          "cumulative_churn": 1445
+        },
+        {
+          "day": 53,
+          "day_completed": 362,
+          "cumulative_completed": 19017,
+          "day_churn": 76,
+          "cumulative_churn": 1521
+        },
+        {
+          "day": 54,
+          "day_completed": 344,
+          "cumulative_completed": 19361,
+          "day_churn": 58,
+          "cumulative_churn": 1579
+        },
+        {
+          "day": 55,
+          "day_completed": 384,
+          "cumulative_completed": 19745,
+          "day_churn": 6,
+          "cumulative_churn": 1585
+        },
+        {
+          "day": 56,
+          "day_completed": 379,
+          "cumulative_completed": 20124,
+          "day_churn": 7,
+          "cumulative_churn": 1592
+        },
+        {
+          "day": 57,
+          "day_completed": 386,
+          "cumulative_completed": 20510,
+          "day_churn": 2,
+          "cumulative_churn": 1594
+        },
+        {
+          "day": 58,
+          "day_completed": 350,
+          "cumulative_completed": 20860,
+          "day_churn": 42,
+          "cumulative_churn": 1636
+        },
+        {
+          "day": 59,
+          "day_completed": 390,
+          "cumulative_completed": 21250,
+          "day_churn": 51,
+          "cumulative_churn": 1687
+        },
+        {
+          "day": 60,
+          "day_completed": 328,
+          "cumulative_completed": 21578,
+          "day_churn": 32,
+          "cumulative_churn": 1719
+        },
+        {
+          "day": 61,
+          "day_completed": 331,
+          "cumulative_completed": 21909,
+          "day_churn": 30,
+          "cumulative_churn": 1749
+        },
+        {
+          "day": 62,
+          "day_completed": 345,
+          "cumulative_completed": 22254,
+          "day_churn": 60,
+          "cumulative_churn": 1809
+        },
+        {
+          "day": 63,
+          "day_completed": 383,
+          "cumulative_completed": 22637,
+          "day_churn": 48,
+          "cumulative_churn": 1857
+        },
+        {
+          "day": 64,
+          "day_completed": 377,
+          "cumulative_completed": 23014,
+          "day_churn": 1,
+          "cumulative_churn": 1858
+        },
+        {
+          "day": 65,
+          "day_completed": 363,
+          "cumulative_completed": 23377,
+          "day_churn": 8,
+          "cumulative_churn": 1866
+        },
+        {
+          "day": 66,
+          "day_completed": 368,
+          "cumulative_completed": 23745,
+          "day_churn": 1,
+          "cumulative_churn": 1867
+        },
+        {
+          "day": 67,
+          "day_completed": 382,
+          "cumulative_completed": 24127,
+          "day_churn": 32,
+          "cumulative_churn": 1899
+        },
+        {
+          "day": 68,
+          "day_completed": 326,
+          "cumulative_completed": 24453,
+          "day_churn": 50,
+          "cumulative_churn": 1949
+        },
+        {
+          "day": 69,
+          "day_completed": 358,
+          "cumulative_completed": 24811,
+          "day_churn": 0,
+          "cumulative_churn": 1949
+        },
+        {
+          "day": 70,
+          "day_completed": 294,
+          "cumulative_completed": 25105,
+          "day_churn": 12,
+          "cumulative_churn": 1961
+        },
+        {
+          "day": 71,
+          "day_completed": 421,
+          "cumulative_completed": 25526,
+          "day_churn": 0,
+          "cumulative_churn": 1961
+        },
+        {
+          "day": 72,
+          "day_completed": 388,
+          "cumulative_completed": 25914,
+          "day_churn": 43,
+          "cumulative_churn": 2004
+        },
+        {
+          "day": 73,
+          "day_completed": 363,
+          "cumulative_completed": 26277,
+          "day_churn": 0,
+          "cumulative_churn": 2004
+        },
+        {
+          "day": 74,
+          "day_completed": 400,
+          "cumulative_completed": 26677,
+          "day_churn": 26,
+          "cumulative_churn": 2030
+        },
+        {
+          "day": 75,
+          "day_completed": 379,
+          "cumulative_completed": 27056,
+          "day_churn": 0,
+          "cumulative_churn": 2030
+        },
+        {
+          "day": 76,
+          "day_completed": 373,
+          "cumulative_completed": 27429,
+          "day_churn": 49,
+          "cumulative_churn": 2079
+        },
+        {
+          "day": 77,
+          "day_completed": 347,
+          "cumulative_completed": 27776,
+          "day_churn": 46,
+          "cumulative_churn": 2125
+        },
+        {
+          "day": 78,
+          "day_completed": 331,
+          "cumulative_completed": 28107,
+          "day_churn": 38,
+          "cumulative_churn": 2163
+        },
+        {
+          "day": 79,
+          "day_completed": 366,
+          "cumulative_completed": 28473,
+          "day_churn": 48,
+          "cumulative_churn": 2211
+        },
+        {
+          "day": 80,
+          "day_completed": 331,
+          "cumulative_completed": 28804,
+          "day_churn": 64,
+          "cumulative_churn": 2275
+        },
+        {
+          "day": 81,
+          "day_completed": 344,
+          "cumulative_completed": 29148,
+          "day_churn": 18,
+          "cumulative_churn": 2293
+        },
+        {
+          "day": 82,
+          "day_completed": 374,
+          "cumulative_completed": 29522,
+          "day_churn": 40,
+          "cumulative_churn": 2333
+        },
+        {
+          "day": 83,
+          "day_completed": 381,
+          "cumulative_completed": 29903,
+          "day_churn": 0,
+          "cumulative_churn": 2333
+        },
+        {
+          "day": 84,
+          "day_completed": 322,
+          "cumulative_completed": 30225,
+          "day_churn": 60,
+          "cumulative_churn": 2393
+        },
+        {
+          "day": 85,
+          "day_completed": 313,
+          "cumulative_completed": 30538,
+          "day_churn": 49,
+          "cumulative_churn": 2442
+        },
+        {
+          "day": 86,
+          "day_completed": 339,
+          "cumulative_completed": 30877,
+          "day_churn": 2,
+          "cumulative_churn": 2444
+        },
+        {
+          "day": 87,
+          "day_completed": 392,
+          "cumulative_completed": 31269,
+          "day_churn": 8,
+          "cumulative_churn": 2452
+        },
+        {
+          "day": 88,
+          "day_completed": 361,
+          "cumulative_completed": 31630,
+          "day_churn": 8,
+          "cumulative_churn": 2460
+        },
+        {
+          "day": 89,
+          "day_completed": 363,
+          "cumulative_completed": 31993,
+          "day_churn": 4,
+          "cumulative_churn": 2464
+        },
+        {
+          "day": 90,
+          "day_completed": 385,
+          "cumulative_completed": 32378,
+          "day_churn": 48,
+          "cumulative_churn": 2512
+        },
+        {
+          "day": 91,
+          "day_completed": 453,
+          "cumulative_completed": 32831,
+          "day_churn": 0,
+          "cumulative_churn": 2512
+        },
+        {
+          "day": 92,
+          "day_completed": 398,
+          "cumulative_completed": 33229,
+          "day_churn": 25,
+          "cumulative_churn": 2537
+        },
+        {
+          "day": 93,
+          "day_completed": 314,
+          "cumulative_completed": 33543,
+          "day_churn": 48,
+          "cumulative_churn": 2585
+        },
+        {
+          "day": 94,
+          "day_completed": 436,
+          "cumulative_completed": 33979,
+          "day_churn": 48,
+          "cumulative_churn": 2633
+        },
+        {
+          "day": 95,
+          "day_completed": 413,
+          "cumulative_completed": 34392,
+          "day_churn": 32,
+          "cumulative_churn": 2665
+        },
+        {
+          "day": 96,
+          "day_completed": 353,
+          "cumulative_completed": 34745,
+          "day_churn": 22,
+          "cumulative_churn": 2687
+        },
+        {
+          "day": 97,
+          "day_completed": 305,
+          "cumulative_completed": 35050,
+          "day_churn": 0,
+          "cumulative_churn": 2687
+        },
+        {
+          "day": 98,
+          "day_completed": 330,
+          "cumulative_completed": 35380,
+          "day_churn": 0,
+          "cumulative_churn": 2687
+        },
+        {
+          "day": 99,
+          "day_completed": 316,
+          "cumulative_completed": 35696,
+          "day_churn": 8,
+          "cumulative_churn": 2695
+        },
+        {
+          "day": 100,
+          "day_completed": 338,
+          "cumulative_completed": 36034,
+          "day_churn": 23,
+          "cumulative_churn": 2718
+        }
+      ]
+    },
+    "SPT (Shortest Processing Time)": {
+      "name": "SPT (Shortest Processing Time)",
+      "total_days": 100,
+      "elapsed_seconds": 573.58,
+      "total_completed": 35126,
+      "total_churned": 2634,
+      "mean_daily_completed": 351.3,
+      "mean_daily_churn": 26.3,
+      "success_rate": 93.0,
+      "hot_delivery_ratio": 1.2,
+      "mean_queue_wait_time": 11.9,
+      "mean_food_cold_time": 63.6,
+      "daily_progression": [
+        {
+          "day": 1,
+          "day_completed": 354,
+          "cumulative_completed": 354,
+          "day_churn": 10,
+          "cumulative_churn": 10
+        },
+        {
+          "day": 2,
+          "day_completed": 373,
+          "cumulative_completed": 727,
+          "day_churn": 17,
+          "cumulative_churn": 27
+        },
+        {
+          "day": 3,
+          "day_completed": 375,
+          "cumulative_completed": 1102,
+          "day_churn": 2,
+          "cumulative_churn": 29
+        },
+        {
+          "day": 4,
+          "day_completed": 295,
+          "cumulative_completed": 1397,
+          "day_churn": 78,
+          "cumulative_churn": 107
+        },
+        {
+          "day": 5,
+          "day_completed": 343,
+          "cumulative_completed": 1740,
+          "day_churn": 22,
+          "cumulative_churn": 129
+        },
+        {
+          "day": 6,
+          "day_completed": 340,
+          "cumulative_completed": 2080,
+          "day_churn": 44,
+          "cumulative_churn": 173
+        },
+        {
+          "day": 7,
+          "day_completed": 328,
+          "cumulative_completed": 2408,
+          "day_churn": 30,
+          "cumulative_churn": 203
+        },
+        {
+          "day": 8,
+          "day_completed": 371,
+          "cumulative_completed": 2779,
+          "day_churn": 1,
+          "cumulative_churn": 204
+        },
+        {
+          "day": 9,
+          "day_completed": 372,
+          "cumulative_completed": 3151,
+          "day_churn": 6,
+          "cumulative_churn": 210
+        },
+        {
+          "day": 10,
+          "day_completed": 394,
+          "cumulative_completed": 3545,
+          "day_churn": 0,
+          "cumulative_churn": 210
+        },
+        {
+          "day": 11,
+          "day_completed": 361,
+          "cumulative_completed": 3906,
+          "day_churn": 2,
+          "cumulative_churn": 212
+        },
+        {
+          "day": 12,
+          "day_completed": 368,
+          "cumulative_completed": 4274,
+          "day_churn": 1,
+          "cumulative_churn": 213
+        },
+        {
+          "day": 13,
+          "day_completed": 393,
+          "cumulative_completed": 4667,
+          "day_churn": 0,
+          "cumulative_churn": 213
+        },
+        {
+          "day": 14,
+          "day_completed": 296,
+          "cumulative_completed": 4963,
+          "day_churn": 46,
+          "cumulative_churn": 259
+        },
+        {
+          "day": 15,
+          "day_completed": 373,
+          "cumulative_completed": 5336,
+          "day_churn": 24,
+          "cumulative_churn": 283
+        },
+        {
+          "day": 16,
+          "day_completed": 374,
+          "cumulative_completed": 5710,
+          "day_churn": 6,
+          "cumulative_churn": 289
+        },
+        {
+          "day": 17,
+          "day_completed": 360,
+          "cumulative_completed": 6070,
+          "day_churn": 32,
+          "cumulative_churn": 321
+        },
+        {
+          "day": 18,
+          "day_completed": 370,
+          "cumulative_completed": 6440,
+          "day_churn": 10,
+          "cumulative_churn": 331
+        },
+        {
+          "day": 19,
+          "day_completed": 358,
+          "cumulative_completed": 6798,
+          "day_churn": 30,
+          "cumulative_churn": 361
+        },
+        {
+          "day": 20,
+          "day_completed": 396,
+          "cumulative_completed": 7194,
+          "day_churn": 8,
+          "cumulative_churn": 369
+        },
+        {
+          "day": 21,
+          "day_completed": 381,
+          "cumulative_completed": 7575,
+          "day_churn": 24,
+          "cumulative_churn": 393
+        },
+        {
+          "day": 22,
+          "day_completed": 422,
+          "cumulative_completed": 7997,
+          "day_churn": 4,
+          "cumulative_churn": 397
+        },
+        {
+          "day": 23,
+          "day_completed": 332,
+          "cumulative_completed": 8329,
+          "day_churn": 46,
+          "cumulative_churn": 443
+        },
+        {
+          "day": 24,
+          "day_completed": 324,
+          "cumulative_completed": 8653,
+          "day_churn": 56,
+          "cumulative_churn": 499
+        },
+        {
+          "day": 25,
+          "day_completed": 349,
+          "cumulative_completed": 9002,
+          "day_churn": 1,
+          "cumulative_churn": 500
+        },
+        {
+          "day": 26,
+          "day_completed": 422,
+          "cumulative_completed": 9424,
+          "day_churn": 8,
+          "cumulative_churn": 508
+        },
+        {
+          "day": 27,
+          "day_completed": 313,
+          "cumulative_completed": 9737,
+          "day_churn": 58,
+          "cumulative_churn": 566
+        },
+        {
+          "day": 28,
+          "day_completed": 383,
+          "cumulative_completed": 10120,
+          "day_churn": 46,
+          "cumulative_churn": 612
+        },
+        {
+          "day": 29,
+          "day_completed": 413,
+          "cumulative_completed": 10533,
+          "day_churn": 12,
+          "cumulative_churn": 624
+        },
+        {
+          "day": 30,
+          "day_completed": 366,
+          "cumulative_completed": 10899,
+          "day_churn": 8,
+          "cumulative_churn": 632
+        },
+        {
+          "day": 31,
+          "day_completed": 399,
+          "cumulative_completed": 11298,
+          "day_churn": 0,
+          "cumulative_churn": 632
+        },
+        {
+          "day": 32,
+          "day_completed": 389,
+          "cumulative_completed": 11687,
+          "day_churn": 0,
+          "cumulative_churn": 632
+        },
+        {
+          "day": 33,
+          "day_completed": 277,
+          "cumulative_completed": 11964,
+          "day_churn": 49,
+          "cumulative_churn": 681
+        },
+        {
+          "day": 34,
+          "day_completed": 285,
+          "cumulative_completed": 12249,
+          "day_churn": 0,
+          "cumulative_churn": 681
+        },
+        {
+          "day": 35,
+          "day_completed": 390,
+          "cumulative_completed": 12639,
+          "day_churn": 0,
+          "cumulative_churn": 681
+        },
+        {
+          "day": 36,
+          "day_completed": 348,
+          "cumulative_completed": 12987,
+          "day_churn": 0,
+          "cumulative_churn": 681
+        },
+        {
+          "day": 37,
+          "day_completed": 316,
+          "cumulative_completed": 13303,
+          "day_churn": 59,
+          "cumulative_churn": 740
+        },
+        {
+          "day": 38,
+          "day_completed": 374,
+          "cumulative_completed": 13677,
+          "day_churn": 14,
+          "cumulative_churn": 754
+        },
+        {
+          "day": 39,
+          "day_completed": 307,
+          "cumulative_completed": 13984,
+          "day_churn": 50,
+          "cumulative_churn": 804
+        },
+        {
+          "day": 40,
+          "day_completed": 407,
+          "cumulative_completed": 14391,
+          "day_churn": 6,
+          "cumulative_churn": 810
+        },
+        {
+          "day": 41,
+          "day_completed": 361,
+          "cumulative_completed": 14752,
+          "day_churn": 8,
+          "cumulative_churn": 818
+        },
+        {
+          "day": 42,
+          "day_completed": 340,
+          "cumulative_completed": 15092,
+          "day_churn": 33,
+          "cumulative_churn": 851
+        },
+        {
+          "day": 43,
+          "day_completed": 365,
+          "cumulative_completed": 15457,
+          "day_churn": 12,
+          "cumulative_churn": 863
+        },
+        {
+          "day": 44,
+          "day_completed": 367,
+          "cumulative_completed": 15824,
+          "day_churn": 24,
+          "cumulative_churn": 887
+        },
+        {
+          "day": 45,
+          "day_completed": 348,
+          "cumulative_completed": 16172,
+          "day_churn": 0,
+          "cumulative_churn": 887
+        },
+        {
+          "day": 46,
+          "day_completed": 432,
+          "cumulative_completed": 16604,
+          "day_churn": 0,
+          "cumulative_churn": 887
+        },
+        {
+          "day": 47,
+          "day_completed": 324,
+          "cumulative_completed": 16928,
+          "day_churn": 1,
+          "cumulative_churn": 888
+        },
+        {
+          "day": 48,
+          "day_completed": 342,
+          "cumulative_completed": 17270,
+          "day_churn": 21,
+          "cumulative_churn": 909
         },
         {
           "day": 49,
           "day_completed": 363,
-          "cumulative_completed": 14662,
-          "day_churn": 61,
-          "cumulative_churn": 4953
+          "cumulative_completed": 17633,
+          "day_churn": 30,
+          "cumulative_churn": 939
         },
         {
           "day": 50,
-          "day_completed": 272,
-          "cumulative_completed": 14934,
-          "day_churn": 97,
-          "cumulative_churn": 5050
+          "day_completed": 308,
+          "cumulative_completed": 17941,
+          "day_churn": 24,
+          "cumulative_churn": 963
+        },
+        {
+          "day": 51,
+          "day_completed": 379,
+          "cumulative_completed": 18320,
+          "day_churn": 34,
+          "cumulative_churn": 997
+        },
+        {
+          "day": 52,
+          "day_completed": 327,
+          "cumulative_completed": 18647,
+          "day_churn": 28,
+          "cumulative_churn": 1025
+        },
+        {
+          "day": 53,
+          "day_completed": 414,
+          "cumulative_completed": 19061,
+          "day_churn": 2,
+          "cumulative_churn": 1027
+        },
+        {
+          "day": 54,
+          "day_completed": 360,
+          "cumulative_completed": 19421,
+          "day_churn": 56,
+          "cumulative_churn": 1083
+        },
+        {
+          "day": 55,
+          "day_completed": 330,
+          "cumulative_completed": 19751,
+          "day_churn": 51,
+          "cumulative_churn": 1134
+        },
+        {
+          "day": 56,
+          "day_completed": 344,
+          "cumulative_completed": 20095,
+          "day_churn": 38,
+          "cumulative_churn": 1172
+        },
+        {
+          "day": 57,
+          "day_completed": 342,
+          "cumulative_completed": 20437,
+          "day_churn": 13,
+          "cumulative_churn": 1185
+        },
+        {
+          "day": 58,
+          "day_completed": 452,
+          "cumulative_completed": 20889,
+          "day_churn": 24,
+          "cumulative_churn": 1209
+        },
+        {
+          "day": 59,
+          "day_completed": 365,
+          "cumulative_completed": 21254,
+          "day_churn": 70,
+          "cumulative_churn": 1279
+        },
+        {
+          "day": 60,
+          "day_completed": 349,
+          "cumulative_completed": 21603,
+          "day_churn": 64,
+          "cumulative_churn": 1343
+        },
+        {
+          "day": 61,
+          "day_completed": 428,
+          "cumulative_completed": 22031,
+          "day_churn": 8,
+          "cumulative_churn": 1351
+        },
+        {
+          "day": 62,
+          "day_completed": 342,
+          "cumulative_completed": 22373,
+          "day_churn": 56,
+          "cumulative_churn": 1407
+        },
+        {
+          "day": 63,
+          "day_completed": 204,
+          "cumulative_completed": 22577,
+          "day_churn": 84,
+          "cumulative_churn": 1491
+        },
+        {
+          "day": 64,
+          "day_completed": 346,
+          "cumulative_completed": 22923,
+          "day_churn": 59,
+          "cumulative_churn": 1550
+        },
+        {
+          "day": 65,
+          "day_completed": 339,
+          "cumulative_completed": 23262,
+          "day_churn": 32,
+          "cumulative_churn": 1582
+        },
+        {
+          "day": 66,
+          "day_completed": 328,
+          "cumulative_completed": 23590,
+          "day_churn": 21,
+          "cumulative_churn": 1603
+        },
+        {
+          "day": 67,
+          "day_completed": 316,
+          "cumulative_completed": 23906,
+          "day_churn": 56,
+          "cumulative_churn": 1659
+        },
+        {
+          "day": 68,
+          "day_completed": 367,
+          "cumulative_completed": 24273,
+          "day_churn": 0,
+          "cumulative_churn": 1659
+        },
+        {
+          "day": 69,
+          "day_completed": 359,
+          "cumulative_completed": 24632,
+          "day_churn": 16,
+          "cumulative_churn": 1675
+        },
+        {
+          "day": 70,
+          "day_completed": 422,
+          "cumulative_completed": 25054,
+          "day_churn": 50,
+          "cumulative_churn": 1725
+        },
+        {
+          "day": 71,
+          "day_completed": 342,
+          "cumulative_completed": 25396,
+          "day_churn": 51,
+          "cumulative_churn": 1776
+        },
+        {
+          "day": 72,
+          "day_completed": 396,
+          "cumulative_completed": 25792,
+          "day_churn": 46,
+          "cumulative_churn": 1822
+        },
+        {
+          "day": 73,
+          "day_completed": 348,
+          "cumulative_completed": 26140,
+          "day_churn": 6,
+          "cumulative_churn": 1828
+        },
+        {
+          "day": 74,
+          "day_completed": 367,
+          "cumulative_completed": 26507,
+          "day_churn": 4,
+          "cumulative_churn": 1832
+        },
+        {
+          "day": 75,
+          "day_completed": 408,
+          "cumulative_completed": 26915,
+          "day_churn": 4,
+          "cumulative_churn": 1836
+        },
+        {
+          "day": 76,
+          "day_completed": 385,
+          "cumulative_completed": 27300,
+          "day_churn": 18,
+          "cumulative_churn": 1854
+        },
+        {
+          "day": 77,
+          "day_completed": 275,
+          "cumulative_completed": 27575,
+          "day_churn": 77,
+          "cumulative_churn": 1931
+        },
+        {
+          "day": 78,
+          "day_completed": 303,
+          "cumulative_completed": 27878,
+          "day_churn": 44,
+          "cumulative_churn": 1975
+        },
+        {
+          "day": 79,
+          "day_completed": 266,
+          "cumulative_completed": 28144,
+          "day_churn": 12,
+          "cumulative_churn": 1987
+        },
+        {
+          "day": 80,
+          "day_completed": 218,
+          "cumulative_completed": 28362,
+          "day_churn": 66,
+          "cumulative_churn": 2053
+        },
+        {
+          "day": 81,
+          "day_completed": 323,
+          "cumulative_completed": 28685,
+          "day_churn": 0,
+          "cumulative_churn": 2053
+        },
+        {
+          "day": 82,
+          "day_completed": 353,
+          "cumulative_completed": 29038,
+          "day_churn": 50,
+          "cumulative_churn": 2103
+        },
+        {
+          "day": 83,
+          "day_completed": 354,
+          "cumulative_completed": 29392,
+          "day_churn": 40,
+          "cumulative_churn": 2143
+        },
+        {
+          "day": 84,
+          "day_completed": 407,
+          "cumulative_completed": 29799,
+          "day_churn": 0,
+          "cumulative_churn": 2143
+        },
+        {
+          "day": 85,
+          "day_completed": 363,
+          "cumulative_completed": 30162,
+          "day_churn": 0,
+          "cumulative_churn": 2143
+        },
+        {
+          "day": 86,
+          "day_completed": 380,
+          "cumulative_completed": 30542,
+          "day_churn": 0,
+          "cumulative_churn": 2143
+        },
+        {
+          "day": 87,
+          "day_completed": 348,
+          "cumulative_completed": 30890,
+          "day_churn": 19,
+          "cumulative_churn": 2162
+        },
+        {
+          "day": 88,
+          "day_completed": 292,
+          "cumulative_completed": 31182,
+          "day_churn": 76,
+          "cumulative_churn": 2238
+        },
+        {
+          "day": 89,
+          "day_completed": 349,
+          "cumulative_completed": 31531,
+          "day_churn": 58,
+          "cumulative_churn": 2296
+        },
+        {
+          "day": 90,
+          "day_completed": 307,
+          "cumulative_completed": 31838,
+          "day_churn": 6,
+          "cumulative_churn": 2302
+        },
+        {
+          "day": 91,
+          "day_completed": 292,
+          "cumulative_completed": 32130,
+          "day_churn": 83,
+          "cumulative_churn": 2385
+        },
+        {
+          "day": 92,
+          "day_completed": 351,
+          "cumulative_completed": 32481,
+          "day_churn": 10,
+          "cumulative_churn": 2395
+        },
+        {
+          "day": 93,
+          "day_completed": 305,
+          "cumulative_completed": 32786,
+          "day_churn": 57,
+          "cumulative_churn": 2452
+        },
+        {
+          "day": 94,
+          "day_completed": 328,
+          "cumulative_completed": 33114,
+          "day_churn": 28,
+          "cumulative_churn": 2480
+        },
+        {
+          "day": 95,
+          "day_completed": 340,
+          "cumulative_completed": 33454,
+          "day_churn": 9,
+          "cumulative_churn": 2489
+        },
+        {
+          "day": 96,
+          "day_completed": 282,
+          "cumulative_completed": 33736,
+          "day_churn": 39,
+          "cumulative_churn": 2528
+        },
+        {
+          "day": 97,
+          "day_completed": 382,
+          "cumulative_completed": 34118,
+          "day_churn": 0,
+          "cumulative_churn": 2528
+        },
+        {
+          "day": 98,
+          "day_completed": 375,
+          "cumulative_completed": 34493,
+          "day_churn": 39,
+          "cumulative_churn": 2567
+        },
+        {
+          "day": 99,
+          "day_completed": 343,
+          "cumulative_completed": 34836,
+          "day_churn": 1,
+          "cumulative_churn": 2568
+        },
+        {
+          "day": 100,
+          "day_completed": 290,
+          "cumulative_completed": 35126,
+          "day_churn": 66,
+          "cumulative_churn": 2634
         }
       ]
     },
     "LPT (Longest Processing Time)": {
       "name": "LPT (Longest Processing Time)",
-      "total_days": 50,
-      "elapsed_seconds": 229.59,
-      "total_completed": 14031,
-      "total_churned": 5931,
-      "mean_daily_completed": 280.62,
-      "mean_daily_churn": 118.62,
-      "mean_queue_wait_time": 11.43,
-      "mean_food_cold_time": 49.06,
+      "total_days": 100,
+      "elapsed_seconds": 574.23,
+      "total_completed": 35264,
+      "total_churned": 2588,
+      "mean_daily_completed": 352.6,
+      "mean_daily_churn": 25.9,
+      "success_rate": 93.2,
+      "hot_delivery_ratio": 1.2,
+      "mean_queue_wait_time": 12.96,
+      "mean_food_cold_time": 58.68,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 188,
-          "cumulative_completed": 188,
-          "day_churn": 202,
-          "cumulative_churn": 202
+          "day_completed": 369,
+          "cumulative_completed": 369,
+          "day_churn": 50,
+          "cumulative_churn": 50
         },
         {
           "day": 2,
-          "day_completed": 307,
-          "cumulative_completed": 495,
-          "day_churn": 122,
-          "cumulative_churn": 324
+          "day_completed": 396,
+          "cumulative_completed": 765,
+          "day_churn": 0,
+          "cumulative_churn": 50
         },
         {
           "day": 3,
-          "day_completed": 263,
-          "cumulative_completed": 758,
-          "day_churn": 169,
-          "cumulative_churn": 493
+          "day_completed": 313,
+          "cumulative_completed": 1078,
+          "day_churn": 50,
+          "cumulative_churn": 100
         },
         {
           "day": 4,
-          "day_completed": 279,
-          "cumulative_completed": 1037,
-          "day_churn": 143,
-          "cumulative_churn": 636
+          "day_completed": 402,
+          "cumulative_completed": 1480,
+          "day_churn": 54,
+          "cumulative_churn": 154
         },
         {
           "day": 5,
-          "day_completed": 288,
-          "cumulative_completed": 1325,
-          "day_churn": 85,
-          "cumulative_churn": 721
+          "day_completed": 332,
+          "cumulative_completed": 1812,
+          "day_churn": 3,
+          "cumulative_churn": 157
         },
         {
           "day": 6,
-          "day_completed": 321,
-          "cumulative_completed": 1646,
-          "day_churn": 80,
-          "cumulative_churn": 801
+          "day_completed": 360,
+          "cumulative_completed": 2172,
+          "day_churn": 2,
+          "cumulative_churn": 159
         },
         {
           "day": 7,
-          "day_completed": 311,
-          "cumulative_completed": 1957,
-          "day_churn": 65,
-          "cumulative_churn": 866
+          "day_completed": 368,
+          "cumulative_completed": 2540,
+          "day_churn": 16,
+          "cumulative_churn": 175
         },
         {
           "day": 8,
-          "day_completed": 256,
-          "cumulative_completed": 2213,
-          "day_churn": 90,
-          "cumulative_churn": 956
+          "day_completed": 266,
+          "cumulative_completed": 2806,
+          "day_churn": 85,
+          "cumulative_churn": 260
         },
         {
           "day": 9,
-          "day_completed": 229,
-          "cumulative_completed": 2442,
-          "day_churn": 193,
-          "cumulative_churn": 1149
+          "day_completed": 348,
+          "cumulative_completed": 3154,
+          "day_churn": 1,
+          "cumulative_churn": 261
         },
         {
           "day": 10,
-          "day_completed": 350,
-          "cumulative_completed": 2792,
-          "day_churn": 62,
-          "cumulative_churn": 1211
+          "day_completed": 330,
+          "cumulative_completed": 3484,
+          "day_churn": 4,
+          "cumulative_churn": 265
         },
         {
           "day": 11,
-          "day_completed": 207,
-          "cumulative_completed": 2999,
-          "day_churn": 193,
-          "cumulative_churn": 1404
+          "day_completed": 311,
+          "cumulative_completed": 3795,
+          "day_churn": 16,
+          "cumulative_churn": 281
         },
         {
           "day": 12,
-          "day_completed": 229,
-          "cumulative_completed": 3228,
-          "day_churn": 120,
-          "cumulative_churn": 1524
+          "day_completed": 309,
+          "cumulative_completed": 4104,
+          "day_churn": 70,
+          "cumulative_churn": 351
         },
         {
           "day": 13,
-          "day_completed": 240,
-          "cumulative_completed": 3468,
-          "day_churn": 170,
-          "cumulative_churn": 1694
+          "day_completed": 315,
+          "cumulative_completed": 4419,
+          "day_churn": 24,
+          "cumulative_churn": 375
         },
         {
           "day": 14,
-          "day_completed": 211,
-          "cumulative_completed": 3679,
-          "day_churn": 196,
-          "cumulative_churn": 1890
+          "day_completed": 382,
+          "cumulative_completed": 4801,
+          "day_churn": 2,
+          "cumulative_churn": 377
         },
         {
           "day": 15,
-          "day_completed": 287,
-          "cumulative_completed": 3966,
-          "day_churn": 102,
-          "cumulative_churn": 1992
+          "day_completed": 293,
+          "cumulative_completed": 5094,
+          "day_churn": 52,
+          "cumulative_churn": 429
         },
         {
           "day": 16,
-          "day_completed": 230,
-          "cumulative_completed": 4196,
-          "day_churn": 179,
-          "cumulative_churn": 2171
+          "day_completed": 353,
+          "cumulative_completed": 5447,
+          "day_churn": 14,
+          "cumulative_churn": 443
         },
         {
           "day": 17,
-          "day_completed": 324,
-          "cumulative_completed": 4520,
-          "day_churn": 130,
-          "cumulative_churn": 2301
+          "day_completed": 394,
+          "cumulative_completed": 5841,
+          "day_churn": 26,
+          "cumulative_churn": 469
         },
         {
           "day": 18,
-          "day_completed": 289,
-          "cumulative_completed": 4809,
-          "day_churn": 100,
-          "cumulative_churn": 2401
+          "day_completed": 344,
+          "cumulative_completed": 6185,
+          "day_churn": 30,
+          "cumulative_churn": 499
         },
         {
           "day": 19,
-          "day_completed": 208,
-          "cumulative_completed": 5017,
-          "day_churn": 208,
-          "cumulative_churn": 2609
+          "day_completed": 303,
+          "cumulative_completed": 6488,
+          "day_churn": 45,
+          "cumulative_churn": 544
         },
         {
           "day": 20,
-          "day_completed": 208,
-          "cumulative_completed": 5225,
-          "day_churn": 193,
-          "cumulative_churn": 2802
+          "day_completed": 365,
+          "cumulative_completed": 6853,
+          "day_churn": 0,
+          "cumulative_churn": 544
         },
         {
           "day": 21,
-          "day_completed": 341,
-          "cumulative_completed": 5566,
-          "day_churn": 78,
-          "cumulative_churn": 2880
+          "day_completed": 306,
+          "cumulative_completed": 7159,
+          "day_churn": 0,
+          "cumulative_churn": 544
         },
         {
           "day": 22,
-          "day_completed": 282,
-          "cumulative_completed": 5848,
-          "day_churn": 79,
-          "cumulative_churn": 2959
+          "day_completed": 331,
+          "cumulative_completed": 7490,
+          "day_churn": 22,
+          "cumulative_churn": 566
         },
         {
           "day": 23,
-          "day_completed": 337,
-          "cumulative_completed": 6185,
-          "day_churn": 62,
-          "cumulative_churn": 3021
+          "day_completed": 356,
+          "cumulative_completed": 7846,
+          "day_churn": 20,
+          "cumulative_churn": 586
         },
         {
           "day": 24,
-          "day_completed": 230,
-          "cumulative_completed": 6415,
-          "day_churn": 227,
-          "cumulative_churn": 3248
+          "day_completed": 317,
+          "cumulative_completed": 8163,
+          "day_churn": 26,
+          "cumulative_churn": 612
         },
         {
           "day": 25,
-          "day_completed": 311,
-          "cumulative_completed": 6726,
-          "day_churn": 125,
-          "cumulative_churn": 3373
+          "day_completed": 395,
+          "cumulative_completed": 8558,
+          "day_churn": 12,
+          "cumulative_churn": 624
         },
         {
           "day": 26,
-          "day_completed": 285,
-          "cumulative_completed": 7011,
-          "day_churn": 165,
-          "cumulative_churn": 3538
+          "day_completed": 394,
+          "cumulative_completed": 8952,
+          "day_churn": 4,
+          "cumulative_churn": 628
         },
         {
           "day": 27,
-          "day_completed": 362,
-          "cumulative_completed": 7373,
-          "day_churn": 22,
-          "cumulative_churn": 3560
+          "day_completed": 367,
+          "cumulative_completed": 9319,
+          "day_churn": 38,
+          "cumulative_churn": 666
         },
         {
           "day": 28,
-          "day_completed": 266,
-          "cumulative_completed": 7639,
-          "day_churn": 86,
-          "cumulative_churn": 3646
+          "day_completed": 365,
+          "cumulative_completed": 9684,
+          "day_churn": 0,
+          "cumulative_churn": 666
         },
         {
           "day": 29,
-          "day_completed": 372,
-          "cumulative_completed": 8011,
-          "day_churn": 6,
-          "cumulative_churn": 3652
+          "day_completed": 341,
+          "cumulative_completed": 10025,
+          "day_churn": 0,
+          "cumulative_churn": 666
         },
         {
           "day": 30,
-          "day_completed": 211,
-          "cumulative_completed": 8222,
-          "day_churn": 152,
-          "cumulative_churn": 3804
+          "day_completed": 368,
+          "cumulative_completed": 10393,
+          "day_churn": 38,
+          "cumulative_churn": 704
         },
         {
           "day": 31,
-          "day_completed": 239,
-          "cumulative_completed": 8461,
-          "day_churn": 163,
-          "cumulative_churn": 3967
+          "day_completed": 363,
+          "cumulative_completed": 10756,
+          "day_churn": 24,
+          "cumulative_churn": 728
         },
         {
           "day": 32,
-          "day_completed": 305,
-          "cumulative_completed": 8766,
-          "day_churn": 76,
-          "cumulative_churn": 4043
+          "day_completed": 393,
+          "cumulative_completed": 11149,
+          "day_churn": 36,
+          "cumulative_churn": 764
         },
         {
           "day": 33,
-          "day_completed": 280,
-          "cumulative_completed": 9046,
-          "day_churn": 180,
-          "cumulative_churn": 4223
+          "day_completed": 400,
+          "cumulative_completed": 11549,
+          "day_churn": 50,
+          "cumulative_churn": 814
         },
         {
           "day": 34,
-          "day_completed": 282,
-          "cumulative_completed": 9328,
-          "day_churn": 87,
-          "cumulative_churn": 4310
+          "day_completed": 311,
+          "cumulative_completed": 11860,
+          "day_churn": 60,
+          "cumulative_churn": 874
         },
         {
           "day": 35,
-          "day_completed": 294,
-          "cumulative_completed": 9622,
-          "day_churn": 46,
-          "cumulative_churn": 4356
+          "day_completed": 285,
+          "cumulative_completed": 12145,
+          "day_churn": 56,
+          "cumulative_churn": 930
         },
         {
           "day": 36,
-          "day_completed": 280,
-          "cumulative_completed": 9902,
-          "day_churn": 162,
-          "cumulative_churn": 4518
+          "day_completed": 398,
+          "cumulative_completed": 12543,
+          "day_churn": 0,
+          "cumulative_churn": 930
         },
         {
           "day": 37,
-          "day_completed": 370,
-          "cumulative_completed": 10272,
-          "day_churn": 63,
-          "cumulative_churn": 4581
+          "day_completed": 348,
+          "cumulative_completed": 12891,
+          "day_churn": 0,
+          "cumulative_churn": 930
         },
         {
           "day": 38,
-          "day_completed": 291,
-          "cumulative_completed": 10563,
-          "day_churn": 60,
-          "cumulative_churn": 4641
+          "day_completed": 404,
+          "cumulative_completed": 13295,
+          "day_churn": 0,
+          "cumulative_churn": 930
         },
         {
           "day": 39,
-          "day_completed": 319,
-          "cumulative_completed": 10882,
-          "day_churn": 98,
-          "cumulative_churn": 4739
+          "day_completed": 356,
+          "cumulative_completed": 13651,
+          "day_churn": 1,
+          "cumulative_churn": 931
         },
         {
           "day": 40,
-          "day_completed": 309,
-          "cumulative_completed": 11191,
-          "day_churn": 122,
-          "cumulative_churn": 4861
+          "day_completed": 385,
+          "cumulative_completed": 14036,
+          "day_churn": 58,
+          "cumulative_churn": 989
         },
         {
           "day": 41,
-          "day_completed": 328,
-          "cumulative_completed": 11519,
-          "day_churn": 68,
-          "cumulative_churn": 4929
+          "day_completed": 296,
+          "cumulative_completed": 14332,
+          "day_churn": 50,
+          "cumulative_churn": 1039
         },
         {
           "day": 42,
-          "day_completed": 300,
-          "cumulative_completed": 11819,
-          "day_churn": 64,
-          "cumulative_churn": 4993
+          "day_completed": 357,
+          "cumulative_completed": 14689,
+          "day_churn": 0,
+          "cumulative_churn": 1039
         },
         {
           "day": 43,
-          "day_completed": 282,
-          "cumulative_completed": 12101,
-          "day_churn": 146,
-          "cumulative_churn": 5139
+          "day_completed": 365,
+          "cumulative_completed": 15054,
+          "day_churn": 29,
+          "cumulative_churn": 1068
         },
         {
           "day": 44,
-          "day_completed": 193,
-          "cumulative_completed": 12294,
-          "day_churn": 160,
-          "cumulative_churn": 5299
+          "day_completed": 363,
+          "cumulative_completed": 15417,
+          "day_churn": 0,
+          "cumulative_churn": 1068
         },
         {
           "day": 45,
-          "day_completed": 276,
-          "cumulative_completed": 12570,
-          "day_churn": 112,
-          "cumulative_churn": 5411
+          "day_completed": 322,
+          "cumulative_completed": 15739,
+          "day_churn": 58,
+          "cumulative_churn": 1126
         },
         {
           "day": 46,
-          "day_completed": 279,
-          "cumulative_completed": 12849,
-          "day_churn": 108,
-          "cumulative_churn": 5519
+          "day_completed": 388,
+          "cumulative_completed": 16127,
+          "day_churn": 36,
+          "cumulative_churn": 1162
         },
         {
           "day": 47,
-          "day_completed": 332,
-          "cumulative_completed": 13181,
-          "day_churn": 95,
-          "cumulative_churn": 5614
+          "day_completed": 426,
+          "cumulative_completed": 16553,
+          "day_churn": 2,
+          "cumulative_churn": 1164
         },
         {
           "day": 48,
-          "day_completed": 324,
-          "cumulative_completed": 13505,
-          "day_churn": 86,
-          "cumulative_churn": 5700
+          "day_completed": 286,
+          "cumulative_completed": 16839,
+          "day_churn": 46,
+          "cumulative_churn": 1210
         },
         {
           "day": 49,
-          "day_completed": 241,
-          "cumulative_completed": 13746,
-          "day_churn": 149,
-          "cumulative_churn": 5849
+          "day_completed": 426,
+          "cumulative_completed": 17265,
+          "day_churn": 34,
+          "cumulative_churn": 1244
         },
         {
           "day": 50,
-          "day_completed": 285,
-          "cumulative_completed": 14031,
-          "day_churn": 82,
-          "cumulative_churn": 5931
+          "day_completed": 419,
+          "cumulative_completed": 17684,
+          "day_churn": 14,
+          "cumulative_churn": 1258
+        },
+        {
+          "day": 51,
+          "day_completed": 365,
+          "cumulative_completed": 18049,
+          "day_churn": 36,
+          "cumulative_churn": 1294
+        },
+        {
+          "day": 52,
+          "day_completed": 367,
+          "cumulative_completed": 18416,
+          "day_churn": 23,
+          "cumulative_churn": 1317
+        },
+        {
+          "day": 53,
+          "day_completed": 378,
+          "cumulative_completed": 18794,
+          "day_churn": 40,
+          "cumulative_churn": 1357
+        },
+        {
+          "day": 54,
+          "day_completed": 299,
+          "cumulative_completed": 19093,
+          "day_churn": 61,
+          "cumulative_churn": 1418
+        },
+        {
+          "day": 55,
+          "day_completed": 329,
+          "cumulative_completed": 19422,
+          "day_churn": 0,
+          "cumulative_churn": 1418
+        },
+        {
+          "day": 56,
+          "day_completed": 322,
+          "cumulative_completed": 19744,
+          "day_churn": 3,
+          "cumulative_churn": 1421
+        },
+        {
+          "day": 57,
+          "day_completed": 332,
+          "cumulative_completed": 20076,
+          "day_churn": 28,
+          "cumulative_churn": 1449
+        },
+        {
+          "day": 58,
+          "day_completed": 397,
+          "cumulative_completed": 20473,
+          "day_churn": 52,
+          "cumulative_churn": 1501
+        },
+        {
+          "day": 59,
+          "day_completed": 317,
+          "cumulative_completed": 20790,
+          "day_churn": 32,
+          "cumulative_churn": 1533
+        },
+        {
+          "day": 60,
+          "day_completed": 380,
+          "cumulative_completed": 21170,
+          "day_churn": 34,
+          "cumulative_churn": 1567
+        },
+        {
+          "day": 61,
+          "day_completed": 322,
+          "cumulative_completed": 21492,
+          "day_churn": 40,
+          "cumulative_churn": 1607
+        },
+        {
+          "day": 62,
+          "day_completed": 318,
+          "cumulative_completed": 21810,
+          "day_churn": 32,
+          "cumulative_churn": 1639
+        },
+        {
+          "day": 63,
+          "day_completed": 225,
+          "cumulative_completed": 22035,
+          "day_churn": 68,
+          "cumulative_churn": 1707
+        },
+        {
+          "day": 64,
+          "day_completed": 409,
+          "cumulative_completed": 22444,
+          "day_churn": 19,
+          "cumulative_churn": 1726
+        },
+        {
+          "day": 65,
+          "day_completed": 330,
+          "cumulative_completed": 22774,
+          "day_churn": 76,
+          "cumulative_churn": 1802
+        },
+        {
+          "day": 66,
+          "day_completed": 357,
+          "cumulative_completed": 23131,
+          "day_churn": 0,
+          "cumulative_churn": 1802
+        },
+        {
+          "day": 67,
+          "day_completed": 332,
+          "cumulative_completed": 23463,
+          "day_churn": 48,
+          "cumulative_churn": 1850
+        },
+        {
+          "day": 68,
+          "day_completed": 319,
+          "cumulative_completed": 23782,
+          "day_churn": 15,
+          "cumulative_churn": 1865
+        },
+        {
+          "day": 69,
+          "day_completed": 398,
+          "cumulative_completed": 24180,
+          "day_churn": 7,
+          "cumulative_churn": 1872
+        },
+        {
+          "day": 70,
+          "day_completed": 394,
+          "cumulative_completed": 24574,
+          "day_churn": 43,
+          "cumulative_churn": 1915
+        },
+        {
+          "day": 71,
+          "day_completed": 342,
+          "cumulative_completed": 24916,
+          "day_churn": 27,
+          "cumulative_churn": 1942
+        },
+        {
+          "day": 72,
+          "day_completed": 351,
+          "cumulative_completed": 25267,
+          "day_churn": 24,
+          "cumulative_churn": 1966
+        },
+        {
+          "day": 73,
+          "day_completed": 341,
+          "cumulative_completed": 25608,
+          "day_churn": 22,
+          "cumulative_churn": 1988
+        },
+        {
+          "day": 74,
+          "day_completed": 299,
+          "cumulative_completed": 25907,
+          "day_churn": 43,
+          "cumulative_churn": 2031
+        },
+        {
+          "day": 75,
+          "day_completed": 433,
+          "cumulative_completed": 26340,
+          "day_churn": 4,
+          "cumulative_churn": 2035
+        },
+        {
+          "day": 76,
+          "day_completed": 400,
+          "cumulative_completed": 26740,
+          "day_churn": 0,
+          "cumulative_churn": 2035
+        },
+        {
+          "day": 77,
+          "day_completed": 372,
+          "cumulative_completed": 27112,
+          "day_churn": 0,
+          "cumulative_churn": 2035
+        },
+        {
+          "day": 78,
+          "day_completed": 427,
+          "cumulative_completed": 27539,
+          "day_churn": 9,
+          "cumulative_churn": 2044
+        },
+        {
+          "day": 79,
+          "day_completed": 365,
+          "cumulative_completed": 27904,
+          "day_churn": 0,
+          "cumulative_churn": 2044
+        },
+        {
+          "day": 80,
+          "day_completed": 430,
+          "cumulative_completed": 28334,
+          "day_churn": 0,
+          "cumulative_churn": 2044
+        },
+        {
+          "day": 81,
+          "day_completed": 291,
+          "cumulative_completed": 28625,
+          "day_churn": 56,
+          "cumulative_churn": 2100
+        },
+        {
+          "day": 82,
+          "day_completed": 381,
+          "cumulative_completed": 29006,
+          "day_churn": 35,
+          "cumulative_churn": 2135
+        },
+        {
+          "day": 83,
+          "day_completed": 355,
+          "cumulative_completed": 29361,
+          "day_churn": 5,
+          "cumulative_churn": 2140
+        },
+        {
+          "day": 84,
+          "day_completed": 321,
+          "cumulative_completed": 29682,
+          "day_churn": 20,
+          "cumulative_churn": 2160
+        },
+        {
+          "day": 85,
+          "day_completed": 292,
+          "cumulative_completed": 29974,
+          "day_churn": 0,
+          "cumulative_churn": 2160
+        },
+        {
+          "day": 86,
+          "day_completed": 441,
+          "cumulative_completed": 30415,
+          "day_churn": 51,
+          "cumulative_churn": 2211
+        },
+        {
+          "day": 87,
+          "day_completed": 352,
+          "cumulative_completed": 30767,
+          "day_churn": 25,
+          "cumulative_churn": 2236
+        },
+        {
+          "day": 88,
+          "day_completed": 384,
+          "cumulative_completed": 31151,
+          "day_churn": 0,
+          "cumulative_churn": 2236
+        },
+        {
+          "day": 89,
+          "day_completed": 349,
+          "cumulative_completed": 31500,
+          "day_churn": 68,
+          "cumulative_churn": 2304
+        },
+        {
+          "day": 90,
+          "day_completed": 346,
+          "cumulative_completed": 31846,
+          "day_churn": 2,
+          "cumulative_churn": 2306
+        },
+        {
+          "day": 91,
+          "day_completed": 328,
+          "cumulative_completed": 32174,
+          "day_churn": 22,
+          "cumulative_churn": 2328
+        },
+        {
+          "day": 92,
+          "day_completed": 251,
+          "cumulative_completed": 32425,
+          "day_churn": 116,
+          "cumulative_churn": 2444
+        },
+        {
+          "day": 93,
+          "day_completed": 382,
+          "cumulative_completed": 32807,
+          "day_churn": 2,
+          "cumulative_churn": 2446
+        },
+        {
+          "day": 94,
+          "day_completed": 334,
+          "cumulative_completed": 33141,
+          "day_churn": 46,
+          "cumulative_churn": 2492
+        },
+        {
+          "day": 95,
+          "day_completed": 339,
+          "cumulative_completed": 33480,
+          "day_churn": 2,
+          "cumulative_churn": 2494
+        },
+        {
+          "day": 96,
+          "day_completed": 420,
+          "cumulative_completed": 33900,
+          "day_churn": 2,
+          "cumulative_churn": 2496
+        },
+        {
+          "day": 97,
+          "day_completed": 274,
+          "cumulative_completed": 34174,
+          "day_churn": 32,
+          "cumulative_churn": 2528
+        },
+        {
+          "day": 98,
+          "day_completed": 363,
+          "cumulative_completed": 34537,
+          "day_churn": 52,
+          "cumulative_churn": 2580
+        },
+        {
+          "day": 99,
+          "day_completed": 343,
+          "cumulative_completed": 34880,
+          "day_churn": 0,
+          "cumulative_churn": 2580
+        },
+        {
+          "day": 100,
+          "day_completed": 384,
+          "cumulative_completed": 35264,
+          "day_churn": 8,
+          "cumulative_churn": 2588
         }
       ]
     },
     "MinPatience (En Düşük Sabır)": {
       "name": "MinPatience (En Düşük Sabır)",
-      "total_days": 50,
-      "elapsed_seconds": 239.31,
-      "total_completed": 16191,
-      "total_churned": 5029,
-      "mean_daily_completed": 323.82,
-      "mean_daily_churn": 100.58,
-      "mean_queue_wait_time": 11.69,
-      "mean_food_cold_time": 47.94,
+      "total_days": 100,
+      "elapsed_seconds": 580.05,
+      "total_completed": 36054,
+      "total_churned": 3225,
+      "mean_daily_completed": 360.5,
+      "mean_daily_churn": 32.2,
+      "success_rate": 91.8,
+      "hot_delivery_ratio": 1.8,
+      "mean_queue_wait_time": 12.52,
+      "mean_food_cold_time": 51.88,
       "daily_progression": [
         {
           "day": 1,
-          "day_completed": 418,
-          "cumulative_completed": 418,
-          "day_churn": 86,
-          "cumulative_churn": 86
+          "day_completed": 380,
+          "cumulative_completed": 380,
+          "day_churn": 14,
+          "cumulative_churn": 14
         },
         {
           "day": 2,
-          "day_completed": 360,
-          "cumulative_completed": 778,
-          "day_churn": 84,
-          "cumulative_churn": 170
+          "day_completed": 381,
+          "cumulative_completed": 761,
+          "day_churn": 4,
+          "cumulative_churn": 18
         },
         {
           "day": 3,
-          "day_completed": 249,
-          "cumulative_completed": 1027,
-          "day_churn": 91,
-          "cumulative_churn": 261
+          "day_completed": 365,
+          "cumulative_completed": 1126,
+          "day_churn": 0,
+          "cumulative_churn": 18
         },
         {
           "day": 4,
-          "day_completed": 366,
-          "cumulative_completed": 1393,
-          "day_churn": 20,
-          "cumulative_churn": 281
+          "day_completed": 335,
+          "cumulative_completed": 1461,
+          "day_churn": 72,
+          "cumulative_churn": 90
         },
         {
           "day": 5,
-          "day_completed": 346,
-          "cumulative_completed": 1739,
-          "day_churn": 32,
-          "cumulative_churn": 313
+          "day_completed": 359,
+          "cumulative_completed": 1820,
+          "day_churn": 0,
+          "cumulative_churn": 90
         },
         {
           "day": 6,
-          "day_completed": 232,
-          "cumulative_completed": 1971,
-          "day_churn": 180,
-          "cumulative_churn": 493
+          "day_completed": 340,
+          "cumulative_completed": 2160,
+          "day_churn": 12,
+          "cumulative_churn": 102
         },
         {
           "day": 7,
-          "day_completed": 284,
-          "cumulative_completed": 2255,
-          "day_churn": 138,
-          "cumulative_churn": 631
+          "day_completed": 400,
+          "cumulative_completed": 2560,
+          "day_churn": 0,
+          "cumulative_churn": 102
         },
         {
           "day": 8,
-          "day_completed": 356,
-          "cumulative_completed": 2611,
-          "day_churn": 30,
-          "cumulative_churn": 661
+          "day_completed": 397,
+          "cumulative_completed": 2957,
+          "day_churn": 56,
+          "cumulative_churn": 158
         },
         {
           "day": 9,
-          "day_completed": 215,
-          "cumulative_completed": 2826,
-          "day_churn": 155,
-          "cumulative_churn": 816
+          "day_completed": 376,
+          "cumulative_completed": 3333,
+          "day_churn": 3,
+          "cumulative_churn": 161
         },
         {
           "day": 10,
-          "day_completed": 376,
-          "cumulative_completed": 3202,
-          "day_churn": 70,
-          "cumulative_churn": 886
+          "day_completed": 386,
+          "cumulative_completed": 3719,
+          "day_churn": 3,
+          "cumulative_churn": 164
         },
         {
           "day": 11,
-          "day_completed": 325,
-          "cumulative_completed": 3527,
-          "day_churn": 71,
-          "cumulative_churn": 957
+          "day_completed": 397,
+          "cumulative_completed": 4116,
+          "day_churn": 52,
+          "cumulative_churn": 216
         },
         {
           "day": 12,
-          "day_completed": 345,
-          "cumulative_completed": 3872,
-          "day_churn": 96,
-          "cumulative_churn": 1053
+          "day_completed": 368,
+          "cumulative_completed": 4484,
+          "day_churn": 4,
+          "cumulative_churn": 220
         },
         {
           "day": 13,
-          "day_completed": 297,
-          "cumulative_completed": 4169,
-          "day_churn": 121,
-          "cumulative_churn": 1174
+          "day_completed": 370,
+          "cumulative_completed": 4854,
+          "day_churn": 24,
+          "cumulative_churn": 244
         },
         {
           "day": 14,
-          "day_completed": 375,
-          "cumulative_completed": 4544,
-          "day_churn": 103,
-          "cumulative_churn": 1277
+          "day_completed": 288,
+          "cumulative_completed": 5142,
+          "day_churn": 81,
+          "cumulative_churn": 325
         },
         {
           "day": 15,
-          "day_completed": 362,
-          "cumulative_completed": 4906,
-          "day_churn": 73,
-          "cumulative_churn": 1350
+          "day_completed": 387,
+          "cumulative_completed": 5529,
+          "day_churn": 5,
+          "cumulative_churn": 330
         },
         {
           "day": 16,
-          "day_completed": 271,
-          "cumulative_completed": 5177,
-          "day_churn": 144,
-          "cumulative_churn": 1494
+          "day_completed": 404,
+          "cumulative_completed": 5933,
+          "day_churn": 33,
+          "cumulative_churn": 363
         },
         {
           "day": 17,
-          "day_completed": 337,
-          "cumulative_completed": 5514,
-          "day_churn": 141,
-          "cumulative_churn": 1635
+          "day_completed": 304,
+          "cumulative_completed": 6237,
+          "day_churn": 63,
+          "cumulative_churn": 426
         },
         {
           "day": 18,
-          "day_completed": 309,
-          "cumulative_completed": 5823,
-          "day_churn": 102,
-          "cumulative_churn": 1737
+          "day_completed": 390,
+          "cumulative_completed": 6627,
+          "day_churn": 57,
+          "cumulative_churn": 483
         },
         {
           "day": 19,
-          "day_completed": 280,
-          "cumulative_completed": 6103,
-          "day_churn": 189,
-          "cumulative_churn": 1926
+          "day_completed": 325,
+          "cumulative_completed": 6952,
+          "day_churn": 45,
+          "cumulative_churn": 528
         },
         {
           "day": 20,
-          "day_completed": 321,
-          "cumulative_completed": 6424,
-          "day_churn": 103,
-          "cumulative_churn": 2029
+          "day_completed": 333,
+          "cumulative_completed": 7285,
+          "day_churn": 78,
+          "cumulative_churn": 606
         },
         {
           "day": 21,
-          "day_completed": 327,
-          "cumulative_completed": 6751,
-          "day_churn": 125,
-          "cumulative_churn": 2154
+          "day_completed": 333,
+          "cumulative_completed": 7618,
+          "day_churn": 19,
+          "cumulative_churn": 625
         },
         {
           "day": 22,
-          "day_completed": 357,
-          "cumulative_completed": 7108,
-          "day_churn": 70,
-          "cumulative_churn": 2224
+          "day_completed": 348,
+          "cumulative_completed": 7966,
+          "day_churn": 0,
+          "cumulative_churn": 625
         },
         {
           "day": 23,
-          "day_completed": 342,
-          "cumulative_completed": 7450,
-          "day_churn": 127,
-          "cumulative_churn": 2351
+          "day_completed": 360,
+          "cumulative_completed": 8326,
+          "day_churn": 26,
+          "cumulative_churn": 651
         },
         {
           "day": 24,
-          "day_completed": 332,
-          "cumulative_completed": 7782,
-          "day_churn": 135,
-          "cumulative_churn": 2486
+          "day_completed": 362,
+          "cumulative_completed": 8688,
+          "day_churn": 45,
+          "cumulative_churn": 696
         },
         {
           "day": 25,
-          "day_completed": 323,
-          "cumulative_completed": 8105,
-          "day_churn": 63,
-          "cumulative_churn": 2549
+          "day_completed": 361,
+          "cumulative_completed": 9049,
+          "day_churn": 74,
+          "cumulative_churn": 770
         },
         {
           "day": 26,
-          "day_completed": 361,
-          "cumulative_completed": 8466,
-          "day_churn": 73,
-          "cumulative_churn": 2622
+          "day_completed": 353,
+          "cumulative_completed": 9402,
+          "day_churn": 12,
+          "cumulative_churn": 782
         },
         {
           "day": 27,
-          "day_completed": 374,
-          "cumulative_completed": 8840,
-          "day_churn": 93,
-          "cumulative_churn": 2715
+          "day_completed": 319,
+          "cumulative_completed": 9721,
+          "day_churn": 55,
+          "cumulative_churn": 837
         },
         {
           "day": 28,
-          "day_completed": 366,
-          "cumulative_completed": 9206,
-          "day_churn": 78,
-          "cumulative_churn": 2793
+          "day_completed": 312,
+          "cumulative_completed": 10033,
+          "day_churn": 8,
+          "cumulative_churn": 845
         },
         {
           "day": 29,
-          "day_completed": 272,
-          "cumulative_completed": 9478,
-          "day_churn": 140,
-          "cumulative_churn": 2933
+          "day_completed": 358,
+          "cumulative_completed": 10391,
+          "day_churn": 35,
+          "cumulative_churn": 880
         },
         {
           "day": 30,
-          "day_completed": 304,
-          "cumulative_completed": 9782,
-          "day_churn": 63,
-          "cumulative_churn": 2996
+          "day_completed": 353,
+          "cumulative_completed": 10744,
+          "day_churn": 13,
+          "cumulative_churn": 893
         },
         {
           "day": 31,
-          "day_completed": 326,
-          "cumulative_completed": 10108,
-          "day_churn": 103,
-          "cumulative_churn": 3099
+          "day_completed": 476,
+          "cumulative_completed": 11220,
+          "day_churn": 8,
+          "cumulative_churn": 901
         },
         {
           "day": 32,
-          "day_completed": 244,
-          "cumulative_completed": 10352,
-          "day_churn": 163,
-          "cumulative_churn": 3262
+          "day_completed": 329,
+          "cumulative_completed": 11549,
+          "day_churn": 30,
+          "cumulative_churn": 931
         },
         {
           "day": 33,
-          "day_completed": 376,
-          "cumulative_completed": 10728,
-          "day_churn": 24,
-          "cumulative_churn": 3286
+          "day_completed": 354,
+          "cumulative_completed": 11903,
+          "day_churn": 5,
+          "cumulative_churn": 936
         },
         {
           "day": 34,
-          "day_completed": 233,
-          "cumulative_completed": 10961,
-          "day_churn": 120,
-          "cumulative_churn": 3406
+          "day_completed": 418,
+          "cumulative_completed": 12321,
+          "day_churn": 55,
+          "cumulative_churn": 991
         },
         {
           "day": 35,
-          "day_completed": 362,
-          "cumulative_completed": 11323,
-          "day_churn": 96,
-          "cumulative_churn": 3502
+          "day_completed": 432,
+          "cumulative_completed": 12753,
+          "day_churn": 19,
+          "cumulative_churn": 1010
         },
         {
           "day": 36,
-          "day_completed": 352,
-          "cumulative_completed": 11675,
-          "day_churn": 124,
-          "cumulative_churn": 3626
+          "day_completed": 399,
+          "cumulative_completed": 13152,
+          "day_churn": 9,
+          "cumulative_churn": 1019
         },
         {
           "day": 37,
-          "day_completed": 321,
-          "cumulative_completed": 11996,
-          "day_churn": 109,
-          "cumulative_churn": 3735
+          "day_completed": 375,
+          "cumulative_completed": 13527,
+          "day_churn": 32,
+          "cumulative_churn": 1051
         },
         {
           "day": 38,
           "day_completed": 357,
-          "cumulative_completed": 12353,
-          "day_churn": 108,
-          "cumulative_churn": 3843
+          "cumulative_completed": 13884,
+          "day_churn": 51,
+          "cumulative_churn": 1102
         },
         {
           "day": 39,
-          "day_completed": 292,
-          "cumulative_completed": 12645,
-          "day_churn": 93,
-          "cumulative_churn": 3936
+          "day_completed": 383,
+          "cumulative_completed": 14267,
+          "day_churn": 23,
+          "cumulative_churn": 1125
         },
         {
           "day": 40,
-          "day_completed": 416,
-          "cumulative_completed": 13061,
-          "day_churn": 85,
-          "cumulative_churn": 4021
+          "day_completed": 314,
+          "cumulative_completed": 14581,
+          "day_churn": 36,
+          "cumulative_churn": 1161
         },
         {
           "day": 41,
-          "day_completed": 273,
-          "cumulative_completed": 13334,
-          "day_churn": 144,
-          "cumulative_churn": 4165
+          "day_completed": 423,
+          "cumulative_completed": 15004,
+          "day_churn": 8,
+          "cumulative_churn": 1169
         },
         {
           "day": 42,
-          "day_completed": 326,
-          "cumulative_completed": 13660,
-          "day_churn": 115,
-          "cumulative_churn": 4280
+          "day_completed": 312,
+          "cumulative_completed": 15316,
+          "day_churn": 52,
+          "cumulative_churn": 1221
         },
         {
           "day": 43,
-          "day_completed": 308,
-          "cumulative_completed": 13968,
-          "day_churn": 130,
-          "cumulative_churn": 4410
+          "day_completed": 388,
+          "cumulative_completed": 15704,
+          "day_churn": 63,
+          "cumulative_churn": 1284
         },
         {
           "day": 44,
-          "day_completed": 300,
-          "cumulative_completed": 14268,
-          "day_churn": 89,
-          "cumulative_churn": 4499
+          "day_completed": 329,
+          "cumulative_completed": 16033,
+          "day_churn": 66,
+          "cumulative_churn": 1350
         },
         {
           "day": 45,
-          "day_completed": 201,
-          "cumulative_completed": 14469,
-          "day_churn": 162,
-          "cumulative_churn": 4661
+          "day_completed": 385,
+          "cumulative_completed": 16418,
+          "day_churn": 35,
+          "cumulative_churn": 1385
         },
         {
           "day": 46,
-          "day_completed": 358,
-          "cumulative_completed": 14827,
-          "day_churn": 67,
-          "cumulative_churn": 4728
+          "day_completed": 387,
+          "cumulative_completed": 16805,
+          "day_churn": 72,
+          "cumulative_churn": 1457
         },
         {
           "day": 47,
-          "day_completed": 363,
-          "cumulative_completed": 15190,
-          "day_churn": 76,
-          "cumulative_churn": 4804
+          "day_completed": 351,
+          "cumulative_completed": 17156,
+          "day_churn": 43,
+          "cumulative_churn": 1500
         },
         {
           "day": 48,
-          "day_completed": 338,
-          "cumulative_completed": 15528,
-          "day_churn": 34,
-          "cumulative_churn": 4838
+          "day_completed": 373,
+          "cumulative_completed": 17529,
+          "day_churn": 8,
+          "cumulative_churn": 1508
         },
         {
           "day": 49,
-          "day_completed": 372,
-          "cumulative_completed": 15900,
-          "day_churn": 97,
-          "cumulative_churn": 4935
+          "day_completed": 394,
+          "cumulative_completed": 17923,
+          "day_churn": 1,
+          "cumulative_churn": 1509
         },
         {
           "day": 50,
-          "day_completed": 291,
-          "cumulative_completed": 16191,
-          "day_churn": 94,
-          "cumulative_churn": 5029
+          "day_completed": 406,
+          "cumulative_completed": 18329,
+          "day_churn": 39,
+          "cumulative_churn": 1548
+        },
+        {
+          "day": 51,
+          "day_completed": 372,
+          "cumulative_completed": 18701,
+          "day_churn": 3,
+          "cumulative_churn": 1551
+        },
+        {
+          "day": 52,
+          "day_completed": 387,
+          "cumulative_completed": 19088,
+          "day_churn": 4,
+          "cumulative_churn": 1555
+        },
+        {
+          "day": 53,
+          "day_completed": 326,
+          "cumulative_completed": 19414,
+          "day_churn": 62,
+          "cumulative_churn": 1617
+        },
+        {
+          "day": 54,
+          "day_completed": 419,
+          "cumulative_completed": 19833,
+          "day_churn": 25,
+          "cumulative_churn": 1642
+        },
+        {
+          "day": 55,
+          "day_completed": 341,
+          "cumulative_completed": 20174,
+          "day_churn": 8,
+          "cumulative_churn": 1650
+        },
+        {
+          "day": 56,
+          "day_completed": 294,
+          "cumulative_completed": 20468,
+          "day_churn": 2,
+          "cumulative_churn": 1652
+        },
+        {
+          "day": 57,
+          "day_completed": 387,
+          "cumulative_completed": 20855,
+          "day_churn": 30,
+          "cumulative_churn": 1682
+        },
+        {
+          "day": 58,
+          "day_completed": 343,
+          "cumulative_completed": 21198,
+          "day_churn": 32,
+          "cumulative_churn": 1714
+        },
+        {
+          "day": 59,
+          "day_completed": 328,
+          "cumulative_completed": 21526,
+          "day_churn": 2,
+          "cumulative_churn": 1716
+        },
+        {
+          "day": 60,
+          "day_completed": 402,
+          "cumulative_completed": 21928,
+          "day_churn": 3,
+          "cumulative_churn": 1719
+        },
+        {
+          "day": 61,
+          "day_completed": 374,
+          "cumulative_completed": 22302,
+          "day_churn": 46,
+          "cumulative_churn": 1765
+        },
+        {
+          "day": 62,
+          "day_completed": 367,
+          "cumulative_completed": 22669,
+          "day_churn": 59,
+          "cumulative_churn": 1824
+        },
+        {
+          "day": 63,
+          "day_completed": 334,
+          "cumulative_completed": 23003,
+          "day_churn": 20,
+          "cumulative_churn": 1844
+        },
+        {
+          "day": 64,
+          "day_completed": 263,
+          "cumulative_completed": 23266,
+          "day_churn": 39,
+          "cumulative_churn": 1883
+        },
+        {
+          "day": 65,
+          "day_completed": 343,
+          "cumulative_completed": 23609,
+          "day_churn": 51,
+          "cumulative_churn": 1934
+        },
+        {
+          "day": 66,
+          "day_completed": 382,
+          "cumulative_completed": 23991,
+          "day_churn": 8,
+          "cumulative_churn": 1942
+        },
+        {
+          "day": 67,
+          "day_completed": 300,
+          "cumulative_completed": 24291,
+          "day_churn": 63,
+          "cumulative_churn": 2005
+        },
+        {
+          "day": 68,
+          "day_completed": 418,
+          "cumulative_completed": 24709,
+          "day_churn": 55,
+          "cumulative_churn": 2060
+        },
+        {
+          "day": 69,
+          "day_completed": 351,
+          "cumulative_completed": 25060,
+          "day_churn": 26,
+          "cumulative_churn": 2086
+        },
+        {
+          "day": 70,
+          "day_completed": 413,
+          "cumulative_completed": 25473,
+          "day_churn": 41,
+          "cumulative_churn": 2127
+        },
+        {
+          "day": 71,
+          "day_completed": 324,
+          "cumulative_completed": 25797,
+          "day_churn": 46,
+          "cumulative_churn": 2173
+        },
+        {
+          "day": 72,
+          "day_completed": 391,
+          "cumulative_completed": 26188,
+          "day_churn": 57,
+          "cumulative_churn": 2230
+        },
+        {
+          "day": 73,
+          "day_completed": 353,
+          "cumulative_completed": 26541,
+          "day_churn": 58,
+          "cumulative_churn": 2288
+        },
+        {
+          "day": 74,
+          "day_completed": 378,
+          "cumulative_completed": 26919,
+          "day_churn": 4,
+          "cumulative_churn": 2292
+        },
+        {
+          "day": 75,
+          "day_completed": 299,
+          "cumulative_completed": 27218,
+          "day_churn": 61,
+          "cumulative_churn": 2353
+        },
+        {
+          "day": 76,
+          "day_completed": 365,
+          "cumulative_completed": 27583,
+          "day_churn": 69,
+          "cumulative_churn": 2422
+        },
+        {
+          "day": 77,
+          "day_completed": 321,
+          "cumulative_completed": 27904,
+          "day_churn": 3,
+          "cumulative_churn": 2425
+        },
+        {
+          "day": 78,
+          "day_completed": 382,
+          "cumulative_completed": 28286,
+          "day_churn": 7,
+          "cumulative_churn": 2432
+        },
+        {
+          "day": 79,
+          "day_completed": 364,
+          "cumulative_completed": 28650,
+          "day_churn": 59,
+          "cumulative_churn": 2491
+        },
+        {
+          "day": 80,
+          "day_completed": 317,
+          "cumulative_completed": 28967,
+          "day_churn": 57,
+          "cumulative_churn": 2548
+        },
+        {
+          "day": 81,
+          "day_completed": 343,
+          "cumulative_completed": 29310,
+          "day_churn": 10,
+          "cumulative_churn": 2558
+        },
+        {
+          "day": 82,
+          "day_completed": 319,
+          "cumulative_completed": 29629,
+          "day_churn": 46,
+          "cumulative_churn": 2604
+        },
+        {
+          "day": 83,
+          "day_completed": 349,
+          "cumulative_completed": 29978,
+          "day_churn": 40,
+          "cumulative_churn": 2644
+        },
+        {
+          "day": 84,
+          "day_completed": 385,
+          "cumulative_completed": 30363,
+          "day_churn": 48,
+          "cumulative_churn": 2692
+        },
+        {
+          "day": 85,
+          "day_completed": 390,
+          "cumulative_completed": 30753,
+          "day_churn": 5,
+          "cumulative_churn": 2697
+        },
+        {
+          "day": 86,
+          "day_completed": 363,
+          "cumulative_completed": 31116,
+          "day_churn": 67,
+          "cumulative_churn": 2764
+        },
+        {
+          "day": 87,
+          "day_completed": 341,
+          "cumulative_completed": 31457,
+          "day_churn": 6,
+          "cumulative_churn": 2770
+        },
+        {
+          "day": 88,
+          "day_completed": 251,
+          "cumulative_completed": 31708,
+          "day_churn": 51,
+          "cumulative_churn": 2821
+        },
+        {
+          "day": 89,
+          "day_completed": 347,
+          "cumulative_completed": 32055,
+          "day_churn": 55,
+          "cumulative_churn": 2876
+        },
+        {
+          "day": 90,
+          "day_completed": 353,
+          "cumulative_completed": 32408,
+          "day_churn": 31,
+          "cumulative_churn": 2907
+        },
+        {
+          "day": 91,
+          "day_completed": 398,
+          "cumulative_completed": 32806,
+          "day_churn": 8,
+          "cumulative_churn": 2915
+        },
+        {
+          "day": 92,
+          "day_completed": 331,
+          "cumulative_completed": 33137,
+          "day_churn": 26,
+          "cumulative_churn": 2941
+        },
+        {
+          "day": 93,
+          "day_completed": 403,
+          "cumulative_completed": 33540,
+          "day_churn": 0,
+          "cumulative_churn": 2941
+        },
+        {
+          "day": 94,
+          "day_completed": 328,
+          "cumulative_completed": 33868,
+          "day_churn": 55,
+          "cumulative_churn": 2996
+        },
+        {
+          "day": 95,
+          "day_completed": 347,
+          "cumulative_completed": 34215,
+          "day_churn": 58,
+          "cumulative_churn": 3054
+        },
+        {
+          "day": 96,
+          "day_completed": 367,
+          "cumulative_completed": 34582,
+          "day_churn": 16,
+          "cumulative_churn": 3070
+        },
+        {
+          "day": 97,
+          "day_completed": 284,
+          "cumulative_completed": 34866,
+          "day_churn": 31,
+          "cumulative_churn": 3101
+        },
+        {
+          "day": 98,
+          "day_completed": 420,
+          "cumulative_completed": 35286,
+          "day_churn": 45,
+          "cumulative_churn": 3146
+        },
+        {
+          "day": 99,
+          "day_completed": 367,
+          "cumulative_completed": 35653,
+          "day_churn": 41,
+          "cumulative_churn": 3187
+        },
+        {
+          "day": 100,
+          "day_completed": 401,
+          "cumulative_completed": 36054,
+          "day_churn": 38,
+          "cumulative_churn": 3225
         }
       ]
     }
