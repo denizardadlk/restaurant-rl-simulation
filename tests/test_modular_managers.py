@@ -50,8 +50,10 @@ class TestModularManagers(unittest.TestCase):
         self.assertIsNotNone(order.station_load_at_start)
         self.assertIsNotNone(order.actual_target_time)
         self.assertIn(order, station.active_orders)
-        self.assertIn(order, chef.active_orders)
         self.assertNotIn(order, self.engine.order_queue)
+        # After 1-min prep duration, chef is freed (IDLE) for set-and-forget OVEN
+        self.engine.kitchen_manager.progress_cooking(tick=1)
+        self.assertEqual(chef.status, "IDLE")
 
     def test_jit_waiter_manager_dispatch(self):
         table = self.engine.grid.tables["T1"]

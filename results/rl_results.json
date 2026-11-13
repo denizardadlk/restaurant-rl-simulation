@@ -1,7 +1,7 @@
 {
   "benchmark_metadata": {
     "test_type": "Reinforcement Learning Agent Benchmark",
-    "model_path": "models/ppo_order_scheduler_best.zip",
+    "model_path": "C:\\kod\\Bitirme Projesi\\models\\ppo_order_scheduler_best.zip",
     "days": 10,
     "total_simulation_ticks": 14400,
     "difficulty": 3,
@@ -11,111 +11,111 @@
       "grid_size": "16x16",
       "table_count": 26,
       "total_capacity": 108,
-      "station_count": 4,
+      "station_count": 11,
       "station_types": [
         "OVEN",
-        "PREP",
         "GRILL",
+        "PREP",
         "STOVE"
       ],
-      "waiter_count": 12,
-      "chef_count": 15
+      "waiter_count": 10,
+      "chef_count": 10
     },
-    "timestamp": "2026-08-18 08:39:19"
+    "timestamp": "2026-08-20 13:25:13"
   },
   "rl_agent": {
     "name": "RL Agent (MaskablePPO)",
     "total_days": 10,
-    "elapsed_seconds": 63.47,
-    "total_completed": 3497,
-    "total_churned": 296,
-    "mean_daily_completed": 349.7,
-    "mean_daily_churn": 29.6,
-    "success_rate": 92.2,
-    "hot_delivery_ratio": 0.5,
-    "mean_queue_wait_time": 3.81,
-    "mean_food_cold_time": 57.74,
-    "mean_reward_per_day": 4327.55,
+    "elapsed_seconds": 120.86,
+    "total_completed": 2857,
+    "total_churned": 1377,
+    "mean_daily_completed": 285.7,
+    "mean_daily_churn": 137.7,
+    "success_rate": 67.5,
+    "hot_delivery_ratio": 18.2,
+    "mean_queue_wait_time": 50.93,
+    "mean_food_cold_time": 10.56,
+    "mean_reward_per_day": -473646.77,
     "daily_progression": [
       {
         "day": 1,
-        "day_reward": 4784.2,
-        "day_completed": 363,
-        "cumulative_completed": 363,
-        "day_churn": 26,
-        "cumulative_churn": 26
+        "day_reward": -425534.56,
+        "day_completed": 330,
+        "cumulative_completed": 330,
+        "day_churn": 123,
+        "cumulative_churn": 123
       },
       {
         "day": 2,
-        "day_reward": 7123.4,
-        "day_completed": 409,
-        "cumulative_completed": 772,
-        "day_churn": 12,
-        "cumulative_churn": 38
+        "day_reward": -413716.0,
+        "day_completed": 342,
+        "cumulative_completed": 672,
+        "day_churn": 112,
+        "cumulative_churn": 235
       },
       {
         "day": 3,
-        "day_reward": 6012.5,
-        "day_completed": 369,
-        "cumulative_completed": 1141,
-        "day_churn": 16,
-        "cumulative_churn": 54
+        "day_reward": -330648.64,
+        "day_completed": 301,
+        "cumulative_completed": 973,
+        "day_churn": 142,
+        "cumulative_churn": 377
       },
       {
         "day": 4,
-        "day_reward": 1566.6,
-        "day_completed": 345,
-        "cumulative_completed": 1486,
-        "day_churn": 58,
-        "cumulative_churn": 112
+        "day_reward": -583685.34,
+        "day_completed": 231,
+        "cumulative_completed": 1204,
+        "day_churn": 198,
+        "cumulative_churn": 575
       },
       {
         "day": 5,
-        "day_reward": 3578.2,
-        "day_completed": 293,
-        "cumulative_completed": 1779,
-        "day_churn": 26,
-        "cumulative_churn": 138
+        "day_reward": -706617.84,
+        "day_completed": 317,
+        "cumulative_completed": 1521,
+        "day_churn": 169,
+        "cumulative_churn": 744
       },
       {
         "day": 6,
-        "day_reward": 965.6,
-        "day_completed": 325,
-        "cumulative_completed": 2104,
-        "day_churn": 58,
-        "cumulative_churn": 196
+        "day_reward": -454864.1,
+        "day_completed": 258,
+        "cumulative_completed": 1779,
+        "day_churn": 134,
+        "cumulative_churn": 878
       },
       {
         "day": 7,
-        "day_reward": 1333.3,
-        "day_completed": 331,
-        "cumulative_completed": 2435,
-        "day_churn": 56,
-        "cumulative_churn": 252
+        "day_reward": -598166.04,
+        "day_completed": 253,
+        "cumulative_completed": 2032,
+        "day_churn": 164,
+        "cumulative_churn": 1042
       },
       {
         "day": 8,
-        "day_reward": 1971.1,
-        "day_completed": 301,
-        "cumulative_completed": 2736,
-        "day_churn": 44,
-        "cumulative_churn": 296
+        "day_reward": -413277.36,
+        "day_completed": 265,
+        "cumulative_completed": 2297,
+        "day_churn": 130,
+        "cumulative_churn": 1172
       },
       {
         "day": 9,
-        "day_reward": 7765.7,
-        "day_completed": 374,
-        "cumulative_completed": 3110,
-        "day_churn": 0,
-        "cumulative_churn": 296
+        "day_reward": -399173.06,
+        "day_completed": 263,
+        "cumulative_completed": 2560,
+        "day_churn": 83,
+        "cumulative_churn": 1255
       },
       {
         "day": 10,
-        "day_reward": 8174.9,
-        "day_completed": 387,
-        "cumulative_completed": 3497,
-        "day_churn": 0,
-        "cumulative_churn": 296
+        "day_reward": -410784.78,
+        "day_completed": 297,
+        "cumulative_completed": 2857,
+        "day_churn": 122,
+        "cumulative_churn": 1377
       }
     ]
   }

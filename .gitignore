@@ -4,3 +4,16 @@ __pycache__/
 .pytest_cache/
 .vscode/
 .idea/
+
+# AI assistant / local files
+.agents/
+AGENTS.md
+MEMORY.md
+SCRATCHPAD.md
+CLAUDE.md
+
+# Android build output
+Android/.gradle/
+Android/build/
+Android/app/build/
+Android/local.properties

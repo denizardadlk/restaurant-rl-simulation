@@ -3,6 +3,7 @@ from typing import Dict, Tuple, Any
 from .grid import RestaurantGrid
 
 _GLOBAL_DISTANCE_CACHE: Dict[Tuple[int, int, Tuple[Tuple[int, int], ...]], Dict[Tuple[int, int], Dict[Tuple[int, int], float]]] = {}
+_GLOBAL_PATH_CACHE: Dict[Tuple[Any, Tuple[int, int], Tuple[int, int]], list] = {}
 
 class Pathfinder:
     def __init__(self, grid: RestaurantGrid):
@@ -53,3 +54,17 @@ class Pathfinder:
         if start in self.distance_matrix and end in self.distance_matrix[start]:
             return float(self.distance_matrix[start][end])
         return float('inf')
+
+    def get_path(self, start: Tuple[int, int], end: Tuple[int, int]) -> list:
+        """Returns the list of coordinates forming the shortest path from start to end."""
+        if start == end:
+            return [start]
+        cache_key = (self._get_cache_key(), start, end)
+        if cache_key in _GLOBAL_PATH_CACHE:
+            return list(_GLOBAL_PATH_CACHE[cache_key])
+        try:
+            path = nx.shortest_path(self.graph, source=start, target=end)
+            _GLOBAL_PATH_CACHE[cache_key] = path
+            return list(path)
+        except (nx.NetworkXNoPath, nx.NodeNotFound, KeyError):
+            return []

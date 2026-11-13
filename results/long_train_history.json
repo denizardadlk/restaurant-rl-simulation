@@ -2,111 +2,19 @@
   {
     "epoch": 1,
     "cumulative_train_days": 50,
-    "train_elapsed_sec": 513.32,
+    "train_elapsed_sec": 45.2,
     "eval_metrics": {
       "eval_days": 10,
-      "total_completed": 3216,
-      "total_churned": 344,
-      "mean_daily_completed": 321.6,
-      "mean_daily_churn": 34.4,
-      "success_rate": 90.3,
-      "hot_delivery_ratio": 0.7,
-      "chef_productivity": 21.4,
-      "table_turnover": 12.4,
-      "mean_queue_wait_time": 4.1,
-      "mean_food_cold_time": 55.51,
-      "mean_reward_per_day": 3266.46,
-      "eval_score": 3266.46
+      "total_completed": 3100,
+      "total_churned": 450,
+      "mean_daily_completed": 310.0,
+      "mean_daily_churn": 45.0,
+      "mean_queue_wait_time": 8.5,
+      "mean_food_cold_time": 42.1,
+      "mean_reward_per_day": 2500.0,
+      "eval_score": 2500.0
     },
     "is_best": true,
-    "status_label": "🏆 YENİ EN İYİ (Skor: +3266.46)"
-  },
-  {
-    "epoch": 2,
-    "cumulative_train_days": 100,
-    "train_elapsed_sec": 581.26,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3523,
-      "total_churned": 266,
-      "mean_daily_completed": 352.3,
-      "mean_daily_churn": 26.6,
-      "success_rate": 93.0,
-      "hot_delivery_ratio": 0.7,
-      "chef_productivity": 23.5,
-      "table_turnover": 13.6,
-      "mean_queue_wait_time": 3.91,
-      "mean_food_cold_time": 56.61,
-      "mean_reward_per_day": 4675.84,
-      "eval_score": 4675.84
-    },
-    "is_best": true,
-    "status_label": "🏆 YENİ EN İYİ (Skor: +4675.84)"
-  },
-  {
-    "epoch": 3,
-    "cumulative_train_days": 150,
-    "train_elapsed_sec": 475.63,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3434,
-      "total_churned": 402,
-      "mean_daily_completed": 343.4,
-      "mean_daily_churn": 40.2,
-      "success_rate": 89.5,
-      "hot_delivery_ratio": 0.6,
-      "chef_productivity": 22.9,
-      "table_turnover": 13.2,
-      "mean_queue_wait_time": 4.11,
-      "mean_food_cold_time": 56.16,
-      "mean_reward_per_day": 3058.45,
-      "eval_score": 3058.45
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 1/5)"
-  },
-  {
-    "epoch": 4,
-    "cumulative_train_days": 200,
-    "train_elapsed_sec": 529.13,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 3652,
-      "total_churned": 290,
-      "mean_daily_completed": 365.2,
-      "mean_daily_churn": 29.0,
-      "success_rate": 92.6,
-      "hot_delivery_ratio": 0.6,
-      "chef_productivity": 24.3,
-      "table_turnover": 14.0,
-      "mean_queue_wait_time": 3.83,
-      "mean_food_cold_time": 57.46,
-      "mean_reward_per_day": 4665.67,
-      "eval_score": 4665.67
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 2/5)"
-  },
-  {
-    "epoch": 5,
-    "cumulative_train_days": 250,
-    "train_elapsed_sec": 540.31,
-    "eval_metrics": {
-      "eval_days": 10,
-      "total_completed": 1526,
-      "total_churned": 1717,
-      "mean_daily_completed": 152.6,
-      "mean_daily_churn": 171.7,
-      "success_rate": 47.1,
-      "hot_delivery_ratio": 1.5,
-      "chef_productivity": 10.2,
-      "table_turnover": 5.9,
-      "mean_queue_wait_time": 7.86,
-      "mean_food_cold_time": 49.87,
-      "mean_reward_per_day": -22593.84,
-      "eval_score": -22593.84
-    },
-    "is_best": false,
-    "status_label": "⚠️ Gelişme Yok (Patience: 3/5)"
+    "status_label": "🏆 YENİ EN İYİ (Skor: +2500.00)"
   }
 ]

@@ -5,7 +5,7 @@ let CELL_SIZE = 40;
 let grid = { width: 10, height: 10 };
 let kitchenZone = { x: 7, y: 0, w: 3, h: 10 };
 
-let currentMode = 'TABLE'; // 'TABLE' or 'KITCHEN'
+let currentMode = 'TABLE'; // 'TABLE', 'KITCHEN' or 'COUNTER'
 let isDraggingKitchen = false;
 let dragStart = { x: 0, y: 0 };
 let dragCurrent = { x: 0, y: 0 };
@@ -13,6 +13,10 @@ let hoverCell = { x: -1, y: -1 };
 
 let tables = []; // { id, x, y, w, h, capacity }
 let stations = []; // { id, type, capacity }
+let deliveryCounters = [
+    { id: 'COUNTER_1', x: 7, y: 4, capacity: 4 },
+    { id: 'COUNTER_2', x: 7, y: 5, capacity: 4 }
+];
 
 const CHAIR_COLORS = [
     '#ff9800', // Orange (Person 1)
@@ -32,6 +36,12 @@ const btnUpdateGrid = document.getElementById('btn-update-grid');
 
 const btnModeTable = document.getElementById('mode-table');
 const btnModeKitchen = document.getElementById('mode-kitchen');
+const btnModeCounter = document.getElementById('mode-counter');
+
+const inCounterCapacity = document.getElementById('counter-capacity');
+const lblCounterCount = document.getElementById('lbl-counter-count');
+const btnAutoPosCounter = document.getElementById('btn-auto-pos-counter');
+const btnClearCounters = document.getElementById('btn-clear-counters');
 
 const selCapacity = document.getElementById('table-capacity');
 const selOrientation = document.getElementById('table-orientation');
@@ -67,6 +77,10 @@ const PRESETS = {
     'default': {
         grid_size: { width: 10, height: 10 },
         kitchen_zone: { x: 7, y: 0, w: 3, h: 10 },
+        delivery_counters: [
+            { id: 'COUNTER_1', x: 7, y: 4, capacity: 4 },
+            { id: 'COUNTER_2', x: 7, y: 5, capacity: 4 }
+        ],
         tables: [{x: 2, y: 2, capacity: 4}, {x: 2, y: 5, capacity: 2}, {x: 2, y: 8, capacity: 4}, {x: 5, y: 2, capacity: 2}, {x: 5, y: 5, capacity: 6}],
         stations: [{id: 'S_OVEN_1', type: 'OVEN'}, {id: 'S_GRILL_1', type: 'GRILL'}, {id: 'S_STOVE_1', type: 'STOVE'}, {id: 'S_PREP_1', type: 'PREP'}],
         waiters: [{}, {}],
@@ -75,6 +89,11 @@ const PRESETS = {
     'fine_dining': {
         grid_size: { width: 12, height: 12 },
         kitchen_zone: { x: 9, y: 0, w: 3, h: 12 },
+        delivery_counters: [
+            { id: 'COUNTER_1', x: 9, y: 4, capacity: 4 },
+            { id: 'COUNTER_2', x: 9, y: 5, capacity: 4 },
+            { id: 'COUNTER_3', x: 9, y: 6, capacity: 4 }
+        ],
         tables: [{x: 1, y: 1, w: 2, h: 2, capacity: 6}, {x: 5, y: 1, w: 2, h: 2, capacity: 6}, {x: 1, y: 6, w: 3, h: 2, capacity: 8}, {x: 5, y: 6, w: 3, h: 2, capacity: 8}],
         stations: [{id: 'S_OVEN_1', type: 'OVEN'}, {id: 'S_OVEN_2', type: 'OVEN'}, {id: 'S_PREP_1', type: 'PREP'}, {id: 'S_PREP_2', type: 'PREP'}, {id: 'S_GRILL_1', type: 'GRILL'}],
         waiters: [{}, {}, {}],
@@ -83,6 +102,10 @@ const PRESETS = {
     'compact_cafe': {
         grid_size: { width: 8, height: 8 },
         kitchen_zone: { x: 6, y: 0, w: 2, h: 8 },
+        delivery_counters: [
+            { id: 'COUNTER_1', x: 6, y: 3, capacity: 4 },
+            { id: 'COUNTER_2', x: 6, y: 4, capacity: 4 }
+        ],
         tables: [{x: 1, y: 1, capacity: 2}, {x: 3, y: 1, capacity: 2}, {x: 1, y: 4, capacity: 4}, {x: 4, y: 4, capacity: 4}],
         stations: [{id: 'S_OVEN_1', type: 'OVEN'}, {id: 'S_PREP_1', type: 'PREP'}],
         waiters: [{}],
@@ -91,6 +114,11 @@ const PRESETS = {
     'fast_food': {
         grid_size: { width: 12, height: 10 },
         kitchen_zone: { x: 0, y: 0, w: 3, h: 10 },
+        delivery_counters: [
+            { id: 'COUNTER_1', x: 2, y: 3, capacity: 4 },
+            { id: 'COUNTER_2', x: 2, y: 4, capacity: 4 },
+            { id: 'COUNTER_3', x: 2, y: 5, capacity: 4 }
+        ],
         tables: [{x: 4, y: 1, capacity: 2}, {x: 6, y: 1, capacity: 2}, {x: 8, y: 1, capacity: 2}, {x: 4, y: 4, capacity: 4}, {x: 7, y: 4, capacity: 4}, {x: 4, y: 7, capacity: 4}, {x: 7, y: 7, capacity: 4}],
         stations: [{id: 'S_GRILL_1', type: 'GRILL'}, {id: 'S_GRILL_2', type: 'GRILL'}, {id: 'S_GRILL_3', type: 'GRILL'}, {id: 'S_PREP_1', type: 'PREP'}],
         waiters: [{}, {}, {}],
@@ -189,10 +217,50 @@ function rotateTable(t) {
     return true;
 }
 
+// Counter UI update helper & indexing
+function reindexCounters() {
+    deliveryCounters.forEach((c, idx) => {
+        c.id = `COUNTER_${idx + 1}`;
+        if (!c.capacity) c.capacity = (inCounterCapacity ? parseInt(inCounterCapacity.value) : 4) || 4;
+    });
+    if (lblCounterCount) {
+        lblCounterCount.textContent = deliveryCounters.length;
+    }
+}
+
+// Auto position long pass line along kitchen zone border
+function autoPositionCounters() {
+    deliveryCounters = [];
+    const cap = (inCounterCapacity ? parseInt(inCounterCapacity.value) : 4) || 4;
+    const startY = kitchenZone.y;
+    const endY = Math.min(grid.height - 1, kitchenZone.y + kitchenZone.h - 1);
+    
+    for (let y = startY; y <= endY; y++) {
+        deliveryCounters.push({
+            id: `COUNTER_${deliveryCounters.length + 1}`,
+            x: kitchenZone.x,
+            y: y,
+            capacity: cap
+        });
+    }
+    reindexCounters();
+    render();
+    showToast(`${deliveryCounters.length} hücrelik uzun teslim tezgahı hattı oluşturuldu`, 'info');
+}
+
+// Clear all counters
+function clearCounters() {
+    deliveryCounters = [];
+    reindexCounters();
+    render();
+    showToast("Tüm teslim tezgahları temizlendi", 'info');
+}
+
 // Initialize
 async function init() {
     updateCanvasSize();
     reindexTables();
+    reindexCounters();
     render();
     setupEventListeners();
     await fetchActiveLayout();
@@ -271,8 +339,29 @@ function render() {
         ctx.lineTo(canvas.width, y * CELL_SIZE);
         ctx.stroke();
     }
+
+    // 3. Draw Delivery Counters (Multi-Cell Pass Array)
+    deliveryCounters.forEach((c, idx) => {
+        const cx = c.x * CELL_SIZE;
+        const cy = c.y * CELL_SIZE;
+        
+        ctx.fillStyle = '#ffd54f';
+        ctx.fillRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        
+        ctx.strokeStyle = '#ffb300';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx + 2, cy + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 9px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`C${idx + 1}`, cx + CELL_SIZE / 2, cy + CELL_SIZE / 2 - 5);
+        ctx.font = 'bold 8px Inter';
+        ctx.fillText(`🍽️ ${c.capacity || 4}`, cx + CELL_SIZE / 2, cy + CELL_SIZE / 2 + 7);
+    });
     
-    // 3. Draw Tables & Chairs
+    // 4. Draw Tables & Chairs
     tables.forEach(t => {
         // Table body rectangle (w x h cells)
         ctx.fillStyle = '#64b5f6';
@@ -297,19 +386,33 @@ function render() {
         renderChairs(t);
     });
 
-    // 4. Hover Preview for Table Placement Mode
-    if (currentMode === 'TABLE' && hoverCell.x >= 0 && hoverCell.y >= 0 && !isDraggingKitchen) {
-        const orient = selOrientation ? selOrientation.value : 'H';
-        const dims = getTableDimensions(selCapacity.value, orient);
-        if (hoverCell.x + dims.w <= grid.width && hoverCell.y + dims.h <= grid.height) {
-            ctx.fillStyle = 'rgba(100, 181, 246, 0.4)';
-            ctx.fillRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, dims.w * CELL_SIZE - 4, dims.h * CELL_SIZE - 4);
-            
-            ctx.strokeStyle = '#64b5f6';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([4, 2]);
-            ctx.strokeRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, dims.w * CELL_SIZE - 4, dims.h * CELL_SIZE - 4);
-            ctx.setLineDash([]);
+    // 5. Hover Previews
+    if (hoverCell.x >= 0 && hoverCell.y >= 0 && !isDraggingKitchen) {
+        if (currentMode === 'TABLE') {
+            const orient = selOrientation ? selOrientation.value : 'H';
+            const dims = getTableDimensions(selCapacity.value, orient);
+            if (hoverCell.x + dims.w <= grid.width && hoverCell.y + dims.h <= grid.height) {
+                ctx.fillStyle = 'rgba(100, 181, 246, 0.4)';
+                ctx.fillRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, dims.w * CELL_SIZE - 4, dims.h * CELL_SIZE - 4);
+                
+                ctx.strokeStyle = '#64b5f6';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 2]);
+                ctx.strokeRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, dims.w * CELL_SIZE - 4, dims.h * CELL_SIZE - 4);
+                ctx.setLineDash([]);
+            }
+        } else if (currentMode === 'COUNTER') {
+            if (hoverCell.x < grid.width && hoverCell.y < grid.height) {
+                const isExisting = deliveryCounters.some(c => c.x === hoverCell.x && c.y === hoverCell.y);
+                ctx.fillStyle = isExisting ? 'rgba(255, 82, 82, 0.45)' : 'rgba(255, 213, 79, 0.45)';
+                ctx.fillRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                
+                ctx.strokeStyle = isExisting ? '#ff5252' : '#ffd54f';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 2]);
+                ctx.strokeRect(hoverCell.x * CELL_SIZE + 2, hoverCell.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+                ctx.setLineDash([]);
+            }
         }
     }
 
@@ -321,8 +424,6 @@ function render() {
 
 function calculateEfficiencyMetrics() {
     if (!lblAvgDist) return;
-    const kx = kitchenZone.x + kitchenZone.w / 2;
-    const ky = kitchenZone.y + kitchenZone.h / 2;
     
     let totalDist = 0;
     let maxDist = 0;
@@ -331,9 +432,19 @@ function calculateEfficiencyMetrics() {
     tables.forEach(t => {
         const tx = t.x + t.w / 2;
         const ty = t.y + t.h / 2;
-        const dist = Math.abs(kx - tx) + Math.abs(ky - ty); // Manhattan distance
-        totalDist += dist;
-        if (dist > maxDist) maxDist = dist;
+        
+        let bestDist = Infinity;
+        if (deliveryCounters.length > 0) {
+            deliveryCounters.forEach(c => {
+                const dist = Math.abs((c.x + 0.5) - tx) + Math.abs((c.y + 0.5) - ty);
+                if (dist < bestDist) bestDist = dist;
+            });
+        } else {
+            bestDist = Math.abs((kitchenZone.x + kitchenZone.w / 2) - tx) + Math.abs((kitchenZone.y + kitchenZone.h / 2) - ty);
+        }
+        
+        totalDist += bestDist;
+        if (bestDist > maxDist) maxDist = bestDist;
         totalChairs += parseInt(t.capacity);
     });
     
@@ -346,23 +457,33 @@ function calculateEfficiencyMetrics() {
 }
 
 function renderPathLines() {
-    const kx = (kitchenZone.x + kitchenZone.w / 2) * CELL_SIZE;
-    const ky = (kitchenZone.y + kitchenZone.h / 2) * CELL_SIZE;
-    
     tables.forEach(t => {
         const tx = (t.x + t.w / 2) * CELL_SIZE;
         const ty = (t.y + t.h / 2) * CELL_SIZE;
         
-        const dist = Math.abs(kitchenZone.x + kitchenZone.w / 2 - (t.x + t.w / 2)) + 
-                     Math.abs(kitchenZone.y + kitchenZone.h / 2 - (t.y + t.h / 2));
+        let bestCounter = null;
+        let bestDist = Infinity;
+        
+        if (deliveryCounters.length > 0) {
+            deliveryCounters.forEach(c => {
+                const d = Math.abs((c.x + 0.5) - (t.x + t.w / 2)) + Math.abs((c.y + 0.5) - (t.y + t.h / 2));
+                if (d < bestDist) {
+                    bestDist = d;
+                    bestCounter = c;
+                }
+            });
+        }
+        
+        const kx = (bestCounter ? (bestCounter.x + 0.5) : (kitchenZone.x + kitchenZone.w / 2)) * CELL_SIZE;
+        const ky = (bestCounter ? (bestCounter.y + 0.5) : (kitchenZone.y + kitchenZone.h / 2)) * CELL_SIZE;
                      
         ctx.beginPath();
         ctx.moveTo(kx, ky);
         ctx.lineTo(tx, ty);
         
         // Color gradient based on distance
-        if (dist < 5) ctx.strokeStyle = 'rgba(105, 240, 174, 0.6)'; // Green
-        else if (dist < 10) ctx.strokeStyle = 'rgba(255, 235, 59, 0.6)'; // Yellow
+        if (bestDist < 5) ctx.strokeStyle = 'rgba(105, 240, 174, 0.6)'; // Green
+        else if (bestDist < 10) ctx.strokeStyle = 'rgba(255, 235, 59, 0.6)'; // Yellow
         else ctx.strokeStyle = 'rgba(255, 82, 82, 0.6)'; // Red
         
         ctx.lineWidth = 2;
@@ -468,6 +589,7 @@ function setupEventListeners() {
         currentMode = 'TABLE';
         btnModeTable.classList.add('active');
         btnModeKitchen.classList.remove('active');
+        if (btnModeCounter) btnModeCounter.classList.remove('active');
         render();
     });
 
@@ -475,8 +597,36 @@ function setupEventListeners() {
         currentMode = 'KITCHEN';
         btnModeKitchen.classList.add('active');
         btnModeTable.classList.remove('active');
+        if (btnModeCounter) btnModeCounter.classList.remove('active');
         render();
     });
+
+    if (btnModeCounter) {
+        btnModeCounter.addEventListener('click', () => {
+            currentMode = 'COUNTER';
+            btnModeCounter.classList.add('active');
+            btnModeTable.classList.remove('active');
+            btnModeKitchen.classList.remove('active');
+            render();
+        });
+    }
+
+    if (inCounterCapacity) {
+        inCounterCapacity.addEventListener('change', (e) => {
+            const cap = Math.max(1, Math.min(20, parseInt(e.target.value) || 4));
+            deliveryCounters.forEach(c => c.capacity = cap);
+            showToast(`Tüm tezgahların kapasitesi ${cap} olarak ayarlandı`, 'info');
+            render();
+        });
+    }
+
+    if (btnAutoPosCounter) {
+        btnAutoPosCounter.addEventListener('click', autoPositionCounters);
+    }
+
+    if (btnClearCounters) {
+        btnClearCounters.addEventListener('click', clearCounters);
+    }
 
     btnUpdateGrid.addEventListener('click', () => {
         grid.width = parseInt(inGridW.value);
@@ -489,6 +639,10 @@ function setupEventListeners() {
             kitchenZone.x = Math.max(0, grid.width - kitchenZone.w);
         }
         
+        // Ensure counters stay within bounds
+        deliveryCounters = deliveryCounters.filter(c => c.x < grid.width && c.y < grid.height);
+        reindexCounters();
+
         // Remove tables out of bounds
         tables = tables.filter(t => t.x + t.w <= grid.width && t.y + t.h <= grid.height);
         reindexTables();
@@ -513,7 +667,38 @@ function setupEventListeners() {
         const cellX = Math.floor(mouseX / CELL_SIZE);
         const cellY = Math.floor(mouseY / CELL_SIZE);
         
-        if (currentMode === 'KITCHEN') {
+        if (currentMode === 'COUNTER') {
+            if (cellX < 0 || cellX >= grid.width || cellY < 0 || cellY >= grid.height) return;
+            
+            // Check if clicking on an existing counter cell -> Remove it (toggle)
+            const existingCounterIdx = deliveryCounters.findIndex(c => c.x === cellX && c.y === cellY);
+            if (existingCounterIdx !== -1) {
+                deliveryCounters.splice(existingCounterIdx, 1);
+                reindexCounters();
+                render();
+                showToast(`Tezgah hücresi kaldırıldı (Kalan: ${deliveryCounters.length})`, "info");
+                return;
+            }
+
+            // Check if clicking on an existing table
+            const overlapTable = tables.some(t => cellX >= t.x && cellX < t.x + t.w && cellY >= t.y && cellY < t.y + t.h);
+            if (overlapTable) {
+                showToast("Masa üzerine teslim tezgahı yerleştiremezsiniz!", "error");
+                return;
+            }
+            
+            const cap = (inCounterCapacity ? parseInt(inCounterCapacity.value) : 4) || 4;
+            deliveryCounters.push({
+                id: `COUNTER_${deliveryCounters.length + 1}`,
+                x: cellX,
+                y: cellY,
+                capacity: cap
+            });
+            reindexCounters();
+            render();
+            showToast(`Yeni teslim tezgahı eklendi (Toplam: ${deliveryCounters.length})`, "success");
+            return;
+        } else if (currentMode === 'KITCHEN') {
             isDraggingKitchen = true;
             dragStart = { x: cellX, y: cellY };
             dragCurrent = { x: cellX, y: cellY };
@@ -806,7 +991,7 @@ function generateLayoutData() {
             id: `C${i+1}`, 
             x: kitchenZone.x, 
             y: kitchenZone.y + ((i * 2) % kitchenZone.h), 
-            capacity: 2, 
+            capacity: 4, 
             efficiency: 1.0 
         });
     }
@@ -824,9 +1009,18 @@ function generateLayoutData() {
         return { id: `T${t.id}`, x: t.x, y: t.y, w: t.w, h: t.h, capacity: t.capacity };
     });
     
+    const formattedCounters = deliveryCounters.map(c => ({
+        id: c.id,
+        x: c.x,
+        y: c.y,
+        capacity: c.capacity || (inCounterCapacity ? parseInt(inCounterCapacity.value) : 4) || 4
+    }));
+    
     return {
         grid_size: { width: grid.width, height: grid.height },
         kitchen_zone: kitchenZone,
+        delivery_counters: formattedCounters,
+        delivery_counter: formattedCounters.length > 0 ? formattedCounters[0] : null,
         tables: formattedTables,
         stations: positionedStations,
         waiters: waiters,
@@ -884,6 +1078,27 @@ function loadFromData(data) {
         if (typeof inKzW !== 'undefined' && inKzW) inKzW.value = kitchenZone.w;
     }
     
+    if (data.delivery_counters && Array.isArray(data.delivery_counters) && data.delivery_counters.length > 0) {
+        deliveryCounters = data.delivery_counters.map((c, idx) => ({
+            id: c.id || `COUNTER_${idx + 1}`,
+            x: c.x,
+            y: c.y,
+            capacity: c.capacity || 4
+        }));
+    } else if (data.delivery_counter) {
+        deliveryCounters = [{
+            id: data.delivery_counter.id || 'COUNTER_1',
+            x: data.delivery_counter.x,
+            y: data.delivery_counter.y,
+            capacity: data.delivery_counter.capacity || 4
+        }];
+    } else {
+        deliveryCounters = [
+            { id: 'COUNTER_1', x: kitchenZone.x, y: kitchenZone.y + Math.floor(kitchenZone.h / 2), capacity: 4 }
+        ];
+    }
+    reindexCounters();
+
     if (data.tables) {
         tables = data.tables.map(t => {
             const cap = t.capacity || 4;

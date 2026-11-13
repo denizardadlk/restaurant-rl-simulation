@@ -12,19 +12,22 @@ if sys.platform == "win32":
         pass
 
 from simulation.gym_env import RestaurantGymEnv
-from simulation.rl_agent import OrderSchedulerRLAgent
+from simulation.rl_agent import OrderSchedulerRLAgent, WaiterRLAgent
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LAYOUTS_DIR = os.path.join(BASE_DIR, "layouts")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 DEFAULT_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
+DEFAULT_WAITER_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_waiter_policy.zip")
 
 def extract_layout_info(path: str) -> dict:
     """Layout JSON dosyasından masa, istasyon, garson, aşçı detaylarını okur."""
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+        if not isinstance(data, dict) or "grid_size" not in data or "tables" not in data:
+            return None
         grid_w = data.get("grid_size", {}).get("width", 0)
         grid_h = data.get("grid_size", {}).get("height", 0)
         tables = data.get("tables", [])
@@ -45,26 +48,20 @@ def extract_layout_info(path: str) -> dict:
             "chef_count": len(chefs)
         }
     except Exception:
-        return {
-            "grid_size": "?", "table_count": 0, "total_capacity": 0,
-            "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
-        }
+        return None
 
 def get_available_layouts():
     layouts = []
     seen = set()
-    if os.path.exists(LAYOUTS_DIR):
-        for f in sorted(os.listdir(LAYOUTS_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(LAYOUTS_DIR, f)
-                layouts.append({"filename": f, "path": full_p, "info": extract_layout_info(full_p)})
-                seen.add(f)
-    if os.path.exists(CONFIG_DIR):
-        for f in sorted(os.listdir(CONFIG_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(CONFIG_DIR, f)
-                layouts.append({"filename": f, "path": full_p, "info": extract_layout_info(full_p)})
-                seen.add(f)
+    for d in [LAYOUTS_DIR, CONFIG_DIR]:
+        if os.path.exists(d):
+            for f in sorted(os.listdir(d)):
+                if f.endswith(".json") and f not in seen and not f.endswith("config.json"):
+                    full_p = os.path.join(d, f)
+                    info = extract_layout_info(full_p)
+                    if info:
+                        layouts.append({"filename": f, "path": full_p, "info": info})
+                        seen.add(f)
     return layouts
 
 def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli_mode=None, cli_envs=None, cli_debug=None):
@@ -163,17 +160,19 @@ def interactive_prompt(existing_model: bool, cli_days=None, cli_layout=None, cli
     return mode, training_days, selected_layout, selected_envs, selected_debug
 
 def main():
-    parser = argparse.ArgumentParser(description="Pekiştirmeli Öğrenme (RL) Sipariş Çizelgeleyici Eğitimi")
+    parser = argparse.ArgumentParser(description="Pekiştirmeli Öğrenme (RL) Eğitimi (Mutfak Çizelgeleyici veya Garson Politikası)")
+    parser.add_argument("--agent", type=str, choices=["kitchen", "waiter"], default="kitchen", help="Eğitilecek RL Ajanı: 'kitchen' (Mutfak/Şef) veya 'waiter' (Garson)")
     parser.add_argument("--days", type=int, default=None, help="Eğitilecek simülasyon günü sayısı (10, 50, 100)")
     parser.add_argument("--mode", type=str, choices=["continue", "overwrite", "new"], default=None, help="Eğitim modu")
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
-    parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--difficulty", type=int, default=2, help="Zorluk seviyesi (1, 2, 3)")
     parser.add_argument("--num-envs", type=int, default=None, help="Paralel simülasyon ortamı (CPU çekirdeği) sayısı (varsayılan: 4)")
     parser.add_argument("--debug", action="store_true", default=None, help="Detaylı hata ayıklama modunu aktif eder ve results/training_debug.md oluşturur")
     args = parser.parse_args()
     
     os.makedirs(MODELS_DIR, exist_ok=True)
-    existing_model = os.path.exists(DEFAULT_MODEL_PATH)
+    target_model_path = DEFAULT_WAITER_MODEL_PATH if args.agent == "waiter" else DEFAULT_MODEL_PATH
+    existing_model = os.path.exists(target_model_path)
     
     mode, training_days, layout_entry, num_envs, debug_mode = interactive_prompt(
         existing_model, cli_days=args.days, cli_layout=args.layout, cli_mode=args.mode, cli_envs=args.num_envs, cli_debug=args.debug
@@ -186,41 +185,57 @@ def main():
     print("\n" + "=" * 80)
     print("EĞİTİM YAPILANDIRMASI")
     print("=" * 80)
+    print(f"Hedef Ajan   : {'GARSON RL AJANI (Mutfak Sabit)' if args.agent == 'waiter' else 'MUTFAK/ŞEF ÇİZELGELEYİCİ (Garsonlar Sabit)'}")
     print(f"Layout       : {layout_entry['filename']} ({layout_path})")
     print(f"Mod          : {mode.upper()}")
     print(f"Eğitim Süresi: {training_days} Gün ({total_timesteps:,} Timestep)")
-    print(f"Paralel Çekirdek (Envs): {1 if debug_mode else num_envs}")
+    print(f"Paralel Çekirdek (Envs): {1 if (debug_mode or args.agent == 'waiter') else num_envs}")
     print(f"Debug Modu   : {'AKTİF (training_debug.md üretilecek)' if debug_mode else 'DEVRE DIŞI'}")
-    print(f"Hedef Model  : {DEFAULT_MODEL_PATH}")
+    print(f"Hedef Model  : {target_model_path}")
     print("=" * 80)
     
-    rl_agent = OrderSchedulerRLAgent(
-        config_path=layout_path,
-        num_envs=num_envs,
-        difficulty_level=args.difficulty,
-        model_path=DEFAULT_MODEL_PATH,
-        freeze_ml=True,
-        debug_mode=debug_mode
-    )
-    
-    if mode == "continue" and existing_model:
-        print(f"\n[YÜKLENİYOR] Mevcut model yükleniyor: {DEFAULT_MODEL_PATH}...")
-        if rl_agent.load():
-            print("[OK] Model başarıyla yüklendi. Eğitime devam ediliyor...")
-        else:
-            print("[WARN] Model bu layout boyutuyla uyumlu değil, sıfırdan başlatılıyor...")
+    if args.agent == "waiter":
+        waiter_agent = WaiterRLAgent(
+            config_path=layout_path,
+            difficulty_level=args.difficulty,
+            model_path=target_model_path,
+            debug_mode=debug_mode
+        )
+        if mode == "continue" and existing_model:
+            print(f"\n[YÜKLENİYOR] Mevcut model yükleniyor: {target_model_path}...")
+            waiter_agent.load()
             
-    print(f"\n[EĞİTİM BAŞLADI] {total_timesteps:,} adım boyunca MaskablePPO eğitimi yürütülüyor...")
-    start_time = time.time()
-    
-    rl_agent.train(total_timesteps=total_timesteps)
-    
-    elapsed = time.time() - start_time
+        start_time = time.time()
+        waiter_agent.train(total_timesteps=total_timesteps)
+        elapsed = time.time() - start_time
+    else:
+        rl_agent = OrderSchedulerRLAgent(
+            config_path=layout_path,
+            num_envs=num_envs,
+            difficulty_level=args.difficulty,
+            model_path=target_model_path,
+            freeze_ml=True,
+            debug_mode=debug_mode
+        )
+        
+        if mode == "continue" and existing_model:
+            print(f"\n[YÜKLENİYOR] Mevcut model yükleniyor: {target_model_path}...")
+            if rl_agent.load():
+                print("[OK] Model başarıyla yüklendi. Eğitime devam ediliyor...")
+            else:
+                print("[WARN] Model bu layout boyutuyla uyumlu değil, sıfırdan başlatılıyor...")
+                
+        print(f"\n[EĞİTİM BAŞLADI] {total_timesteps:,} adım boyunca MaskablePPO eğitimi yürütülüyor...")
+        start_time = time.time()
+        
+        rl_agent.train(total_timesteps=total_timesteps)
+        elapsed = time.time() - start_time
+        
     print("\n" + "=" * 80)
     print("🎉 EĞİTİM TAMAMLANDI!")
     print("=" * 80)
     print(f"Geçen Süre       : {elapsed:.2f} saniye")
-    print(f"Model Kayıt Yolu : {DEFAULT_MODEL_PATH}")
+    print(f"Model Kayıt Yolu : {target_model_path}")
     if debug_mode:
         print(f"Debug Raporu     : results/training_debug.md")
     print("=" * 80 + "\n")

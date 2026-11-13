@@ -105,6 +105,7 @@ canvas {
 .box.table { background: var(--color-table); }
 .box.chair { background: linear-gradient(135deg, #ff9800, #76ff03, #ff4081, #00e5ff); }
 .box.kitchen { background: var(--color-kitchen); border-color: var(--color-kitchen-border); }
+.box.counter { background: #ffd54f; border-color: #ffb300; }
 
 /* Sidebar */
 .sidebar {

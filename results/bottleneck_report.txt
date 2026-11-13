@@ -1,0 +1,20 @@
+RESTORAN DARBOĞAZ VE SİSTEM PERFORMANS RAPORU
+Layout: Büyük_restoran.json | Zorluk: Seviye 2 | Algoritma: FIFO | Süre: 5 Gün
+Başarı Oranı: %59.2 | Günlük Tamamlanan: 238.0 | Günlük Churn: 164.0
+
+EN KRİTİK DARBOĞAZLAR:
+[1] TESLİMAT TEZGAHI: COUNTER_1
+    Metrik: %84.0 Süre Doygun (Kapasite: 4)
+    Etki: Aşçılar pişen yemekleri bırakamıyor, ocaklar kilitleniyor.
+    Öneri: Teslimat tezgahı yuva sayısını artırın veya garson teslimatını hızlandırın.
+
+[2] MÜŞTERİ KAYBI (CHURN): Yemek Pişme / Teslim Gecikmesi
+    Metrik: 780 müşteri yemek beklerken ayrıldı (%100.0)
+    Etki: Mutfak pişirme süreleri ve kuyruk beklemesi müşteri sabrını aşıyor.
+    Öneri: En yavaş istasyonu tespit edip kapasitesini artırın.
+
+[3] PERSONEL (AŞÇI): Aşçı Kadrosu (En Yoğun: C2)
+    Metrik: Ort. %70.6 Yük (Maks: %84.7)
+    Etki: Aşçılar tüm vardiya boyunca ocak ve istasyonlar arasında aralıksız koşuyor.
+    Öneri: +1 veya +2 Aşçı ekleyin.
+

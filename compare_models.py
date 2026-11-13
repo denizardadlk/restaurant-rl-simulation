@@ -181,7 +181,7 @@ def main():
     
     if args.web:
         print("[WEB] Streamlit Dashboard başlatılıyor...")
-        os.system("streamlit run dashboard/app.py")
+        os.system("streamlit run dashboard.py")
         return
         
     data = load_results()

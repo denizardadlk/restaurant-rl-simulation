@@ -1,0 +1,154 @@
+{
+  "customer_patience": {
+    "waiting_order_initial": 20.0,
+    "waiting_food_initial": 30.0,
+    "decay_rate_per_tick": 1.0
+  },
+  "eating_duration": {
+    "base_time": 20.0,
+    "extra_time_per_two_seats": 7.0,
+    "std_dev_ratio": 0.15,
+    "min_time": 5.0
+  },
+  "staff_durations_and_speeds": {
+    "walking_speed_meters_per_minute": 30.0,
+    "waiter": {
+      "default_speed": 1.0,
+      "default_capacity": 4,
+      "order_taking_duration": 1.0,
+      "table_service_duration": 1.0,
+      "table_cleaning_duration": 2.0,
+      "food_cooling_grace_period": 5.0
+    },
+    "chef": {
+      "default_speed": 1.0,
+      "default_capacity": 8,
+      "carrying_capacity": 2,
+      "default_efficiency": 1.0,
+      "station_prep_duration": 1.0,
+      "plating_and_counter_drop_duration": 1.0,
+      "stage_transfer_duration": 1.0
+    }
+  },
+  "cooking_mechanics": {
+    "gamma_distribution_alpha": 25.0,
+    "station_load_penalty_factor": 0.02,
+    "default_station_batch_factor": 0.95,
+    "batch_yields": {
+      "Patates": 4,
+      "Sogan_Halkasi": 7,
+      "Fried_Basket": {
+        "Patates": 2,
+        "Sogan_Halkasi": 3
+      },
+      "Doner": 1
+    }
+  },
+  "menu_categories": {
+    "main_dishes": ["Burger", "Doner", "Sucuk", "Kofte", "Toast"],
+    "appetizers": ["Patates", "Sogan_Halkasi", "Fried_Basket"],
+    "beverages": ["Kola", "Ayran", "Su", "Salgam"]
+  },
+  "order_probabilities": {
+    "main_dish": {
+      "first_prob": 1.0,
+      "second_prob": 0.20
+    },
+    "appetizer": {
+      "first_prob": 0.40,
+      "second_prob": 0.20
+    },
+    "beverage": {
+      "first_prob": 0.95,
+      "second_prob": 0.40
+    }
+  },
+  "menu_recipes": {
+    "Burger": {
+      "category": "main_dish",
+      "stages": [
+        {"station_type": "GRILL", "time": 10.0},
+        {"station_type": "PREP", "time": 2.0}
+      ]
+    },
+    "Doner": {
+      "category": "main_dish",
+      "stages": [
+        {"station_type": "DONER", "time": 1.0},
+        {"station_type": "PREP", "time": 1.0}
+      ]
+    },
+    "Sucuk": {
+      "category": "main_dish",
+      "stages": [
+        {"station_type": "GRILL", "time": 4.0},
+        {"station_type": "PREP", "time": 1.0}
+      ]
+    },
+    "Kofte": {
+      "category": "main_dish",
+      "stages": [
+        {"station_type": "GRILL", "time": 10.0},
+        {"station_type": "PREP", "time": 1.0}
+      ]
+    },
+    "Toast": {
+      "category": "main_dish",
+      "stages": [
+        {"station_type": "TOASTER", "time": 7.0}
+      ]
+    },
+    "Patates": {
+      "category": "appetizer",
+      "stages": [
+        {"station_type": "FRYER", "time": 5.0}
+      ]
+    },
+    "Sogan_Halkasi": {
+      "category": "appetizer",
+      "stages": [
+        {"station_type": "FRYER", "time": 5.0}
+      ]
+    },
+    "Fried_Basket": {
+      "category": "appetizer",
+      "stages": [
+        {"station_type": "FRYER", "time": 5.0}
+      ]
+    },
+    "Kola": {
+      "category": "beverage",
+      "stages": []
+    },
+    "Ayran": {
+      "category": "beverage",
+      "stages": []
+    },
+    "Su": {
+      "category": "beverage",
+      "stages": []
+    },
+    "Salgam": {
+      "category": "beverage",
+      "stages": []
+    }
+  },
+  "arrival_schedule": {
+    "open_hour_tick": 540,
+    "close_hour_tick": 1320,
+    "intervals": [
+      {"start_tick": 540, "end_tick": 660, "interval_minutes": 30.0, "target_occupancy": 0.20, "burst_max": 1, "description": "09:00 - 11:00 (Açılış / Sakin %20)"},
+      {"start_tick": 660, "end_tick": 720, "interval_minutes": 20.0, "target_occupancy": 0.40, "burst_max": 2, "description": "11:00 - 12:00 (Öğle Öncesi %40)"},
+      {"start_tick": 720, "end_tick": 840, "interval_minutes": 5.0, "target_occupancy": 0.75, "burst_max": 4, "description": "12:00 - 14:00 (Öğle Piki %75)"},
+      {"start_tick": 840, "end_tick": 960, "interval_minutes": 20.0, "target_occupancy": 0.35, "burst_max": 2, "description": "14:00 - 16:00 (Öğleden Sonra %35)"},
+      {"start_tick": 960, "end_tick": 1200, "interval_minutes": 15.0, "target_occupancy": 0.50, "burst_max": 3, "description": "16:00 - 20:00 (Akşam Öncesi %50)"},
+      {"start_tick": 1200, "end_tick": 1320, "interval_minutes": 10.0, "target_occupancy": 0.75, "burst_max": 4, "description": "20:00 - 22:00 (Akşam Piki %75)"}
+    ]
+  },
+  "takeout": {
+    "peak_probability": 0.06,
+    "normal_probability": 0.03,
+    "courier_eta_min": 15.0,
+    "courier_eta_max": 30.0
+  }
+}

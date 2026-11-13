@@ -177,7 +177,7 @@ with tab4:
     
     Çalıştırmak için yeni bir terminal açıp aşağıdaki komutu girin:
     ```bash
-    python run_layout_editor.py
+    python layout_editor.py
     ```
     Ardından tarayıcınızdan **http://localhost:8080/layout_editor.html** adresine giderek düzenleyiciye erişebilirsiniz.
     Kaydettiğiniz düzenler otomatik olarak `config/custom_layout.json` dosyasına yazılır.

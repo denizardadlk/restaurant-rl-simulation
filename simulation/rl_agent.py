@@ -261,3 +261,81 @@ class OrderSchedulerRLAgent:
             "mean_completed": total_completed / n_episodes,
             "mean_churned": total_churned / n_episodes
         }
+
+class WaiterRLAgent:
+    """
+    Dedicated Reinforcement Learning Agent for Waiters (PPO).
+    Trained on WaiterGymEnv while Kitchen / Chef scheduling is held fixed.
+    """
+    def __init__(
+        self,
+        env=None,
+        config_path: str = "config/default_layout.json",
+        difficulty_level: int = 2,
+        model_path: str = "models/ppo_waiter_policy.zip",
+        debug_mode: bool = False,
+        learning_rate: float = 3e-4
+    ):
+        from .waiter_gym_env import WaiterGymEnv
+        self.config_path = config_path
+        self.difficulty_level = difficulty_level
+        self.model_path = model_path
+        self.debug_mode = debug_mode
+        self.learning_rate = learning_rate
+        
+        if env is not None:
+            self.env = env
+        else:
+            self.env = WaiterGymEnv(
+                config_path=self.config_path,
+                difficulty_level=self.difficulty_level,
+                debug_mode=self.debug_mode
+            )
+            
+        self.model = None
+
+    def train(self, total_timesteps: int = 50000, save_path: str = None):
+        try:
+            from stable_baselines3 import PPO
+        except ImportError:
+            print("[HATA] stable_baselines3 kurulu değil!")
+            return
+
+        if self.model is None:
+            self.model = PPO(
+                "MlpPolicy",
+                self.env,
+                learning_rate=self.learning_rate,
+                n_steps=512,
+                batch_size=64,
+                ent_coef=0.01,
+                gamma=0.99,
+                verbose=1
+            )
+        else:
+            self.model.set_env(self.env)
+            
+        print(f"\n[GARSON RL EĞİTİMİ] {total_timesteps:,} timestep boyunca PPO eğitiliyor (Mutfak Sabit)...")
+        self.model.learn(total_timesteps=total_timesteps, reset_num_timesteps=False)
+        dest = save_path or self.model_path
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        self.model.save(dest)
+        print(f"[OK] Garson RL Modeli kaydedildi: {dest}")
+
+    def load(self, path: str = None) -> bool:
+        load_path = path or self.model_path
+        if not os.path.exists(load_path):
+            return False
+        try:
+            from stable_baselines3 import PPO
+            self.model = PPO.load(load_path, env=self.env)
+            return True
+        except Exception as e:
+            print(f"[UYARI] Garson modeli yüklenemedi: {e}")
+            return False
+
+    def predict_action(self, obs: np.ndarray, deterministic: bool = True) -> int:
+        if self.model is None:
+            return 0
+        action, _ = self.model.predict(obs, deterministic=deterministic)
+        return int(action)

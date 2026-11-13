@@ -77,4 +77,6 @@ def test_custom_layout_naming_and_loading(tmp_path):
     assert grid.tables["T1"].capacity == 8
     assert grid.tables["T1"].w == 3
     assert grid.tables["T1"].h == 2
+    assert grid.delivery_counter is not None
+    assert grid.delivery_counter.capacity == 4
 

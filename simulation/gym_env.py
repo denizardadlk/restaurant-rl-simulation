@@ -13,14 +13,15 @@ class RestaurantGymEnv(gym.Env):
     """
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 3, freeze_ml: bool = True, debug_mode: bool = False):
+    def __init__(self, config_path: str = "config/default_layout.json", difficulty_level: int = 2, freeze_ml: bool = True, debug_mode: bool = False, time_config_path: Optional[str] = None):
         super(RestaurantGymEnv, self).__init__()
         
         self.config_path = config_path
         self.difficulty_level = difficulty_level
         self.freeze_ml = freeze_ml
         self.debug_mode = debug_mode
-        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level, freeze_ml=self.freeze_ml)
+        self.time_config_path = time_config_path
+        self.engine = SimulationEngine(config_path=self.config_path, difficulty_level=self.difficulty_level, freeze_ml=self.freeze_ml, time_config_path=self.time_config_path)
         self.max_queue_size = 15
         
         self.station_ids = list(self.engine.grid.stations.keys())
@@ -129,11 +130,11 @@ class RestaurantGymEnv(gym.Env):
         1 = valid, 0 = invalid.
         """
         mask = np.zeros(self.action_space.n, dtype=np.int8)
-        mask[0] = 1 # No-Op is always valid
         
         # Check if there is any free chef globally
         has_free_chef = any(not c.is_full for c in self.engine.grid.chefs.values())
         if not has_free_chef:
+            mask[0] = 1
             return mask
             
         queue_len = len(self.engine.order_queue)
@@ -141,13 +142,20 @@ class RestaurantGymEnv(gym.Env):
         for i in range(self.max_queue_size):
             if i < queue_len:
                 order = self.engine.order_queue[i]
-                req_station = order.stages[order.current_stage_idx]["station_type"]
-                for j, s_id in enumerate(self.station_ids):
-                    action_idx = 1 + i * self.num_stations + j
-                    station = self.engine.grid.stations[s_id]
-                    if station.type == req_station and not station.is_full and not getattr(station, 'is_broken', False):
-                        mask[action_idx] = 1
+                if order.status in ["QUEUED", "QUEUED_STAGE"]:
+                    req_station = order.stages[order.current_stage_idx]["station_type"]
+                    for j, s_id in enumerate(self.station_ids):
+                        action_idx = 1 + i * self.num_stations + j
+                        station = self.engine.grid.stations[s_id]
+                        if station.type == req_station and not station.is_full and not getattr(station, 'is_broken', False):
+                            mask[action_idx] = 1
         
+        # If at least one assignment is valid, mask out No-Op so agent does NOT idle while food waits
+        if np.any(mask[1:] > 0):
+            mask[0] = 0
+        else:
+            mask[0] = 1
+            
         return mask
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None) -> Tuple[np.ndarray, Dict[str, Any]]:
@@ -185,8 +193,14 @@ class RestaurantGymEnv(gym.Env):
                 
                 # Check station validity & capacity
                 if station.type == req_station_type and not station.is_full and not getattr(station, 'is_broken', False):
-                    free_chef = next((c for c in self.engine.grid.chefs.values() if not c.is_full), None)
-                    if free_chef:
+                    avail_chefs = [c for c in self.engine.grid.chefs.values() if not c.is_full]
+                    if avail_chefs:
+                        # Prefer least loaded chef, breaking ties by closest distance to station
+                        avail_chefs.sort(key=lambda c: (
+                            len(c.active_orders),
+                            self.engine.pathfinder.get_distance((c.x, c.y), (station.x, station.y))
+                        ))
+                        free_chef = avail_chefs[0]
                         self.engine.assign_order(order, station, chef=free_chef)
                         assigned_order = True
                         subtick_reward += 1.0 # Small immediate incentive for valid throughput assignment
@@ -228,16 +242,16 @@ class RestaurantGymEnv(gym.Env):
         
         reward = subtick_reward
         
-        # Completed orders bonus
+        # Completed orders bonus (+5.0 per dish)
         if completed_after > completed_before:
-            bonus = (completed_after - completed_before) * 20.0
+            bonus = (completed_after - completed_before) * 5.0
             reward += bonus
             if self.debug_mode:
                 self.debug_stats["reward_breakdown"]["completed_bonus"] += bonus
             
-        # Heavy penalty for churn
+        # Penalty for churn (-10.0 per lost customer)
         if churned_after > churned_before:
-            penalty = (churned_after - churned_before) * 100.0
+            penalty = (churned_after - churned_before) * 10.0
             reward -= penalty
             if self.debug_mode:
                 self.debug_stats["reward_breakdown"]["churn_penalty"] += penalty
@@ -246,28 +260,33 @@ class RestaurantGymEnv(gym.Env):
                     "churned_count": (churned_after - churned_before)
                 })
             
-        # Queue waiting penalty
-        wait_penalty = len(self.engine.order_queue) * 0.1
+        # Queue waiting penalty (normalized, capped to 2.0 per tick)
+        wait_penalty = min(2.0, len(self.engine.order_queue) * 0.05)
         reward -= wait_penalty
         if self.debug_mode:
             self.debug_stats["reward_breakdown"]["queue_wait_penalty"] += wait_penalty
         
-        # Cold food on counter penalty
-        cold_food_count = sum(
-            1 for t in self.engine.grid.tables.values() if t.customers > 0
-            for o in t.current_orders if o.status == "READY" and not t.is_fully_ready_for_service
-        )
-        cold_penalty = cold_food_count * 0.5
+        # Cold food on counter penalty (Grace period: 5.0 ticks, normalized, capped to 3.0 per tick)
+        raw_cold = 0.0
+        all_cnts = list(self.engine.grid.delivery_counters.values())
+        if getattr(self.engine.grid, "takeout_counter", None):
+            all_cnts.append(self.engine.grid.takeout_counter)
+        for counter in all_cnts:
+            for o in counter.ready_orders:
+                cold_time = o.get_cold_time(self.engine.tick, grace_period=5.0)
+                if cold_time > 0.0:
+                    raw_cold += cold_time
+        cold_penalty = min(3.0, raw_cold * 0.02)
         reward -= cold_penalty
         if self.debug_mode:
             self.debug_stats["reward_breakdown"]["cold_food_penalty"] += cold_penalty
         
-        # Courier waiting penalty
+        # Courier waiting penalty (normalized, capped to 2.0 per tick)
         courier_wait_count = sum(
             1 for o in self.engine.order_queue
             if o.is_takeout and o.courier_eta and self.engine.tick > o.courier_eta
         )
-        courier_penalty = courier_wait_count * 1.0
+        courier_penalty = min(2.0, courier_wait_count * 0.2)
         reward -= courier_penalty
         if self.debug_mode:
             self.debug_stats["reward_breakdown"]["courier_wait_penalty"] += courier_penalty

@@ -21,35 +21,28 @@ LAYOUTS_DIR = os.path.join(BASE_DIR, "layouts")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 
 def get_available_layouts():
-    """Tüm mevcut layout dosyalarını bulur ve temel bilgilerini çıkarır."""
     layouts = []
     seen = set()
     
-    # 1. layouts/ dizini
-    if os.path.exists(LAYOUTS_DIR):
-        for f in sorted(os.listdir(LAYOUTS_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(LAYOUTS_DIR, f)
-                info = extract_layout_info(full_p)
-                layouts.append({"filename": f, "path": full_p, "info": info})
-                seen.add(f)
-                
-    # 2. config/ dizini (fallback)
-    if os.path.exists(CONFIG_DIR):
-        for f in sorted(os.listdir(CONFIG_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(CONFIG_DIR, f)
-                info = extract_layout_info(full_p)
-                layouts.append({"filename": f, "path": full_p, "info": info})
-                seen.add(f)
-                
+    for d in [LAYOUTS_DIR, CONFIG_DIR]:
+        if os.path.exists(d):
+            for f in sorted(os.listdir(d)):
+                if f.endswith(".json") and f not in seen and not f.endswith("config.json"):
+                    full_p = os.path.join(d, f)
+                    info = extract_layout_info(full_p)
+                    if info:
+                        layouts.append({"filename": f, "path": full_p, "info": info})
+                        seen.add(f)
+                    
     return layouts
 
-def extract_layout_info(path: str) -> dict:
+def extract_layout_info(path: str) -> Optional[dict]:
     """Layout JSON dosyasından masa, istasyon, garson, aşçı detaylarını okur."""
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+        if not isinstance(data, dict) or "grid_size" not in data or "tables" not in data:
+            return None
         grid_w = data.get("grid_size", {}).get("width", 0)
         grid_h = data.get("grid_size", {}).get("height", 0)
         tables = data.get("tables", [])
@@ -70,10 +63,7 @@ def extract_layout_info(path: str) -> dict:
             "chef_count": len(chefs)
         }
     except Exception:
-        return {
-            "grid_size": "N/A", "table_count": 0, "total_capacity": 0,
-            "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
-        }
+        return None
 
 def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
     """Kullanıcıdan gün (10, 50, 100), layout ve çekirdek seçimlerini alır."""
@@ -162,7 +152,7 @@ def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
             
     return selected_days, selected_layout, selected_workers
 
-def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, total_days: int = 100, difficulty: int = 3):
+def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, total_days: int = 100, difficulty: int = 2):
     ticks_per_day = 1440
     total_ticks = total_days * ticks_per_day
     
@@ -172,6 +162,10 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
     daily_logs = []
     total_completed = 0
     total_churned = 0
+    total_completed_foods = 0
+    total_churned_foods = 0
+    total_completed_mains = 0
+    total_churned_mains = 0
     all_wait_times = []
     all_cold_times = []
     
@@ -195,16 +189,26 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
                             
             engine.step(actions=[])
             
-        # Gün sonu metrikleri
+        # Gün sonu metrikleri (Toplam sipariş & yemek bazlı kırılımlar)
         day_completed = len(engine.completed_orders)
         day_churn = engine.churned_customers
         total_completed += day_completed
         total_churned += day_churn
         
-        # Günlük bekleme ve soğuma süreleri
-        completed = engine.completed_orders
-        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed if o.timestamps.get("kitchen_start") and o.timestamps.get("created_at")]
-        day_cold = [max(0.0, o.timestamps["delivered_at"] - o.timestamps["kitchen_finish"] - 5.0) for o in completed if o.timestamps.get("delivered_at") and o.timestamps.get("kitchen_finish")]
+        completed_foods = [o for o in engine.completed_orders if getattr(o, "category", "main_dish") in ["main_dish", "appetizer"]]
+        churned_foods = [o for o in engine.churned_orders if getattr(o, "category", "main_dish") in ["main_dish", "appetizer"]]
+        
+        day_comp_mains = sum(1 for o in completed_foods if o.category == "main_dish")
+        day_churn_mains = sum(1 for o in churned_foods if o.category == "main_dish")
+        total_completed_mains += day_comp_mains
+        total_churned_mains += day_churn_mains
+        
+        total_completed_foods += len(completed_foods)
+        total_churned_foods += len(churned_foods)
+        
+        # Yemek bekleme ve soğuma süreleri (Sadece Ana Yemek ve Aperatifler)
+        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed_foods if o.timestamps.get("kitchen_start") and o.timestamps.get("created_at")]
+        day_cold = [max(0.0, o.timestamps["delivered_at"] - o.timestamps["kitchen_finish"] - 5.0) for o in completed_foods if o.timestamps.get("delivered_at") and o.timestamps.get("kitchen_finish")]
         
         all_wait_times.extend(day_wait)
         all_cold_times.extend(day_cold)
@@ -218,7 +222,7 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
         })
         
         if day % 20 == 0 or day == total_days or day == 1:
-            print(f"  [{scheduler_name[:12]}] Gün {day:3d}/{total_days} | Günlük Tamamlanan: {day_completed:3d} | Churn: {day_churn:3d} (Toplam: {total_churned:5d})", flush=True)
+            print(f"  [{scheduler_name[:12]}] Gün {day:3d}/{total_days} | Günlük Tamamlanan: {day_completed:3d} (Ana: {day_comp_mains:2d}) | Churn: {day_churn:3d} (Toplam: {total_churned:5d})", flush=True)
             
     elapsed = time.time() - start_time
     
@@ -227,8 +231,13 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
     mean_daily_completed = round(total_completed / max(1, total_days), 1)
     mean_daily_churn = round(total_churned / max(1, total_days), 1)
     
-    total_demand = total_completed + total_churned
-    success_rate = round((total_completed / max(1, total_demand)) * 100, 1)
+    # Başarı oranları (Yalnızca yemekler üzerinden - İçecekler hariç)
+    total_food_demand = total_completed_foods + total_churned_foods
+    success_rate = round((total_completed_foods / max(1, total_food_demand)) * 100, 1)
+    
+    total_main_demand = total_completed_mains + total_churned_mains
+    main_dish_success_rate = round((total_completed_mains / max(1, total_main_demand)) * 100, 1)
+    
     hot_count = sum(1 for c in all_cold_times if c <= 0.001)
     hot_delivery_ratio = round((hot_count / max(1, len(all_cold_times))) * 100, 1)
     
@@ -238,9 +247,14 @@ def run_single_scheduler(scheduler_cls, scheduler_name: str, config_path: str, t
         "elapsed_seconds": round(elapsed, 2),
         "total_completed": total_completed,
         "total_churned": total_churned,
+        "total_completed_foods": total_completed_foods,
+        "total_churned_foods": total_churned_foods,
         "mean_daily_completed": mean_daily_completed,
         "mean_daily_churn": mean_daily_churn,
         "success_rate": success_rate,
+        "main_dish_success_rate": main_dish_success_rate,
+        "total_completed_mains": total_completed_mains,
+        "total_churned_mains": total_churned_mains,
         "hot_delivery_ratio": hot_delivery_ratio,
         "mean_queue_wait_time": round(mean_wait, 2),
         "mean_food_cold_time": round(mean_cold, 2),
@@ -256,7 +270,7 @@ def main():
     parser = argparse.ArgumentParser(description="Deterministik Restoran Çizelgeleme Algoritmaları Benchmark Test Aracı")
     parser.add_argument("--days", type=int, default=None, help="Test edilecek gün sayısı (10, 50, 100)")
     parser.add_argument("--layout", type=str, default=None, help="Özel layout dosya adı veya yolu")
-    parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--difficulty", type=int, default=2, help="Zorluk seviyesi (1, 2, 3)")
     parser.add_argument("--workers", type=int, default=None, help="Paralel çalışacak CPU çekirdeği sayısı")
     args = parser.parse_args()
     
@@ -339,30 +353,31 @@ def main():
         f.write(f"İstasyon Sayısı    : {layout_info['station_count']} İstasyon ({', '.join(layout_info['station_types'])})\n")
         f.write(f"Personel Kadrosu   : {layout_info['waiter_count']} Garson, {layout_info['chef_count']} Aşçı\n\n")
         
-        f.write("=" * 105 + "\n")
+        f.write("=" * 115 + "\n")
         f.write("ALGORİTMA KARŞILAŞTIRMA VE BAŞARIM SONUÇLARI\n")
-        f.write("=" * 105 + "\n")
-        header = f"{'Algoritma':<28} | {'Günlük Sipariş':<16} | {'% Başarı':<10} | {'% Sıcak Teslim':<16} | {'Ort. Bekleme':<14} | {'Soğuma':<10}\n"
+        f.write("=" * 115 + "\n")
+        header = f"{'Algoritma':<26} | {'Günlük Sipariş':<15} | {'% Başarı':<9} | {'% Ana Yemek':<12} | {'% Sıcak Teslim':<15} | {'Ort. Bekleme':<13} | {'Soğuma':<8}\n"
         f.write(header)
-        f.write("-" * 105 + "\n")
+        f.write("-" * 115 + "\n")
         
-        print("\n" + "=" * 105)
+        print("\n" + "=" * 115)
         print("GENEL SONUÇ TABLOSU (GÜNLÜK VARDİYA NORMALİZE EDİLMİŞ)")
-        print("=" * 105)
+        print("=" * 115)
         print(header, end="")
-        print("-" * 105)
+        print("-" * 115)
         
         for name, data in results["schedulers"].items():
             short_name = name.split("(")[0].strip() if "(" in name else name
             m_comp = f"{data['mean_daily_completed']} sip/gün"
             s_rate = f"%{data.get('success_rate', 0.0)}"
+            main_rate = f"%{data.get('main_dish_success_rate', 0.0)}"
             h_rate = f"%{data.get('hot_delivery_ratio', 0.0)}"
-            line = f"{short_name:<28} | {m_comp:<16} | {s_rate:<10} | {h_rate:<16} | {data['mean_queue_wait_time']:<12.2f}dk | {data['mean_food_cold_time']:<8.2f}dk\n"
+            line = f"{short_name:<26} | {m_comp:<15} | {s_rate:<9} | {main_rate:<12} | {h_rate:<15} | {data['mean_queue_wait_time']:<11.2f}dk | {data['mean_food_cold_time']:<6.2f}dk\n"
             f.write(line)
             print(line, end="")
             
-        f.write("=" * 105 + "\n")
-        print("=" * 105)
+        f.write("=" * 115 + "\n")
+        print("=" * 115)
         
     print(f"\n[KAYIT] JSON sonuçları kaydedildi : {json_path}")
     print(f"[KAYIT] Detaylı rapor kaydedildi : {txt_path}\n")

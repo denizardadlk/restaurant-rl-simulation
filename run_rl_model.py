@@ -20,37 +20,33 @@ RESULTS_DIR = os.path.join(BASE_DIR, "results")
 LAYOUTS_DIR = os.path.join(BASE_DIR, "layouts")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
-BEST_MODEL_PATH = os.path.join(MODELS_DIR, "ppo_order_scheduler_best.zip")
-DEFAULT_MODEL_PATH = BEST_MODEL_PATH if os.path.exists(BEST_MODEL_PATH) else os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
+# Kitchen / Chef Models
+DEFAULT_KITCHEN_MODEL = os.path.join(MODELS_DIR, "ppo_order_scheduler_best.zip") if os.path.exists(os.path.join(MODELS_DIR, "ppo_order_scheduler_best.zip")) else os.path.join(MODELS_DIR, "ppo_order_scheduler.zip")
+
+# Waiter Models
+DEFAULT_WAITER_MODEL = os.path.join(MODELS_DIR, "ppo_waiter_policy_best.zip") if os.path.exists(os.path.join(MODELS_DIR, "ppo_waiter_policy_best.zip")) else os.path.join(MODELS_DIR, "ppo_waiter_policy.zip")
 
 def get_available_layouts():
-    """Tüm mevcut layout dosyalarını bulur ve temel bilgilerini çıkarır."""
     layouts = []
     seen = set()
-    
-    if os.path.exists(LAYOUTS_DIR):
-        for f in sorted(os.listdir(LAYOUTS_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(LAYOUTS_DIR, f)
-                info = extract_layout_info(full_p)
-                layouts.append({"filename": f, "path": full_p, "info": info})
-                seen.add(f)
-                
-    if os.path.exists(CONFIG_DIR):
-        for f in sorted(os.listdir(CONFIG_DIR)):
-            if f.endswith(".json") and f not in seen:
-                full_p = os.path.join(CONFIG_DIR, f)
-                info = extract_layout_info(full_p)
-                layouts.append({"filename": f, "path": full_p, "info": info})
-                seen.add(f)
-                
+    for d in [LAYOUTS_DIR, CONFIG_DIR]:
+        if os.path.exists(d):
+            for f in sorted(os.listdir(d)):
+                if f.endswith(".json") and f not in seen and not f.endswith("config.json"):
+                    full_p = os.path.join(d, f)
+                    info = extract_layout_info(full_p)
+                    if info:
+                        layouts.append({"filename": f, "path": full_p, "info": info})
+                        seen.add(f)
     return layouts
 
-def extract_layout_info(path: str) -> dict:
+def extract_layout_info(path: str) -> Optional[dict]:
     """Layout JSON dosyasından masa, istasyon, garson, aşçı detaylarını okur."""
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+        if not isinstance(data, dict) or "grid_size" not in data or "tables" not in data:
+            return None
         grid_w = data.get("grid_size", {}).get("width", 0)
         grid_h = data.get("grid_size", {}).get("height", 0)
         tables = data.get("tables", [])
@@ -71,9 +67,7 @@ def extract_layout_info(path: str) -> dict:
             "chef_count": len(chefs)
         }
     except Exception:
-        return {
-            "station_count": 0, "station_types": [], "waiter_count": 0, "chef_count": 0
-        }
+        return None
 
 def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
     """Kullanıcıdan gün (10, 50, 100), layout ve çekirdek seçimlerini alır."""
@@ -163,72 +157,125 @@ def prompt_user_choices(cli_days=None, cli_layout=None, cli_workers=None):
     return selected_days, selected_layout, selected_workers
 
 def _eval_rl_days_chunk(args_tuple):
-    day_numbers, layout_path, difficulty, model_path = args_tuple
+    day_numbers, layout_path, difficulty, kitchen_model_path, waiter_model_path = args_tuple
     from simulation.gym_env import RestaurantGymEnv
+    from simulation.waiter_gym_env import WaiterGymEnv
     from sb3_contrib import MaskablePPO
+    from stable_baselines3 import PPO
     from sb3_contrib.common.wrappers import ActionMasker
-    
+
     def mask_fn(env):
         return env.action_masks()
-        
+
     env = RestaurantGymEnv(config_path=layout_path, difficulty_level=difficulty, freeze_ml=True)
     wrapped_env = ActionMasker(env, mask_fn)
-    model = MaskablePPO.load(model_path, env=wrapped_env)
     
+    k_model = None
+    if kitchen_model_path and os.path.exists(kitchen_model_path):
+        try:
+            k_model = MaskablePPO.load(kitchen_model_path, env=wrapped_env)
+        except Exception as e:
+            print(f"[UYARI] Mutfak modeli ({kitchen_model_path}) bu layout ile uyumsuz: {e}")
+            k_model = None
+
+    w_env = WaiterGymEnv(config_path=layout_path, difficulty_level=difficulty)
+    w_model = None
+    if waiter_model_path and os.path.exists(waiter_model_path):
+        try:
+            w_model = PPO.load(waiter_model_path, env=w_env)
+        except Exception as e:
+            print(f"[UYARI] Garson modeli ({waiter_model_path}) bu layout ile uyumsuz: {e}")
+            w_model = None
+
     results = []
     for day in day_numbers:
         obs, info = wrapped_env.reset(seed=1000 + day)
+        engine = env.engine
+        w_env.engine = engine
+        engine.enable_rl_waiter = (w_model is not None)
         done = False
         day_reward = 0.0
-        
+
         while not done:
-            action_masks = wrapped_env.action_masks()
-            action, _ = model.predict(obs, action_masks=action_masks, deterministic=True)
-            obs, reward, terminated, truncated, info = wrapped_env.step(action)
-            day_reward += reward
-            done = terminated or truncated
-            
-        completed = env.engine.completed_orders
-        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed if o.timestamps.get("kitchen_start") and o.timestamps.get("created_at")]
-        day_cold = [max(0.0, o.timestamps["delivered_at"] - o.timestamps["kitchen_finish"] - 5.0) for o in completed if o.timestamps.get("delivered_at") and o.timestamps.get("kitchen_finish")]
-        
+            # 1. Garson RL Aksiyonları (Sub-tick: boşta garson ve iş kaldıkça seri ata)
+            if w_model is not None:
+                for _ in range(len(engine.grid.waiters)):
+                    w_masks = w_env.action_masks()
+                    if not np.any(w_masks[1:] > 0):
+                        break
+                    w_obs = w_env._get_obs()
+                    w_act, _ = w_model.predict(w_obs, deterministic=True)
+                    if int(w_act) == 0:
+                        break
+                    assigned = w_env._execute_waiter_action(int(w_act))
+                    if not assigned:
+                        break
+
+            # 2. Mutfak RL Aksiyonu
+            if k_model is not None:
+                action_masks = wrapped_env.action_masks()
+                action, _ = k_model.predict(obs, action_masks=action_masks, deterministic=True)
+                obs, reward, terminated, truncated, info = wrapped_env.step(action)
+                day_reward += reward
+                done = terminated or truncated
+            else:
+                engine.step(actions=None)
+                done = engine.tick >= 1440
+
+        completed_foods = [o for o in env.engine.completed_orders if getattr(o, "category", "main_dish") in ["main_dish", "appetizer"]]
+        churned_foods = [o for o in env.engine.churned_orders if getattr(o, "category", "main_dish") in ["main_dish", "appetizer"]]
+
+        day_comp_mains = sum(1 for o in completed_foods if o.category == "main_dish")
+        day_churn_mains = sum(1 for o in churned_foods if o.category == "main_dish")
+
+        day_wait = [(o.timestamps["kitchen_start"] - o.timestamps["created_at"]) for o in completed_foods if o.timestamps.get("kitchen_start") is not None and o.timestamps.get("created_at") is not None]
+        day_cold = [max(0.0, (o.timestamps.get("delivered_at") or 0.0) - (o.timestamps.get("kitchen_finish") or 0.0) - 5.0) for o in completed_foods if o.timestamps.get("delivered_at") is not None and o.timestamps.get("kitchen_finish") is not None]
+
         results.append({
             "day": day,
             "day_reward": day_reward,
             "daily_completed": len(env.engine.completed_orders),
             "daily_churn": env.engine.churned_customers,
+            "daily_completed_foods": len(completed_foods),
+            "daily_churned_foods": len(churned_foods),
+            "daily_completed_mains": day_comp_mains,
+            "daily_churned_mains": day_churn_mains,
             "day_wait": day_wait,
             "day_cold": day_cold
         })
-        
+
     return results
 
 def main():
     import multiprocessing
-    parser = argparse.ArgumentParser(description="Eğitilmiş RL Modelini Benchmark Testinde Koşturma")
+    parser = argparse.ArgumentParser(description="Eğitilmiş RL Modellerini (Mutfak & Garson) Benchmark Testinde Koşturma")
     parser.add_argument("--days", type=int, default=None, help="Test edilecek gün sayısı (10, 50, 100)")
-    parser.add_argument("--model", type=str, default=DEFAULT_MODEL_PATH, help="Model zip dosyası yolu")
+    parser.add_argument("--model", "--kitchen-model", type=str, default=DEFAULT_KITCHEN_MODEL, help="Mutfak RL model zip dosyası")
+    parser.add_argument("--waiter-model", type=str, default=DEFAULT_WAITER_MODEL if os.path.exists(DEFAULT_WAITER_MODEL) else None, help="Garson RL model zip dosyası")
     parser.add_argument("--layout", type=str, default=None, help="Kullanılacak layout dosyası")
-    parser.add_argument("--difficulty", type=int, default=3, help="Zorluk seviyesi (1, 2, 3)")
+    parser.add_argument("--difficulty", type=int, default=2, help="Zorluk seviyesi (1, 2, 3)")
     parser.add_argument("--workers", type=int, default=None, help="Paralel çalışacak CPU çekirdeği sayısı")
     args = parser.parse_args()
-    
+
     os.makedirs(RESULTS_DIR, exist_ok=True)
-    
+
     # 1. Kullanıcı Seçimlerini Al
     total_days, layout_entry, num_workers = prompt_user_choices(args.days, args.layout, args.workers)
     layout_path = layout_entry["path"]
     layout_info = layout_entry["info"]
-    
-    if not os.path.exists(args.model):
-        print(f"\n[HATA] Model dosyası bulunamadı: {args.model}")
-        print("Lütfen önce modeli eğitmek için 'python run_rl_training.py' komutunu çalıştırın.")
+
+    has_kitchen = args.model and os.path.exists(args.model)
+    has_waiter = args.waiter_model and os.path.exists(args.waiter_model)
+
+    if not has_kitchen and not has_waiter:
+        print(f"\n[HATA] Kayıtlı hiçbir RL model dosyası bulunamadı!")
         sys.exit(1)
-        
+
     print("\n" + "=" * 80)
     print("TEST YAPILANDIRMASI")
     print("=" * 80)
-    print(f"Model Dosyası   : {args.model}")
+    print(f"Mutfak RL Modeli: {args.model if has_kitchen else 'Yok (Kural Tabanlı)'}")
+    print(f"Garson RL Modeli: {args.waiter_model if has_waiter else 'Yok (JIT Kural Tabanlı)'}")
     print(f"Layout Dosyası  : {layout_entry['filename']} ({layout_path})")
     print(f"Izgara Boyutu   : {layout_info['grid_size']}")
     print(f"Masa Durumu     : {layout_info['table_count']} Masa ({layout_info['total_capacity']} Sandalye Kapasitesi)")
@@ -238,33 +285,35 @@ def main():
     print(f"Paralel Çekirdek: {num_workers} Worker")
     print(f"Zorluk Seviyesi : Seviye {args.difficulty}")
     print("=" * 80)
-    
+
     start_time = time.time()
-    
+
     all_day_results = []
-    
+
     if num_workers > 1:
         print(f"\n[PARALEL BAŞLATILDI] {total_days} günlük simülasyon {num_workers} CPU çekirdeğine bölünerek koşturuluyor...", flush=True)
-        # Günleri eşit parçalara böl
         days_array = list(range(1, total_days + 1))
         chunks = [days_array[i::num_workers] for i in range(num_workers) if days_array[i::num_workers]]
-        worker_args = [(chunk, layout_path, args.difficulty, args.model) for chunk in chunks]
-        
+        worker_args = [(chunk, layout_path, args.difficulty, args.model if has_kitchen else None, args.waiter_model if has_waiter else None) for chunk in chunks]
+
         with multiprocessing.Pool(processes=len(chunks)) as pool:
             chunk_results = pool.map(_eval_rl_days_chunk, worker_args)
             for res_list in chunk_results:
                 all_day_results.extend(res_list)
     else:
-        print(f"\n[TEST BAŞLATILDI] RL Ajanı {total_days} gün boyunca sıralı test ediliyor...", flush=True)
-        all_day_results = _eval_rl_days_chunk((list(range(1, total_days + 1)), layout_path, args.difficulty, args.model))
+        print(f"\n[TEST BAŞLATILDI] RL Ajanları {total_days} gün boyunca sıralı test ediliyor...", flush=True)
+        all_day_results = _eval_rl_days_chunk((list(range(1, total_days + 1)), layout_path, args.difficulty, args.model if has_kitchen else None, args.waiter_model if has_waiter else None))
         
-    # Gün sırasına göre sırala
     all_day_results.sort(key=lambda x: x["day"])
     
     daily_logs = []
     total_rewards = 0.0
     prev_completed_count = 0
     prev_churn_count = 0
+    total_completed_foods = 0
+    total_churned_foods = 0
+    total_completed_mains = 0
+    total_churned_mains = 0
     all_wait_times = []
     all_cold_times = []
     
@@ -277,6 +326,11 @@ def main():
         total_rewards += day_reward
         prev_completed_count += daily_completed
         prev_churn_count += daily_churn
+        
+        total_completed_foods += res.get("daily_completed_foods", daily_completed)
+        total_churned_foods += res.get("daily_churned_foods", daily_churn)
+        total_completed_mains += res.get("daily_completed_mains", 0)
+        total_churned_mains += res.get("daily_churned_mains", 0)
         
         all_wait_times.extend(res["day_wait"])
         all_cold_times.extend(res["day_cold"])
@@ -298,8 +352,11 @@ def main():
     mean_wait = float(np.mean(all_wait_times)) if all_wait_times else 0.0
     mean_cold = float(np.mean(all_cold_times)) if all_cold_times else 0.0
     
-    total_demand = prev_completed_count + prev_churn_count
-    success_rate = round((prev_completed_count / max(1, total_demand)) * 100, 1)
+    food_demand = total_completed_foods + total_churned_foods
+    success_rate = round((total_completed_foods / max(1, food_demand)) * 100, 1)
+    main_demand = total_completed_mains + total_churned_mains
+    main_success_rate = round((total_completed_mains / max(1, main_demand)) * 100, 1)
+
     hot_count = sum(1 for c in all_cold_times if c <= 0.001)
     hot_delivery_ratio = round((hot_count / max(1, len(all_cold_times))) * 100, 1)
     
@@ -309,9 +366,14 @@ def main():
         "elapsed_seconds": round(elapsed, 2),
         "total_completed": prev_completed_count,
         "total_churned": prev_churn_count,
+        "total_completed_foods": total_completed_foods,
+        "total_churned_foods": total_churned_foods,
+        "total_completed_mains": total_completed_mains,
+        "total_churned_mains": total_churned_mains,
         "mean_daily_completed": round(prev_completed_count / max(1, total_days), 1),
         "mean_daily_churn": round(prev_churn_count / max(1, total_days), 1),
         "success_rate": success_rate,
+        "main_success_rate": main_success_rate,
         "hot_delivery_ratio": hot_delivery_ratio,
         "mean_queue_wait_time": round(mean_wait, 2),
         "mean_food_cold_time": round(mean_cold, 2),

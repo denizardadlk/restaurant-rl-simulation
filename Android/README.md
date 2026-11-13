@@ -45,3 +45,16 @@ Android/
                 ├── theme/Theme.kt            # Modern karanlık restoran teması
                 └── screens/OrderAppScreen.kt # Masalar, Menü ve Canlı Takip Arayüzü
 ```
+
+---
+
+## 📐 UI/UX ve Kodlama Kuralları (Özet)
+
+Ayrıntılı kural şartnamesi için: [`.agents/rules/android-guidelines.md`](file:///c:/kod/Bitirme%20Projesi/.agents/rules/android-guidelines.md)
+
+1. **Responsive / Orantısal Tasarım:** Sabit dp yerine `Modifier.weight()`, `Modifier.fillMaxWidth()` ve scroll edilebilir konteynerler (`LazyColumn`, `LazyVerticalGrid`) kullanılmalıdır.
+2. **Çakışmasız Butonlar & Touch Target:** Tıklanabilir tüm elemanlar min 48dp olmalıdır. Aksiyon butonları `Scaffold` alt barında konumlandırılmalıdır.
+3. **Tipografi:** Metin boyutları `sp` ile tanımlanmalı, satır taşmaları `maxLines` + `TextOverflow.Ellipsis` ile korunmalıdır.
+4. **MVVM & UDF:** Composable'lar Stateless tutulmalı, durum `ViewModel` + `StateFlow` ile tek bir `UiState` olarak yönetilmelidir.
+5. **Hata Dayanıklılığı:** Ağ çağrıları `Result` ile sarılmalı, hata durumlarında kullanıcıya "Tekrar Dene" butonu ve Snackbar geri bildirimi sunulmalıdır.
+

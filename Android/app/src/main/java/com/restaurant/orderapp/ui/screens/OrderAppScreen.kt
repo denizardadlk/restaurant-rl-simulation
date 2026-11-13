@@ -1,5 +1,6 @@
 package com.restaurant.orderapp.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.restaurant.orderapp.data.api.RetrofitClient
@@ -32,12 +35,24 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderAppScreen() {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("app_settings", Context.MODE_PRIVATE) }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Read saved server IP or default
+    var serverIp by remember {
+        mutableStateOf(prefs.getString("server_ip", "http://192.168.1.100:8000/") ?: "http://192.168.1.100:8000/")
+    }
+
+    LaunchedEffect(Unit) {
+        RetrofitClient.updateBaseUrl(serverIp)
+    }
+
     var selectedTab by remember { mutableIntStateOf(0) } // 0: Masalar, 1: Menü, 2: Canlı Takip
-    var serverIp by remember { mutableStateOf(RetrofitClient.getBaseUrl()) }
     var showIpDialog by remember { mutableStateOf(false) }
+    var showOrderSummaryDialog by remember { mutableStateOf(false) }
+    var isConnected by remember { mutableStateOf(false) }
 
     // App State
     var tables by remember { mutableStateOf<List<TableDto>>(emptyList()) }
@@ -51,7 +66,6 @@ fun OrderAppScreen() {
     var isTakeout by remember { mutableStateOf(false) }
     val cartItems = remember { mutableStateMapOf<String, Int>() } // dishType -> quantity
 
-    // Initial default menu if server is not yet reachable
     val fallbackMenu = listOf(
         DishDto("Pizza", "Taş Fırın Pizza", listOf(DishStageDto("PREP", 4f), DishStageDto("OVEN", 10f)), 180.0, "🍕"),
         DishDto("Burger", "Gurme Burger", listOf(DishStageDto("PREP", 2f), DishStageDto("STOVE", 8f)), 160.0, "🍔"),
@@ -64,6 +78,14 @@ fun OrderAppScreen() {
             isRefreshing = true
             try {
                 withContext(Dispatchers.IO) {
+                    val sResp = RetrofitClient.getService().getSystemStatus()
+                    if (sResp.isSuccessful && sResp.body() != null) {
+                        systemStatus = sResp.body()!!
+                        isConnected = true
+                    } else {
+                        isConnected = false
+                    }
+
                     val tResp = RetrofitClient.getService().getTables()
                     if (tResp.isSuccessful && tResp.body() != null) {
                         tables = tResp.body()!!
@@ -78,12 +100,9 @@ fun OrderAppScreen() {
                     if (oResp.isSuccessful && oResp.body() != null) {
                         activeOrders = oResp.body()!!
                     }
-                    val sResp = RetrofitClient.getService().getSystemStatus()
-                    if (sResp.isSuccessful && sResp.body() != null) {
-                        systemStatus = sResp.body()!!
-                    }
                 }
             } catch (e: Exception) {
+                isConnected = false
                 if (menu.isEmpty()) menu = fallbackMenu
             } finally {
                 isRefreshing = false
@@ -91,31 +110,92 @@ fun OrderAppScreen() {
         }
     }
 
-    // Auto-polling every 3 seconds
+    fun sendOrderAction() {
+        coroutineScope.launch {
+            val itemsList = cartItems.filter { it.value > 0 }.map { (dish, qty) ->
+                OrderItemDto(dishType = dish, quantity = qty)
+            }
+            if (itemsList.isEmpty()) {
+                snackbarHostState.showSnackbar("Lütfen en az 1 yemek seçin!")
+                return@launch
+            }
+            val req = OrderCreateRequest(
+                tableId = if (isTakeout) null else selectedTableId,
+                isTakeout = isTakeout,
+                items = itemsList
+            )
+            try {
+                val resp = withContext(Dispatchers.IO) {
+                    RetrofitClient.getService().createOrder(req)
+                }
+                if (resp.isSuccessful) {
+                    cartItems.clear()
+                    snackbarHostState.showSnackbar("🚀 Sipariş simülasyon sistemine aktarıldı!")
+                    selectedTab = 2
+                    fetchAllData()
+                } else {
+                    snackbarHostState.showSnackbar("Hata: ${resp.message()}")
+                }
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar("Sunucuya bağlanılamadı: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    // Auto-polling every 2.5 seconds
     LaunchedEffect(Unit) {
         fetchAllData()
         while (true) {
-            delay(3000)
+            delay(2500)
             fetchAllData()
         }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            if (selectedTab == 1 && cartItems.values.sum() > 0) {
+                FloatingActionButton(
+                    onClick = { showOrderSummaryDialog = true },
+                    containerColor = StatusGreen,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = "Siparişi Tamamla",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
                     Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "AI Restoran Terminali",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(if (isConnected) StatusGreen else StatusRed)
+                            )
+                        }
                         Text(
-                            text = "AI Restoran Sipariş Terminali",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary
-                        )
-                        Text(
-                            text = if (systemStatus != null) "Sistem Tick: ${systemStatus!!.tick} | Kuyruk: ${systemStatus!!.activeQueueCount}" else "Sunucu: $serverIp",
+                            text = if (isConnected && systemStatus != null)
+                                "Sistem Tick: ${systemStatus!!.tick} | Kuyruk: ${systemStatus!!.activeQueueCount}"
+                            else
+                                "Sunucu: $serverIp (Bağlantı Yok)",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
+                            color = if (isConnected) TextSecondary else StatusRed
                         )
                     }
                 },
@@ -127,7 +207,7 @@ fun OrderAppScreen() {
                         Icon(Icons.Default.Refresh, contentDescription = "Yenile", tint = AccentOrange)
                     }
                     IconButton(onClick = { showIpDialog = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Sunucu IP", tint = TextPrimary)
+                        Icon(Icons.Default.Wifi, contentDescription = "Wi-Fi IP Ayarı", tint = if (isConnected) StatusGreen else AccentOrange)
                     }
                 }
             )
@@ -193,97 +273,153 @@ fun OrderAppScreen() {
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(DarkBackground)
                 .padding(paddingValues)
         ) {
-            when (selectedTab) {
-                0 -> TablesScreen(
-                    tables = if (tables.isEmpty()) getMockTables() else tables,
-                    selectedTableId = selectedTableId,
-                    onSelectTable = { tableId ->
-                        selectedTableId = tableId
-                        isTakeout = false
-                        selectedTab = 1
-                    },
-                    onSelectTakeout = {
-                        isTakeout = true
-                        selectedTableId = null
-                        selectedTab = 1
-                    }
-                )
-                1 -> MenuOrderScreen(
-                    menu = if (menu.isEmpty()) fallbackMenu else menu,
-                    cartItems = cartItems,
-                    selectedTableId = selectedTableId,
-                    isTakeout = isTakeout,
-                    onToggleTakeout = { isTakeout = it },
-                    onChangeTable = { selectedTab = 0 },
-                    onSendOrder = {
-                        coroutineScope.launch {
-                            val itemsList = cartItems.filter { it.value > 0 }.map { (dish, qty) ->
-                                OrderItemDto(dishType = dish, quantity = qty)
-                            }
-                            if (itemsList.isEmpty()) {
-                                snackbarHostState.showSnackbar("Lütfen en az 1 yemek seçin!")
-                                return@launch
-                            }
-                            val req = OrderCreateRequest(
-                                tableId = if (isTakeout) null else selectedTableId,
-                                isTakeout = isTakeout,
-                                items = itemsList
-                            )
-                            try {
-                                val resp = withContext(Dispatchers.IO) {
-                                    RetrofitClient.getService().createOrder(req)
-                                }
-                                if (resp.isSuccessful) {
-                                    cartItems.clear()
-                                    snackbarHostState.showSnackbar("🚀 Sipariş simülasyon sistemine aktarıldı!")
-                                    selectedTab = 2
-                                    fetchAllData()
-                                } else {
-                                    snackbarHostState.showSnackbar("Hata: ${resp.message()}")
-                                }
-                            } catch (e: Exception) {
-                                snackbarHostState.showSnackbar("Sunucuya bağlanılamadı: ${e.localizedMessage}")
-                            }
+            // Connection Warning Banner if disconnected
+            if (!isConnected) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showIpDialog = true },
+                    color = StatusRed.copy(alpha = 0.15f)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = StatusRed, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("PC Sunucusuna bağlanılamadı", color = StatusRed, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                         }
+                        Text("IP Ayarla ➔", color = AccentOrange, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                     }
-                )
-                2 -> LiveTrackerScreen(
-                    orders = activeOrders,
-                    onRefresh = { fetchAllData() }
-                )
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                when (selectedTab) {
+                    0 -> TablesScreen(
+                        tables = if (tables.isEmpty()) getMockTables() else tables,
+                        selectedTableId = selectedTableId,
+                        onSelectTable = { tableId ->
+                            selectedTableId = tableId
+                            isTakeout = false
+                            selectedTab = 1
+                        },
+                        onSelectTakeout = {
+                            isTakeout = true
+                            selectedTableId = null
+                            selectedTab = 1
+                        }
+                    )
+                    1 -> MenuOrderScreen(
+                        menu = if (menu.isEmpty()) fallbackMenu else menu,
+                        cartItems = cartItems,
+                        selectedTableId = selectedTableId,
+                        isTakeout = isTakeout,
+                        onOpenSummary = { showOrderSummaryDialog = true }
+                    )
+                    2 -> LiveTrackerScreen(
+                        orders = activeOrders,
+                        onRefresh = { fetchAllData() }
+                    )
+                }
             }
         }
 
-        // Server IP Settings Dialog
+        // Server IP Settings Dialog with Ping Test
         if (showIpDialog) {
             var tempIp by remember { mutableStateOf(serverIp) }
+            var pingResult by remember { mutableStateOf<String?>(null) }
+            var isPinging by remember { mutableStateOf(false) }
+
             AlertDialog(
                 onDismissRequest = { showIpDialog = false },
-                title = { Text("Host PC Sunucu Adresi") },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Wifi, contentDescription = null, tint = AccentOrange)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Host PC Wi-Fi IP Ayarı")
+                    }
+                },
                 text = {
                     Column {
                         Text(
-                            "Ana bilgisayarın yerel IP adresini girin (Örn: http://192.168.1.100:8000 veya Emülatör için http://10.0.2.2:8000):",
+                            "Bilgisayarda 'py server.py' çalıştırıldığında terminalde yazan IP adresini girin:",
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         OutlinedTextField(
                             value = tempIp,
-                            onValueChange = { tempIp = it },
-                            label = { Text("Sunucu URL / IP") },
+                            onValueChange = {
+                                tempIp = it
+                                pingResult = null
+                            },
+                            label = { Text("Sunucu IP (Örn: http://192.168.1.105:8000)") },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = AccentOrange,
                                 unfocusedBorderColor = TextSecondary
-                            )
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    isPinging = true
+                                    pingResult = null
+                                    try {
+                                        RetrofitClient.updateBaseUrl(tempIp)
+                                        val resp = withContext(Dispatchers.IO) {
+                                            RetrofitClient.getService().getSystemStatus()
+                                        }
+                                        if (resp.isSuccessful) {
+                                            pingResult = "✅ Bağlantı Başarılı! (Tick: ${resp.body()?.tick})"
+                                        } else {
+                                            pingResult = "❌ Sunucu yanıt vermedi: ${resp.code()}"
+                                        }
+                                    } catch (e: Exception) {
+                                        pingResult = "❌ Bağlantı hatası: ${e.localizedMessage}"
+                                    } finally {
+                                        isPinging = false
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = SurfaceCardHover)
+                        ) {
+                            if (isPinging) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), color = AccentOrange)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Test Ediliyor...", color = TextPrimary)
+                            } else {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = AccentOrange, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Bağlantıyı Test Et", color = TextPrimary)
+                            }
+                        }
+
+                        if (pingResult != null) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = pingResult!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (pingResult!!.startsWith("✅")) StatusGreen else StatusRed,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 },
                 confirmButton = {
@@ -291,17 +427,122 @@ fun OrderAppScreen() {
                         onClick = {
                             RetrofitClient.updateBaseUrl(tempIp)
                             serverIp = RetrofitClient.getBaseUrl()
+                            prefs.edit().putString("server_ip", serverIp).apply()
                             showIpDialog = false
                             fetchAllData()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentOrange)
                     ) {
-                        Text("Kaydet & Bağlan")
+                        Text("Kaydet & Kullan")
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showIpDialog = false }) {
-                        Text("İptal", color = TextSecondary)
+                        Text("Kapat", color = TextSecondary)
+                    }
+                },
+                containerColor = SurfaceCard
+            )
+        }
+
+        // Order Summary Dialog (Özet Sipariş)
+        if (showOrderSummaryDialog) {
+            val activeCart = cartItems.filter { it.value > 0 }
+            val currentMenu = if (menu.isEmpty()) fallbackMenu else menu
+            val targetLabel = if (isTakeout) "📦 Paket" else "🪑 Masa ${selectedTableId ?: "1"}"
+
+            AlertDialog(
+                onDismissRequest = { showOrderSummaryDialog = false },
+                title = {
+                    Text(
+                        text = "📋 Sipariş Özeti",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                },
+                text = {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = targetLabel,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = AccentOrange
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider(color = SurfaceCardHover)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        activeCart.forEach { (dishType, qty) ->
+                            val dish = currentMenu.find { it.type == dishType }
+                            val name = dish?.name ?: dishType
+                            val icon = dish?.icon ?: "🍽️"
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = icon, fontSize = 20.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = TextPrimary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Text(
+                                    text = "$qty Adet",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AccentOrange
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        HorizontalDivider(color = SurfaceCardHover)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Toplam", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                            Text(
+                                "${activeCart.values.sum()} Adet",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showOrderSummaryDialog = false
+                            sendOrderAction()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = StatusGreen),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Onayla", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showOrderSummaryDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = SurfaceCardHover),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Değişim", color = TextPrimary)
                     }
                 },
                 containerColor = SurfaceCard
@@ -344,7 +585,7 @@ fun TablesScreen(
             ) {
                 Icon(Icons.Default.DeliveryDining, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Paket Sipariş (Takeout)")
+                Text("Paket Sipariş")
             }
         }
 
@@ -398,7 +639,7 @@ fun TablesScreen(
                                 Text(
                                     text = when (table.status) {
                                         "EMPTY" -> "BOŞ"
-                                        "WAITING_FOOD" -> "YEMEK BEKLİYOR"
+                                        "WAITING_FOOD" -> "BEKLİYOR"
                                         "EATING" -> "YİYOR"
                                         else -> table.status
                                     },
@@ -447,18 +688,14 @@ fun MenuOrderScreen(
     cartItems: MutableMap<String, Int>,
     selectedTableId: String?,
     isTakeout: Boolean,
-    onToggleTakeout: (Boolean) -> Unit,
-    onChangeTable: () -> Unit,
-    onSendOrder: () -> Unit
+    onOpenSummary: () -> Unit
 ) {
-    val totalCount = cartItems.values.sum()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        // Table / Target Header
+        // Simple Target Header (Only Table Name or Paket, No Değiştir button)
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = SurfaceCard),
@@ -467,43 +704,28 @@ fun MenuOrderScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = if (isTakeout) "📦 Paket Sipariş (Takeout / Kurye)" else "🪑 Hedef: Masa ${selectedTableId ?: "Seçilmedi"}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = AccentOrange
-                    )
-                    Text(
-                        text = "Sipariş doğrudan ana simülasyona aktarılacaktır",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-                Button(
-                    onClick = onChangeTable,
-                    colors = ButtonDefaults.buttonColors(containerColor = SurfaceCardHover),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Değiştir", color = TextPrimary)
-                }
+                Text(
+                    text = if (isTakeout) "📦 Paket" else "🪑 Masa ${selectedTableId ?: "1"}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = AccentOrange
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Dishes List
+        // Dishes List - Clean (Only Icon + Name + Controls)
         LazyColumn(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            items(menu) { dish ->
+            items(menu, key = { it.type }) { dish ->
                 val qty = cartItems[dish.type] ?: 0
-                val prepTime = dish.stages.sumOf { it.time.toDouble() }
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -513,34 +735,33 @@ fun MenuOrderScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = dish.icon, fontSize = 32.sp)
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = dish.icon, fontSize = 28.sp)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = dish.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
-                                )
-                                Text(
-                                    text = "Pişirme: ~${prepTime.toInt()} dk | Aşamalar: ${dish.stages.joinToString(" ➔ ") { it.stationType }}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = TextSecondary
-                                )
-                            }
+                            Text(
+                                text = dish.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
 
-                        // Counter Controls
+                        // Counter Controls (+ / -)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(
                                 onClick = {
                                     if (qty > 0) cartItems[dish.type] = qty - 1
-                                }
+                                },
+                                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
                             ) {
                                 Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Azalt", tint = TextSecondary)
                             }
@@ -554,36 +775,14 @@ fun MenuOrderScreen(
                             IconButton(
                                 onClick = {
                                     cartItems[dish.type] = qty + 1
-                                }
+                                },
+                                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
                             ) {
                                 Icon(Icons.Default.AddCircle, contentDescription = "Arttır", tint = AccentOrange)
                             }
                         }
                     }
                 }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Send Order Action Button
-        Button(
-            onClick = onSendOrder,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AccentOrange),
-            shape = RoundedCornerShape(12.dp),
-            enabled = totalCount > 0
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Send, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Siparişi Simülasyona Gönder ($totalCount Adet)",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
     }
@@ -633,7 +832,7 @@ fun LiveTrackerScreen(
                     Icon(Icons.Default.CheckCircleOutline, contentDescription = null, tint = StatusGreen, modifier = Modifier.size(56.dp))
                     Spacer(modifier = Modifier.height(12.dp))
                     Text("Kuyrukta aktif sipariş yok", color = TextPrimary, fontWeight = FontWeight.Bold)
-                    Text("Yeni bir sipariş girdiğinizde aşçı ataması burada görünecektir.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                    Text("Telefondan verdiğiniz siparişler aşçılara atanıp burada ve KDS ekranında anlık görünecektir.", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
                 }
             }
         } else {
@@ -680,7 +879,7 @@ fun LiveTrackerScreen(
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(statusColor.copy(alpha = 0.2f))
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
-                                    ) {
+                                ) {
                                     Text(
                                         text = order.status,
                                         color = statusColor,
@@ -703,7 +902,7 @@ fun LiveTrackerScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "İstasyon: ${order.assignedStation ?: 'Bekliyor'} | Aşçı: ${order.assignedChef ?: 'Atanıyor'}",
+                                    text = "İstasyon: ${order.assignedStation ?: "Bekliyor"} | Aşçı: ${order.assignedChef ?: "Atanıyor"}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = TextSecondary
                                 )

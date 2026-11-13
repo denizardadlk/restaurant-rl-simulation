@@ -9,6 +9,10 @@
     "w": 3,
     "h": 10
   },
+  "delivery_counters": [
+    {"id": "COUNTER_1", "x": 7, "y": 4, "capacity": 4},
+    {"id": "COUNTER_2", "x": 7, "y": 5, "capacity": 4}
+  ],
   "tables": [
     {"id": "T1", "x": 2, "y": 2, "w": 2, "h": 1, "capacity": 4},
     {"id": "T2", "x": 2, "y": 5, "w": 1, "h": 1, "capacity": 2},

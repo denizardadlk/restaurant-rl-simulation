@@ -1,0 +1,130 @@
+=========================================================================================================
+RESTORAN DERİN DARBOĞAZ VE SİSTEM PERFORMANS RAPORU (ADR-034 / ADR-038 STANDARDI)
+=========================================================================================================
+Layout       : Büyük_restoran.json | Zorluk: Seviye 2 | Algoritma: SPT | Süre: 1 Gün
+Genel Hacim  : 2758.0 sip/gün (1493.0 pişen yemek + içecekler) | Churn: 420.0 müşteri/gün
+Başarı Skoru : %88.1 Yemek Başarısı | %82.2 Ana Yemek | %100.0 Aperatif
+Kalite & Süre: %98.3 Sıcak Teslim | Ort. Bekleme: 6.03 dk | Ort. Soğuma: 0.22 dk
+
+=========================================================================================================
+🚨 EN KRİTİK DARBOĞAZLAR VE ÇÖZÜM REÇETELERİ
+=========================================================================================================
+[1] MÜŞTERİ KAYBI (CHURN): Yemek Bekleme Kaybı (En Çok Etkilenen Yemek: Burger, Aşama: PREP)
+    Ölçülen Metrik : 420 müşteri yemek beklerken ayrıldı (%100.0)
+    Sisteme Etkisi : Müşteriler en çok 'Burger' yemeğini beklerken ve 'PREP' istasyonunda kuyruk kilitlendiğinde sabırları tükendi.
+    Kesin Çözüm    : Öncelikle PREP istasyonlarının kapasitesini veya aşçı sayısını artırın.
+
+[2] MUTFAK İSTASYONU (GRILL): GRILL İstasyon Grubu (4 İstasyon, Toplam Kapasite: 60)
+    Ölçülen Metrik : Ort. Kuyruk Bekleme: 11.7 dk (Maks: 25.0 dk) | %0.0 Süre Kilitli
+    Sisteme Etkisi : GRILL istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 11.7 dk bekleme oluşuyor.
+    Kesin Çözüm    : GRILL istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin.
+
+[3] MUTFAK İSTASYONU (TOASTER): TOASTER İstasyon Grubu (2 İstasyon, Toplam Kapasite: 20)
+    Ölçülen Metrik : Ort. Kuyruk Bekleme: 9.4 dk (Maks: 20.0 dk) | %0.0 Süre Kilitli
+    Sisteme Etkisi : TOASTER istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 9.4 dk bekleme oluşuyor.
+    Kesin Çözüm    : TOASTER istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin.
+
+[4] MUTFAK İSTASYONU (PREP): PREP İstasyon Grubu (2 İstasyon, Toplam Kapasite: 20)
+    Ölçülen Metrik : Ort. Kuyruk Bekleme: 6.5 dk (Maks: 10.0 dk) | %0.0 Süre Kilitli
+    Sisteme Etkisi : PREP istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 6.5 dk bekleme oluşuyor.
+    Kesin Çözüm    : PREP istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin.
+
+=========================================================================================================
+🍽️ YEMEK BAZLI PERFORMANS, PİŞME VE KAYIP (CHURN) MATRİSİ
+=========================================================================================================
+Yemek Adı        | Kategori    | Talep   | Tamam   | Churn   | % Başarı  | Ort. Bekleme  | Ort. Pişme
+---------------------------------------------------------------------------------------------------------
+Sucuk            | Ana Yemek   | 323     | 224     | 99      | %69.3     |  9.3 dk        |  5.8 dk
+Doner            | Ana Yemek   | 319     | 219     | 100     | %68.7     |  3.9 dk        |  5.4 dk
+Toast            | Ana Yemek   | 301     | 214     | 87      | %71.1     |  3.5 dk        |  9.9 dk
+Burger           | Ana Yemek   | 248     | 123     | 125     | %49.6     | 12.5 dk        |  4.9 dk
+Kofte            | Ana Yemek   | 237     | 148     | 89      | %62.4     | 12.7 dk        |  4.7 dk
+Patates          | Aperatif    | 294     | 202     | 92      | %68.7     |  0.0 dk        |  9.5 dk
+Fried_Basket     | Aperatif    | 278     | 184     | 94      | %66.2     |  0.0 dk        | 10.0 dk
+Sogan_Halkasi    | Aperatif    | 263     | 179     | 84      | %68.1     |  0.0 dk        |  9.2 dk
+Su               | İçecek      | 516     | 348     | 168     | %67.4     |  0.0 dk        |  0.0 dk
+Kola             | İçecek      | 448     | 317     | 131     | %70.8     |  0.0 dk        |  0.0 dk
+Ayran            | İçecek      | 446     | 303     | 143     | %67.9     |  0.0 dk        |  0.0 dk
+Salgam           | İçecek      | 431     | 297     | 134     | %68.9     |  0.0 dk        |  0.0 dk
+
+=========================================================================================================
+⏰ SAAT DİLİMLERİNE GÖRE TALEP YOĞUNLUĞU, TAMAMLANAN VE KAYIP (CHURN) DAĞILIMI
+=========================================================================================================
+Saat Dilimi / Açıklama              | Hedef Doluluk  | Pişen Yemek  | İçecek   | Churn (Kayıp)  | Ort. Bekleme
+---------------------------------------------------------------------------------------------------------
+09:00 - 11:00 (Açılış / Sakin %20)  | %20           | 106          | 81       | 14             |  2.2 dk
+11:00 - 12:00 (Öğle Öncesi %40)     | %40           | 91           | 69       | 0              |  2.4 dk
+12:00 - 14:00 (Öğle Piki %75)       | %75           | 357          | 361      | 148            |  2.7 dk
+14:00 - 16:00 (Öğleden Sonra %35)   | %35           | 159          | 126      | 52             |  3.1 dk
+16:00 - 20:00 (Akşam Öncesi %50)    | %50           | 410          | 300      | 18             |  3.1 dk
+20:00 - 22:00 (Akşam Piki %75)      | %75           | 330          | 316      | 158            |  2.9 dk
+
+=========================================================================================================
+🍳 İSTASYON TİPİ BAZINDA KUYRUK GECİKMESİ & DOYGUNLUK / EKSİKLİK TEŞHİSİ
+=========================================================================================================
+İstasyon Tipi  | Adet  | Kapasite | Ort. Bekleme   | % Kilitli 
+---------------------------------------------------------------------------------------------------------
+GRILL          | 4     | 60       | 11.7 dk (Maks 25.0) | %0.0     
+TOASTER        | 2     | 20       |  9.4 dk (Maks 20.0) | %0.0     
+PREP           | 2     | 20       |  6.5 dk (Maks 10.0) | %0.0     
+OVEN           | 0     | 0        |  0.0 dk (Maks  0.0) | %0.0     
+DONER          | 1     | 10       |  0.0 dk (Maks  0.0) | %0.0     
+STOVE          | 0     | 0        |  0.0 dk (Maks  0.0) | %0.0     
+FRYER          | 2     | 20       |  0.0 dk (Maks  0.0) | %0.0     
+
+=========================================================================================================
+👨‍🍳 AŞÇI İŞ YÜKÜ VE ÇOK AŞAMALI TAŞIMA DETAYLARI
+=========================================================================================================
+Aşçı ID    | % Pişirme (Busy)   | % Yürüme (Walk)  | % Boşta (Idle)  | Toplam Yük (%)  | Ara Transfer (Taşıma)
+---------------------------------------------------------------------------------------------------------
+C1         | %35.3             | %9.4            | %55.3          | %44.7          | 0 defa
+C2         | %37.7             | %6.0            | %56.3          | %43.7          | 0 defa
+C5         | %39.4             | %4.1            | %56.5          | %43.5          | 0 defa
+C11        | %38.9             | %4.3            | %56.8          | %43.2          | 0 defa
+C4         | %37.6             | %5.3            | %57.0          | %42.9          | 0 defa
+C6         | %37.6             | %5.1            | %57.3          | %42.7          | 0 defa
+C3         | %36.7             | %5.6            | %57.7          | %42.3          | 0 defa
+C8         | %37.2             | %4.6            | %58.2          | %41.8          | 0 defa
+C7         | %36.2             | %5.5            | %58.3          | %41.7          | 0 defa
+C9         | %36.4             | %4.9            | %58.7          | %41.3          | 0 defa
+C12        | %37.6             | %3.7            | %58.7          | %41.3          | 0 defa
+C10        | %35.1             | %5.3            | %59.6          | %40.4          | 0 defa
+
+=========================================================================================================
+🤵 GARSON İŞ YÜKÜ VE SERVİS / TEMİZLİK / İÇECEK TRANSFERİ DETAYLARI
+=========================================================================================================
+Garson ID  | % Yemek Servisi  | % Sipariş Alma   | % Temizlik   | % Boşta   | Toplam Yük  | Paket İçecek Transfer
+---------------------------------------------------------------------------------------------------------
+W1         | %20.5           | %3.4            | %3.7        | %72.4    | %27.6      | 0 defa
+W2         | %18.5           | %4.7            | %3.8        | %73.1    | %27.0      | 0 defa
+W3         | %16.7           | %4.0            | %2.8        | %76.5    | %23.5      | 0 defa
+W4         | %15.2           | %3.3            | %2.3        | %79.2    | %20.8      | 0 defa
+W5         | %13.3           | %3.5            | %2.5        | %80.7    | %19.3      | 0 defa
+W6         | %10.6           | %2.5            | %2.3        | %84.7    | %15.4      | 0 defa
+W7         | %8.4            | %2.1            | %2.3        | %87.2    | %12.8      | 0 defa
+W8         | %7.8            | %1.8            | %2.9        | %87.5    | %12.5      | 0 defa
+W9         | %6.0            | %2.0            | %1.7        | %90.3    | %9.7       | 0 defa
+W10        | %6.0            | %1.2            | %1.9        | %90.8    | %9.1       | 0 defa
+W11        | %5.2            | %0.5            | %1.2        | %93.1    | %6.9       | 0 defa
+W12        | %3.7            | %1.0            | %0.6        | %94.8    | %5.3       | 0 defa
+
+=========================================================================================================
+📉 MÜŞTERİ KAYBI (CHURN) VE YEMEK DAĞILIMI
+=========================================================================================================
+  • Sebep: WAITING_ORDER -> 0 müşteri
+  • Sebep: WAITING_FOOD -> 420 müşteri
+  • Sebep: TAKEOUT_COURIER -> 0 müşteri
+
+  En Çok Kayıp Yaşanan Yemekler:
+    - Su: 168 iptal
+    - Ayran: 143 iptal
+    - Salgam: 134 iptal
+    - Kola: 131 iptal
+    - Burger: 125 iptal
+    - Doner: 100 iptal
+    - Sucuk: 99 iptal
+    - Fried_Basket: 94 iptal
+    - Patates: 92 iptal
+    - Kofte: 89 iptal
+    - Toast: 87 iptal
+    - Sogan_Halkasi: 84 iptal

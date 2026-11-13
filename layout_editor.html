@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restoran Layout Düzenleyici</title>
-    <link rel="stylesheet" href="layout_editor.css">
+    <link rel="stylesheet" href="layout_editor.css?v=2">
 </head>
 <body>
     <div id="toast-container" class="toast-container"></div>
@@ -18,6 +18,7 @@
                     <span class="legend-item"><div class="box table"></div> Masa</span>
                     <span class="legend-item"><div class="box chair"></div> Sandalyeler</span>
                     <span class="legend-item"><div class="box kitchen"></div> Mutfak Alanı</span>
+                    <span class="legend-item"><div class="box counter"></div> Teslim Tezgahı</span>
                 </div>
             </header>
             
@@ -68,6 +69,24 @@
                 <div class="tool-selector">
                     <button id="mode-table" class="btn tool-btn active">🍽️ Masa Modu</button>
                     <button id="mode-kitchen" class="btn tool-btn">🍳 Mutfak Modu</button>
+                    <button id="mode-counter" class="btn tool-btn">🛎️ Tezgah Modu</button>
+                </div>
+            </section>
+
+            <section class="control-section">
+                <h3>🛎️ Mutfak Teslim Tezgahı Hattı (Pass)</h3>
+                <p class="help-text">Tezgah modunda haritaya tıklayarak birden fazla tezgah hücresi ekleyebilir / kaldırabilir ve uzun bir teslim hattı (pass) oluşturabilirsiniz.</p>
+                <div class="counter-controls">
+                    <label>Hücre Başına Kapasite:
+                        <input type="number" id="counter-capacity" value="4" min="1" max="20" title="Hücre Başına Kapasite">
+                    </label>
+                    <div class="counter-pos-info" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; color:var(--text-secondary);">
+                        <span>Tezgah Sayısı: <b id="lbl-counter-count" style="color:var(--primary);">2</b></span>
+                        <div style="display:flex; gap:5px;">
+                            <button id="btn-auto-pos-counter" class="btn secondary" style="padding:4px 8px; font-size:11px;">Mutfak Boyunca Diz</button>
+                            <button id="btn-clear-counters" class="btn danger" style="padding:4px 8px; font-size:11px;">Temizle</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -114,8 +133,11 @@
                         <option value="GRILL">Izgara (GRILL)</option>
                         <option value="STOVE">Ocak (STOVE)</option>
                         <option value="PREP">Hazırlık (PREP)</option>
+                        <option value="FRYER">Fritöz (FRYER)</option>
+                        <option value="TOASTER">Tost Makinesi (TOASTER)</option>
+                        <option value="DONER">Döner Ocağı (DONER)</option>
                     </select>
-                    <input type="number" id="new-station-capacity" value="2" min="1" max="20" title="İstasyon Kapasitesi" placeholder="Kapasite" style="width: 70px; margin-bottom: 0;">
+                    <input type="number" id="new-station-capacity" value="4" min="1" max="20" title="İstasyon Kapasitesi" placeholder="Kapasite" style="width: 70px; margin-bottom: 0;">
                     <button id="btn-add-station" class="btn secondary">Ekle</button>
                 </div>
                 
@@ -150,6 +172,6 @@
         </div>
     </div>
 
-    <script src="layout_editor.js"></script>
+    <script src="layout_editor.js?v=2"></script>
 </body>
 </html>

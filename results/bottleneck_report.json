@@ -1,0 +1,725 @@
+{
+  "layout": "Büyük_restoran.json",
+  "difficulty": 2,
+  "days": 1,
+  "algorithm": "SPT",
+  "elapsed_seconds": 9.36,
+  "total_completed": 2758,
+  "total_churned": 420,
+  "total_completed_foods": 1493,
+  "total_churned_foods": 201,
+  "total_completed_mains": 928,
+  "total_churned_mains": 201,
+  "total_completed_apps": 565,
+  "total_churned_apps": 0,
+  "total_completed_drinks": 1265,
+  "success_rate": 88.1,
+  "main_dish_success_rate": 82.2,
+  "appetizer_success_rate": 100.0,
+  "hot_delivery_rate": 98.3,
+  "mean_daily_completed": 2758.0,
+  "mean_daily_churn": 420.0,
+  "mean_daily_foods": 1493.0,
+  "mean_daily_mains": 928.0,
+  "mean_queue_wait_time": 6.03,
+  "mean_food_cold_time": 0.22,
+  "churn_breakdown": {
+    "WAITING_ORDER": 0,
+    "WAITING_FOOD": 420,
+    "TAKEOUT_COURIER": 0
+  },
+  "churn_by_dish": {
+    "Sucuk": 99,
+    "Kola": 131,
+    "Salgam": 134,
+    "Kofte": 89,
+    "Toast": 87,
+    "Patates": 92,
+    "Su": 168,
+    "Burger": 125,
+    "Fried_Basket": 94,
+    "Doner": 100,
+    "Ayran": 143,
+    "Sogan_Halkasi": 84
+  },
+  "churn_by_stage": {
+    "OVEN": 0,
+    "DONER": 0,
+    "STOVE": 0,
+    "FRYER": 270,
+    "TOASTER": 87,
+    "GRILL": 110,
+    "PREP": 303
+  },
+  "top_bottlenecks": [
+    {
+      "category": "MÜŞTERİ KAYBI (CHURN)",
+      "name": "Yemek Bekleme Kaybı (En Çok Etkilenen Yemek: Burger, Aşama: PREP)",
+      "severity": 100.0,
+      "metric": "420 müşteri yemek beklerken ayrıldı (%100.0)",
+      "impact": "Müşteriler en çok 'Burger' yemeğini beklerken ve 'PREP' istasyonunda kuyruk kilitlendiğinde sabırları tükendi.",
+      "recommendation": "Öncelikle PREP istasyonlarının kapasitesini veya aşçı sayısını artırın."
+    },
+    {
+      "category": "MUTFAK İSTASYONU (GRILL)",
+      "name": "GRILL İstasyon Grubu (4 İstasyon, Toplam Kapasite: 60)",
+      "severity": 23.4,
+      "metric": "Ort. Kuyruk Bekleme: 11.7 dk (Maks: 25.0 dk) | %0.0 Süre Kilitli",
+      "impact": "GRILL istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 11.7 dk bekleme oluşuyor.",
+      "recommendation": "GRILL istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin."
+    },
+    {
+      "category": "MUTFAK İSTASYONU (TOASTER)",
+      "name": "TOASTER İstasyon Grubu (2 İstasyon, Toplam Kapasite: 20)",
+      "severity": 18.8,
+      "metric": "Ort. Kuyruk Bekleme: 9.4 dk (Maks: 20.0 dk) | %0.0 Süre Kilitli",
+      "impact": "TOASTER istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 9.4 dk bekleme oluşuyor.",
+      "recommendation": "TOASTER istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin."
+    },
+    {
+      "category": "MUTFAK İSTASYONU (PREP)",
+      "name": "PREP İstasyon Grubu (2 İstasyon, Toplam Kapasite: 20)",
+      "severity": 13.0,
+      "metric": "Ort. Kuyruk Bekleme: 6.5 dk (Maks: 10.0 dk) | %0.0 Süre Kilitli",
+      "impact": "PREP istasyonunda boş kapasite bulunmasına rağmen (Blokaj: %0.0), aşçılar diğer siparişlerle meşgul olduğu veya algoritma diğer siparişlere öncelik verdiği için ortalama 6.5 dk bekleme oluşuyor.",
+      "recommendation": "PREP istasyon kapasitesi yeterlidir. Aşçı kadrosunu artırın veya çizelgeleme algoritması önceliklerini dengeleyin."
+    }
+  ],
+  "dish_summary": [
+    {
+      "dish_type": "Sucuk",
+      "category": "main_dish",
+      "demand_count": 323,
+      "completed_count": 224,
+      "churn_count": 99,
+      "success_rate": 69.3,
+      "avg_queue_wait_minutes": 9.33,
+      "avg_cook_minutes": 5.83,
+      "avg_cold_minutes": 0.05,
+      "hot_delivery_rate": 99.6
+    },
+    {
+      "dish_type": "Doner",
+      "category": "main_dish",
+      "demand_count": 319,
+      "completed_count": 219,
+      "churn_count": 100,
+      "success_rate": 68.7,
+      "avg_queue_wait_minutes": 3.92,
+      "avg_cook_minutes": 5.42,
+      "avg_cold_minutes": 0.32,
+      "hot_delivery_rate": 97.3
+    },
+    {
+      "dish_type": "Toast",
+      "category": "main_dish",
+      "demand_count": 301,
+      "completed_count": 214,
+      "churn_count": 87,
+      "success_rate": 71.1,
+      "avg_queue_wait_minutes": 3.45,
+      "avg_cook_minutes": 9.9,
+      "avg_cold_minutes": 0.18,
+      "hot_delivery_rate": 98.1
+    },
+    {
+      "dish_type": "Burger",
+      "category": "main_dish",
+      "demand_count": 248,
+      "completed_count": 123,
+      "churn_count": 125,
+      "success_rate": 49.6,
+      "avg_queue_wait_minutes": 12.46,
+      "avg_cook_minutes": 4.9,
+      "avg_cold_minutes": 0.02,
+      "hot_delivery_rate": 99.1
+    },
+    {
+      "dish_type": "Kofte",
+      "category": "main_dish",
+      "demand_count": 237,
+      "completed_count": 148,
+      "churn_count": 89,
+      "success_rate": 62.4,
+      "avg_queue_wait_minutes": 12.73,
+      "avg_cook_minutes": 4.68,
+      "avg_cold_minutes": 0.12,
+      "hot_delivery_rate": 98.6
+    },
+    {
+      "dish_type": "Patates",
+      "category": "appetizer",
+      "demand_count": 294,
+      "completed_count": 202,
+      "churn_count": 92,
+      "success_rate": 68.7,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 9.48,
+      "avg_cold_minutes": 0.36,
+      "hot_delivery_rate": 98.0
+    },
+    {
+      "dish_type": "Fried_Basket",
+      "category": "appetizer",
+      "demand_count": 278,
+      "completed_count": 184,
+      "churn_count": 94,
+      "success_rate": 66.2,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 10.01,
+      "avg_cold_minutes": 0.21,
+      "hot_delivery_rate": 98.4
+    },
+    {
+      "dish_type": "Sogan_Halkasi",
+      "category": "appetizer",
+      "demand_count": 263,
+      "completed_count": 179,
+      "churn_count": 84,
+      "success_rate": 68.1,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 9.16,
+      "avg_cold_minutes": 0.45,
+      "hot_delivery_rate": 97.8
+    },
+    {
+      "dish_type": "Su",
+      "category": "beverage",
+      "demand_count": 516,
+      "completed_count": 348,
+      "churn_count": 168,
+      "success_rate": 67.4,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 0.0,
+      "avg_cold_minutes": 0.24,
+      "hot_delivery_rate": 98.6
+    },
+    {
+      "dish_type": "Kola",
+      "category": "beverage",
+      "demand_count": 448,
+      "completed_count": 317,
+      "churn_count": 131,
+      "success_rate": 70.8,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 0.0,
+      "avg_cold_minutes": 0.14,
+      "hot_delivery_rate": 99.1
+    },
+    {
+      "dish_type": "Ayran",
+      "category": "beverage",
+      "demand_count": 446,
+      "completed_count": 303,
+      "churn_count": 143,
+      "success_rate": 67.9,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 0.0,
+      "avg_cold_minutes": 0.4,
+      "hot_delivery_rate": 98.0
+    },
+    {
+      "dish_type": "Salgam",
+      "category": "beverage",
+      "demand_count": 431,
+      "completed_count": 297,
+      "churn_count": 134,
+      "success_rate": 68.9,
+      "avg_queue_wait_minutes": 0.0,
+      "avg_cook_minutes": 0.0,
+      "avg_cold_minutes": 0.44,
+      "hot_delivery_rate": 97.6
+    }
+  ],
+  "interval_summary": [
+    {
+      "description": "09:00 - 11:00 (Açılış / Sakin %20)",
+      "start_tick": 540,
+      "end_tick": 660,
+      "target_occupancy": 0.2,
+      "completed_foods": 106,
+      "completed_drinks": 81,
+      "total_completed": 187,
+      "churn_count": 14,
+      "avg_wait_minutes": 2.21
+    },
+    {
+      "description": "11:00 - 12:00 (Öğle Öncesi %40)",
+      "start_tick": 660,
+      "end_tick": 720,
+      "target_occupancy": 0.4,
+      "completed_foods": 91,
+      "completed_drinks": 69,
+      "total_completed": 160,
+      "churn_count": 0,
+      "avg_wait_minutes": 2.35
+    },
+    {
+      "description": "12:00 - 14:00 (Öğle Piki %75)",
+      "start_tick": 720,
+      "end_tick": 840,
+      "target_occupancy": 0.75,
+      "completed_foods": 357,
+      "completed_drinks": 361,
+      "total_completed": 718,
+      "churn_count": 148,
+      "avg_wait_minutes": 2.72
+    },
+    {
+      "description": "14:00 - 16:00 (Öğleden Sonra %35)",
+      "start_tick": 840,
+      "end_tick": 960,
+      "target_occupancy": 0.35,
+      "completed_foods": 159,
+      "completed_drinks": 126,
+      "total_completed": 285,
+      "churn_count": 52,
+      "avg_wait_minutes": 3.12
+    },
+    {
+      "description": "16:00 - 20:00 (Akşam Öncesi %50)",
+      "start_tick": 960,
+      "end_tick": 1200,
+      "target_occupancy": 0.5,
+      "completed_foods": 410,
+      "completed_drinks": 300,
+      "total_completed": 710,
+      "churn_count": 18,
+      "avg_wait_minutes": 3.13
+    },
+    {
+      "description": "20:00 - 22:00 (Akşam Piki %75)",
+      "start_tick": 1200,
+      "end_tick": 1320,
+      "target_occupancy": 0.75,
+      "completed_foods": 330,
+      "completed_drinks": 316,
+      "total_completed": 646,
+      "churn_count": 158,
+      "avg_wait_minutes": 2.88
+    }
+  ],
+  "stage_summary": [
+    {
+      "station_type": "GRILL",
+      "station_count": 4,
+      "total_capacity": 60,
+      "avg_queue_wait_minutes": 11.7,
+      "max_queue_wait_minutes": 25.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 23.4
+    },
+    {
+      "station_type": "TOASTER",
+      "station_count": 2,
+      "total_capacity": 20,
+      "avg_queue_wait_minutes": 9.4,
+      "max_queue_wait_minutes": 20.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 18.8
+    },
+    {
+      "station_type": "PREP",
+      "station_count": 2,
+      "total_capacity": 20,
+      "avg_queue_wait_minutes": 6.5,
+      "max_queue_wait_minutes": 10.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 13.0
+    },
+    {
+      "station_type": "OVEN",
+      "station_count": 0,
+      "total_capacity": 0,
+      "avg_queue_wait_minutes": 0.0,
+      "max_queue_wait_minutes": 0.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 0.0
+    },
+    {
+      "station_type": "DONER",
+      "station_count": 1,
+      "total_capacity": 10,
+      "avg_queue_wait_minutes": 0.0,
+      "max_queue_wait_minutes": 0.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 0.0
+    },
+    {
+      "station_type": "STOVE",
+      "station_count": 0,
+      "total_capacity": 0,
+      "avg_queue_wait_minutes": 0.0,
+      "max_queue_wait_minutes": 0.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 0.0
+    },
+    {
+      "station_type": "FRYER",
+      "station_count": 2,
+      "total_capacity": 20,
+      "avg_queue_wait_minutes": 0.0,
+      "max_queue_wait_minutes": 0.0,
+      "blocked_percentage": 0.0,
+      "station_saturation_percentage": 0.0,
+      "chef_starvation_percentage": 0.0,
+      "severity_score": 0.0
+    }
+  ],
+  "station_summary": [
+    {
+      "id": "S_GRILL_18",
+      "type": "GRILL",
+      "capacity": 10,
+      "busy_percentage": 46.0,
+      "full_percentage": 2.6,
+      "bottleneck_score": 20.0
+    },
+    {
+      "id": "S_PREP_20",
+      "type": "PREP",
+      "capacity": 10,
+      "busy_percentage": 41.9,
+      "full_percentage": 3.1,
+      "bottleneck_score": 18.6
+    },
+    {
+      "id": "S_TOASTER_23",
+      "type": "TOASTER",
+      "capacity": 10,
+      "busy_percentage": 37.9,
+      "full_percentage": 0.8,
+      "bottleneck_score": 15.6
+    },
+    {
+      "id": "S_FRYER_22",
+      "type": "FRYER",
+      "capacity": 10,
+      "busy_percentage": 32.6,
+      "full_percentage": 0.8,
+      "bottleneck_score": 13.5
+    },
+    {
+      "id": "S_GRILL_26",
+      "type": "GRILL",
+      "capacity": 10,
+      "busy_percentage": 16.5,
+      "full_percentage": 0.1,
+      "bottleneck_score": 6.7
+    },
+    {
+      "id": "S_PREP_21",
+      "type": "PREP",
+      "capacity": 10,
+      "busy_percentage": 6.7,
+      "full_percentage": 0.4,
+      "bottleneck_score": 2.9
+    },
+    {
+      "id": "S_DONER_24",
+      "type": "DONER",
+      "capacity": 10,
+      "busy_percentage": 6.5,
+      "full_percentage": 0.0,
+      "bottleneck_score": 2.6
+    },
+    {
+      "id": "S_FRYER_25",
+      "type": "FRYER",
+      "capacity": 10,
+      "busy_percentage": 3.7,
+      "full_percentage": 0.0,
+      "bottleneck_score": 1.5
+    },
+    {
+      "id": "S_TOASTER_28",
+      "type": "TOASTER",
+      "capacity": 10,
+      "busy_percentage": 2.3,
+      "full_percentage": 0.0,
+      "bottleneck_score": 0.9
+    },
+    {
+      "id": "S_GRILL_27",
+      "type": "GRILL",
+      "capacity": 10,
+      "busy_percentage": 1.7,
+      "full_percentage": 0.0,
+      "bottleneck_score": 0.7
+    },
+    {
+      "id": "S_GRILL_29",
+      "type": "GRILL",
+      "capacity": 30,
+      "busy_percentage": 0.0,
+      "full_percentage": 0.0,
+      "bottleneck_score": 0.0
+    }
+  ],
+  "staff_summary": {
+    "chefs": [
+      {
+        "id": "C1",
+        "busy_percentage": 35.3,
+        "walking_percentage": 9.4,
+        "idle_percentage": 55.3,
+        "total_work_load": 44.7,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C2",
+        "busy_percentage": 37.7,
+        "walking_percentage": 6.0,
+        "idle_percentage": 56.3,
+        "total_work_load": 43.7,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C5",
+        "busy_percentage": 39.4,
+        "walking_percentage": 4.1,
+        "idle_percentage": 56.5,
+        "total_work_load": 43.5,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C11",
+        "busy_percentage": 38.9,
+        "walking_percentage": 4.3,
+        "idle_percentage": 56.8,
+        "total_work_load": 43.2,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C4",
+        "busy_percentage": 37.6,
+        "walking_percentage": 5.3,
+        "idle_percentage": 57.0,
+        "total_work_load": 42.9,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C6",
+        "busy_percentage": 37.6,
+        "walking_percentage": 5.1,
+        "idle_percentage": 57.3,
+        "total_work_load": 42.7,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C3",
+        "busy_percentage": 36.7,
+        "walking_percentage": 5.6,
+        "idle_percentage": 57.7,
+        "total_work_load": 42.3,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C8",
+        "busy_percentage": 37.2,
+        "walking_percentage": 4.6,
+        "idle_percentage": 58.2,
+        "total_work_load": 41.8,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C7",
+        "busy_percentage": 36.2,
+        "walking_percentage": 5.5,
+        "idle_percentage": 58.3,
+        "total_work_load": 41.7,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C9",
+        "busy_percentage": 36.4,
+        "walking_percentage": 4.9,
+        "idle_percentage": 58.7,
+        "total_work_load": 41.3,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C12",
+        "busy_percentage": 37.6,
+        "walking_percentage": 3.7,
+        "idle_percentage": 58.7,
+        "total_work_load": 41.3,
+        "stage_transfers": 0
+      },
+      {
+        "id": "C10",
+        "busy_percentage": 35.1,
+        "walking_percentage": 5.3,
+        "idle_percentage": 59.6,
+        "total_work_load": 40.4,
+        "stage_transfers": 0
+      }
+    ],
+    "waiters": [
+      {
+        "id": "W1",
+        "deliver_percentage": 20.5,
+        "order_percentage": 3.4,
+        "clean_percentage": 3.7,
+        "idle_percentage": 72.4,
+        "total_work_load": 27.6,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W2",
+        "deliver_percentage": 18.5,
+        "order_percentage": 4.7,
+        "clean_percentage": 3.8,
+        "idle_percentage": 73.1,
+        "total_work_load": 27.0,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W3",
+        "deliver_percentage": 16.7,
+        "order_percentage": 4.0,
+        "clean_percentage": 2.8,
+        "idle_percentage": 76.5,
+        "total_work_load": 23.5,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W4",
+        "deliver_percentage": 15.2,
+        "order_percentage": 3.3,
+        "clean_percentage": 2.3,
+        "idle_percentage": 79.2,
+        "total_work_load": 20.8,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W5",
+        "deliver_percentage": 13.3,
+        "order_percentage": 3.5,
+        "clean_percentage": 2.5,
+        "idle_percentage": 80.7,
+        "total_work_load": 19.3,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W6",
+        "deliver_percentage": 10.6,
+        "order_percentage": 2.5,
+        "clean_percentage": 2.3,
+        "idle_percentage": 84.7,
+        "total_work_load": 15.4,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W7",
+        "deliver_percentage": 8.4,
+        "order_percentage": 2.1,
+        "clean_percentage": 2.3,
+        "idle_percentage": 87.2,
+        "total_work_load": 12.8,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W8",
+        "deliver_percentage": 7.8,
+        "order_percentage": 1.8,
+        "clean_percentage": 2.9,
+        "idle_percentage": 87.5,
+        "total_work_load": 12.5,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W9",
+        "deliver_percentage": 6.0,
+        "order_percentage": 2.0,
+        "clean_percentage": 1.7,
+        "idle_percentage": 90.3,
+        "total_work_load": 9.7,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W10",
+        "deliver_percentage": 6.0,
+        "order_percentage": 1.2,
+        "clean_percentage": 1.9,
+        "idle_percentage": 90.8,
+        "total_work_load": 9.1,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W11",
+        "deliver_percentage": 5.2,
+        "order_percentage": 0.5,
+        "clean_percentage": 1.2,
+        "idle_percentage": 93.1,
+        "total_work_load": 6.9,
+        "drink_transfers": 0
+      },
+      {
+        "id": "W12",
+        "deliver_percentage": 3.7,
+        "order_percentage": 1.0,
+        "clean_percentage": 0.6,
+        "idle_percentage": 94.8,
+        "total_work_load": 5.3,
+        "drink_transfers": 0
+      }
+    ]
+  },
+  "counter_summary": [
+    {
+      "id": "COUNTER_1",
+      "capacity": 4,
+      "full_percentage": 2.0,
+      "avg_dishes_on_counter": 0.7
+    },
+    {
+      "id": "COUNTER_2",
+      "capacity": 4,
+      "full_percentage": 1.7,
+      "avg_dishes_on_counter": 0.38
+    },
+    {
+      "id": "COUNTER_3",
+      "capacity": 4,
+      "full_percentage": 0.5,
+      "avg_dishes_on_counter": 0.08
+    },
+    {
+      "id": "COUNTER_4",
+      "capacity": 4,
+      "full_percentage": 0.2,
+      "avg_dishes_on_counter": 0.02
+    },
+    {
+      "id": "COUNTER_5",
+      "capacity": 4,
+      "full_percentage": 0.0,
+      "avg_dishes_on_counter": 0.01
+    },
+    {
+      "id": "COUNTER_6",
+      "capacity": 4,
+      "full_percentage": 0.0,
+      "avg_dishes_on_counter": 0.0
+    },
+    {
+      "id": "TAKEOUT_SHELF",
+      "capacity": 24,
+      "full_percentage": 0.0,
+      "avg_dishes_on_counter": 3.03
+    }
+  ]
+}

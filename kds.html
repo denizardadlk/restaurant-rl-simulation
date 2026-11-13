@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍳 Aşçı Mutfak Ekranı (KDS) - AI Restoran</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0E14;
+      --card-bg: #151A24;
+      --card-border: #232B3B;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --accent: #FF7A00;
+      --accent-glow: rgba(255, 122, 0, 0.25);
+      --green: #10B981;
+      --yellow: #F59E0B;
+      --red: #EF4444;
+      --blue: #3B82F6;
+      --purple: #8B5CF6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* TOP BAR */
+    header {
+      background: var(--card-bg);
+      border-bottom: 2px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      background: rgba(255,122,0,0.15);
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,122,0,0.3);
+    }
+
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid var(--green);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-live::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stat-item {
+      background: rgba(0,0,0,0.3);
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* KANBAN GRID */
+    .kds-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      padding: 16px 24px;
+      flex: 1;
+      overflow-x: auto;
+    }
+
+    .station-column {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 250px;
+    }
+
+    .station-header {
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.25);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .station-title {
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .station-count {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .orders-list {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ORDER CARD */
+    .order-card {
+      background: #1C2230;
+      border: 1px solid #2B3548;
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .order-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    .order-card.ready {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .table-tag {
+      font-weight: 800;
+      font-size: 14px;
+      background: var(--accent);
+      color: #000;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .table-tag.takeout {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .order-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .dish-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+    }
+
+    .chef-badge {
+      background: rgba(255, 200, 50, 0.15);
+      color: #FFC832;
+      border: 1px solid rgba(255, 200, 50, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 6px;
+      background: #111;
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      width: 100%;
+      transition: width 0.5s;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    /* BOTTOM TABLES BAR */
+    .tables-panel {
+      background: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    .tables-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .table-pill {
+      background: #1C2230;
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .table-pill.waiting {
+      border-color: var(--yellow);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .table-pill.empty {
+      opacity: 0.6;
+    }
+
+    .patience-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🍳</div>
+      <div>
+        <h1>Aşçı Mutfak Ekranı (KDS)</h1>
+        <span class="badge-live" id="ws-status">CANLI BAĞLI (WS)</span>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">Simülasyon Tick</span>
+        <span class="stat-val" id="stat-tick">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Kuyruktaki Sipariş</span>
+        <span class="stat-val" id="stat-queue">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Tamamlanan</span>
+        <span class="stat-val" id="stat-completed" style="color: var(--green);">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Kayıp (Churn)</span>
+        <span class="stat-val" id="stat-churn" style="color: var(--red);">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- KANBAN COLUMNS -->
+  <main class="kds-container">
+
+    <!-- 1. HAZIRLIK (PREP) -->
+    <div class="station-column">
+      <div class="station-header">
+        <div class="station-title">🥗 Hazırlık Tezgahı (PREP)</div>
+        <span class="station-count" id="count-prep">0</span>
+      </div>
+      <div class="orders-list" id="list-prep">
+        <div class="empty-state">Bekleyen sipariş yok</div>
+      </div>
+    </div>
+
+    <!-- 2. FIRIN (OVEN) -->
+    <div class="station-column">
+      <div class="station-header">
+        <div class="station-title">🍕 Taş Fırın (OVEN)</div>
+        <span class="station-count" id="count-oven">0</span>
+      </div>
+      <div class="orders-list" id="list-oven">
+        <div class="empty-state">Bekleyen pizza yok</div>
+      </div>
+    </div>
+
+    <!-- 3. OCAK (STOVE) -->
+    <div class="station-column">
+      <div class="station-header">
+        <div class="station-title">🔥 Ocak (STOVE)</div>
+        <span class="station-count" id="count-stove">0</span>
+      </div>
+      <div class="orders-list" id="list-stove">
+        <div class="empty-state">Bekleyen tava/burger yok</div>
+      </div>
+    </div>
+
+    <!-- 4. IZGARA (GRILL) -->
+    <div class="station-column">
+      <div class="station-header">
+        <div class="station-title">🥩 Izgara (GRILL)</div>
+        <span class="station-count" id="count-grill">0</span>
+      </div>
+      <div class="orders-list" id="list-grill">
+        <div class="empty-state">Bekleyen ızgara yok</div>
+      </div>
+    </div>
+
+    <!-- 5. SERVİS BEKLEYEN (READY / DELIVERING) -->
+    <div class="station-column" style="border-color: rgba(16, 185, 129, 0.4);">
+      <div class="station-header" style="background: rgba(16, 185, 129, 0.15);">
+        <div class="station-title" style="color: var(--green);">🚀 Servis / Garson Bekleyen</div>
+        <span class="station-count" id="count-ready" style="background: var(--green); color: #000;">0</span>
+      </div>
+      <div class="orders-list" id="list-ready">
+        <div class="empty-state">Servise hazır yemek yok</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM TABLES STATUS -->
+  <footer class="tables-panel">
+    <span class="tables-panel-title">Masa Durumları:</span>
+    <div id="tables-list" style="display: flex; gap: 10px;">
+      <!-- Table pills injected here -->
+    </div>
+  </footer>
+
+  <script>
+    const dishIcons = {
+      'Pizza': '🍕',
+      'Burger': '🍔',
+      'Steak': '🥩',
+      'Salad': '🥗'
+    };
+
+    let socket = null;
+
+    function connectWebSocket() {
+      const loc = window.location;
+      const wsUri = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + '/ws';
+      const statusEl = document.getElementById('ws-status');
+
+      socket = new WebSocket(wsUri);
+
+      socket.onopen = () => {
+        statusEl.textContent = 'CANLI BAĞLI (WS)';
+        statusEl.style.borderColor = 'var(--green)';
+        statusEl.style.color = 'var(--green)';
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        renderKDS(data);
+      };
+
+      socket.onclose = () => {
+        statusEl.textContent = 'YENİDEN BAĞLANIYOR...';
+        statusEl.style.borderColor = 'var(--red)';
+        statusEl.style.color = 'var(--red)';
+        setTimeout(connectWebSocket, 2000);
+      };
+
+      socket.onerror = () => {
+        socket.close();
+      };
+    }
+
+    function renderKDS(state) {
+      document.getElementById('stat-tick').textContent = state.tick;
+      document.getElementById('stat-queue').textContent = state.queue_orders ? state.queue_orders.length : 0;
+      document.getElementById('stat-completed').textContent = state.completed_count || 0;
+      document.getElementById('stat-churn').textContent = state.churned_count || 0;
+
+      const lists = {
+        'PREP': document.getElementById('list-prep'),
+        'OVEN': document.getElementById('list-oven'),
+        'STOVE': document.getElementById('list-stove'),
+        'GRILL': document.getElementById('list-grill'),
+        'READY': document.getElementById('list-ready')
+      };
+
+      const counts = { 'PREP': 0, 'OVEN': 0, 'STOVE': 0, 'GRILL': 0, 'READY': 0 };
+
+      // Clear lists
+      Object.values(lists).forEach(el => el.innerHTML = '');
+
+      const orders = state.queue_orders || [];
+
+      orders.forEach(order => {
+        const isReady = order.status === 'READY' || order.status === 'DELIVERING';
+        const targetList = isReady ? lists['READY'] : (lists[order.current_stage] || lists['PREP']);
+        const countKey = isReady ? 'READY' : (order.current_stage || 'PREP');
+
+        counts[countKey]++;
+
+        const icon = dishIcons[order.dish_type] || '🍽️';
+        const tableLabel = order.is_takeout ? '📦 Takeout' : `Masa ${order.table_id || '?'}`;
+        const chefText = order.assigned_chef ? `Aşçı: ${order.assigned_chef}` : 'Aşçı Atanıyor...';
+        const etaText = order.predicted_time ? `~${Math.round(order.predicted_time)} dk` : '';
+
+        const card = document.createElement('div');
+        card.className = `order-card ${isReady ? 'ready' : ''}`;
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="table-tag ${order.is_takeout ? 'takeout' : ''}">${tableLabel}</span>
+            <span class="order-id">#${order.order_id}</span>
+          </div>
+          <div class="dish-name">${icon} ${order.dish_type}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${order.status}</div>
+          <div class="card-meta">
+            <span class="chef-badge">${chefText}</span>
+            <span style="font-weight: 700; color: var(--accent);">${etaText}</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"></div>
+          </div>
+        `;
+
+        targetList.appendChild(card);
+      });
+
+      // Update counters & empty states
+      Object.keys(counts).forEach(k => {
+        const countEl = document.getElementById(`count-${k.toLowerCase()}`);
+        if (countEl) countEl.textContent = counts[k];
+        if (counts[k] === 0 && lists[k]) {
+          lists[k].innerHTML = `<div class="empty-state">Sipariş yok</div>`;
+        }
+      });
+
+      // Render Tables
+      const tablesContainer = document.getElementById('tables-list');
+      tablesContainer.innerHTML = '';
+      (state.tables || []).forEach(t => {
+        const isWaiting = t.status === 'WAITING_FOOD';
+        const pill = document.createElement('div');
+        pill.className = `table-pill ${isWaiting ? 'waiting' : (t.status === 'EMPTY' ? 'empty' : '')}`;
+        const pColor = t.patience > 20 ? 'var(--green)' : (t.patience > 10 ? 'var(--yellow)' : 'var(--red)');
+        pill.innerHTML = `
+          <span class="patience-dot" style="background: ${pColor};"></span>
+          <strong>${t.id}</strong> (${t.capacity}K) - ${t.status === 'EMPTY' ? 'Boş' : (isWaiting ? 'Sipariş Bekliyor' : 'Yiyor')}
+          ${isWaiting ? `<span style="font-family: JetBrains Mono; color:${pColor}; font-weight:700;">${Math.round(t.patience)}dk</span>` : ''}
+        `;
+        tablesContainer.appendChild(pill);
+      });
+    }
+
+    // Start
+    connectWebSocket();
+  </script>
+</body>
+</html>
